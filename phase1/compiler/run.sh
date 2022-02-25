@@ -1,4 +1,6 @@
 #!/bin/bash
+javac Main.java
+java Main
 jflex Lexer.jflex
 javac Lexer.java
-java Lexer input.txt
+java Lexer processed.txt
