@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 public class Preprocessor {
 
     private final StringBuilder stringBuilder = new StringBuilder();
-    private String keywords = "s";
     private final Pattern definePattern = Pattern.compile("^\\s*define\\s+([a-zA-Z][\\w_]*)\\s+(\\S.*)$");
     private final Map<String, String> defineStatements = new HashMap<>();
     private final File inputFile;
