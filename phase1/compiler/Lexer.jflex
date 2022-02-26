@@ -25,22 +25,26 @@ import java_cup.runtime.*;
 %}
 
 /* macros */
-letter=[A-Za-z]
-digit=[0-9]
-hexadigit = {digit} | [a-fA-F]
-floatingpoint = ({digit}+\.{digit}*)
-underline="_"
-endLine = \n|\r|\r\n
-whitespace={endline} | [\t\f]
-identifier={letter}({digit} | {letter} | {underline})*
-decimal=({digit})+
-hexadecimal= 0[xX]({hexadigit})+
-scientificFloat = {floatingpoint}[Ee][+-]?{decimal}
-floatingPointAll = {floatingpoint} | {scientificFloat}
-singleLineComment = \/\/([^\r\n])*
-multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
+Identifier={Letter}({Digit} | {Letter} | {Underline})*
+DoubleLiteral = {DoubleNormal} | {ScientificDouble}
+IntLiteral = Hexadecimal | Decimal
+BoolLiteral = "true" | "false"
+Comment = SingleLineComment | MultiLineComment
 
-StringChar=[^\n\r\"\\]+
+DoubleNormal = ({Digit}+\.{Digit}*)
+DoubleScientific = {DoubleNormal}[Ee][+-]?{Decimal}
+Decimal=({Digit})+
+Hexadecimal= 0[xX]({Hexadigit})+
+SingleLineComment = \/\/([^\r\n])*
+MultiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
+
+Letter=[A-Za-z]
+Digit=[0-9]
+Hexadigit = {Digit} | [a-fA-F]
+Underline="_"
+EndLine = \n|\r|\r\n
+Whitespace={EndLine} | [\t\f]
+StringCharset=[^\n\r\"\\]+
 
 /* states or xstates*/
 %state STRING
@@ -109,17 +113,17 @@ StringChar=[^\n\r\"\\]+
     "}" {return symbol(sym.CURLY_BRACKET_RIGHT); }
 }
 
-/* identifier rules*/
+/* Identifier rules*/
 
 <YYINITIAL> {
-    {decimal} {return symbol(sym.T_INTLITERAL, yytext()); } 
-    {hexadecimal} {return symbol(sym.T_INTLITERAL, yytext()); }
-    {floatingpoint} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
+    {Decimal} {return symbol(sym.T_INTLITERAL, yytext()); } 
+    {Hexadecimal} {return symbol(sym.T_INTLITERAL, yytext()); }
+    {DoubleNormal} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
     /* bool literal */
     {id} {return symbol(sym.T_ID, yytext()); }
-    {whitespace} { /* ignore */}
-    {multiLineComment} { /* ignore */}
-    {singleLineComment} { /* ignore */}
+    {Whitespace} { /* ignore */}
+    {MultiLineComment} { /* ignore */}
+    {SingleLineComment} { /* ignore */}
 }
 
 /* string rules */
