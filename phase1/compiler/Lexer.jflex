@@ -62,13 +62,13 @@ multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
     "if" { return symbol(sym.IF); }
     "important" { return symbol(sym.IMPORTANT); }
     "int" { return symbol(sym.ITOB); }
-    "NewArray" { return symbol(sym.NEWARRAY); }
+    "NewArray" { return symbol(sym.NEW_ARRAY); }
     "null" { return symbol(sym.NULL); }
     "Print" { return symbol(sym.PRINT); }
     "private" { return symbol(sym.PRIVATE); }
     "public" { return symbol(sym.PUBLIC); }
-    "ReadInteger" { return symbol(sym.READINTEGER); }
-    "ReadLine" { return symbol(sym.READLINE); }
+    "ReadInteger" { return symbol(sym.READ_INTEGER); }
+    "ReadLine" { return symbol(sym.READ_LINE); }
     "return" { return symbol(sym.RETURN); }
     "string" { return symbol(sym.STRING); }
     "this" { return symbol(sym.THIS); }
@@ -76,7 +76,37 @@ multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
     "while" { return symbol(sym.WHILE); }
 }
 
-/* */
+/* operators */
+<YYINITIAL> {
+    "+" {return symbol(sym.PLUS); }
+    "-" {return symbol(sym.MINUS); }
+    "*" {return symbol(sym.MULTIPLY); }
+    "/" {return symbol(sym.DIVIDE); }
+    "%" {return symbol(sym.MOD); }
+    "<" {return symbol(sym.LESS); }
+    "<=" {return symbol(sym.LESS_EQUAL); }
+    ">" {return symbol(sym.GREATER); }
+    ">=" {return symbol(sym.GREATER_EQUAL); }
+    "=" {return symbol(sym.EQUAL); }
+    "+=" {return symbol(sym.PLUS_EQUAL); }
+    "-=" {return symbol(sym.MINUS_EQUAL); }
+    "*=" {return symbol(sym.MULTIPLY_EQUAL); }
+    "/=" {return symbol(sym.DIVIDE_EQUAL); }
+    "==" {return symbol(sym.EQUAL_EQUAL); }
+    "!=" {return symbol(sym.NOT_EQUAL); }
+    "&&" {return symbol(sym.AND_AND); }
+    "||" {return symbol(sym.OR_OR); }
+    "!" {return symbol(sym.NOT); }
+    ";" {return symbol(sym.SEMICOLON); }
+    "," {return symbol(sym.COMMA); }
+    "." {return symbol(sym.DOT); }
+    "[" {return symbol(sym.SQUARE_BRACKET_LEFT); }
+    "]" {return symbol(sym.SQUARE_BRACKET_RIGHT); }
+    "(" {return symbol(sym.PARENTHESIS_LEFT); }
+    ")" {return symbol(sym.PARENTHESIS_RIGHT); }
+    "{" {return symbol(sym.CURLY_BRACKET_LEFT); }
+    "}" {return symbol(sym.CURLY_BRACKET_RIGHT); }
+}
 
 /* other rules */
 
