@@ -112,7 +112,14 @@ StringChar=[^\n\r\"\\]+
 /* identifier rules*/
 
 <YYINITIAL> {
-    
+    {decimal} {return symbol(sym.T_INTLITERAL, yytext()); } 
+    {hexadecimal} {return symbol(sym.T_INTLITERAL, yytext()); }
+    {floatingpoint} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
+    /* bool literal */
+    {id} {return symbol(sym.T_ID, yytext()); }
+    {whitespace} { /* ignore */}
+    {multiLineComment} { /* ignore */}
+    {singleLineComment} { /* ignore */}
 }
 
 /* string rules */
@@ -125,7 +132,7 @@ StringChar=[^\n\r\"\\]+
 
 <STRING> {
     "\"" { yybegin(YYINITIAL);
-            return symbol(sym.STRING_LITERAL,
+            return symbol(sym.T_STRINGLITERAL,
             string.toString()); }
 
     {StringChar} {string.append(yytext()); }
@@ -138,3 +145,4 @@ StringChar=[^\n\r\"\\]+
 }
 
 /* error fallback */
+[^] { throw new Error("Illegal character <" + yytext() + ">"); }
