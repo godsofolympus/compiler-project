@@ -36,6 +36,20 @@ import java_cup.runtime.*;
 
 /* states or xstates,YYINITIAL is predefined*/
 %state STRING
+letter=[A-Za-z]
+digit=[0-9]
+hexadigit = {digit} | [a-fA-F]
+floatingpoint = ({digit}+\.{digit}*)
+underline="_"
+endLine = \n|\r|\r\n
+whitespace={endline} | [\t\f]
+identifier={letter}({digit} | {letter} | {underline})*
+decimal=({digit})+
+hexadecimal= 0[xX]({hexadigit})+
+scientificFloat = {floatingpoint}[Ee][+-]?{decimal}
+floatingPointAll = {floatingpoint} | {scientificFloat}
+singleLineComment = \/\/([^\r\n])*
+multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
 
 %%
 
