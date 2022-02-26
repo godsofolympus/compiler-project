@@ -28,6 +28,7 @@ public class Preprocessor {
             FileWriter fileWriter = new FileWriter(outputFileName);
             fileWriter.write(preprocessedString);
             fileWriter.close();
+            scanner.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
