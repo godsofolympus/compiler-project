@@ -28,7 +28,7 @@ import java_cup.runtime.*;
 Identifier={Letter}({Digit} | {Letter} | {Underline})*
 DoubleLiteral = {DoubleNormal} | {ScientificDouble}
 IntLiteral = Hexadecimal | Decimal
-BoolLiteral = "true" | "false"
+BooleanLiteral = "true" | "false"
 Comment = SingleLineComment | MultiLineComment
 
 DoubleNormal = ({Digit}+\.{Digit}*)
@@ -113,14 +113,13 @@ StringCharset=[^\n\r\"\\]+
     "}" {return symbol(sym.CURLY_BRACKET_RIGHT); }
 }
 
-/* Identifier rules*/
+/* Identifier, literal and ignored rules*/
 
 <YYINITIAL> {
-    {Decimal} {return symbol(sym.T_INTLITERAL, yytext()); } 
-    {Hexadecimal} {return symbol(sym.T_INTLITERAL, yytext()); }
-    {DoubleNormal} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
-    /* bool literal */
-    {id} {return symbol(sym.T_ID, yytext()); }
+    {IntLiteral} {return symbol(sym.T_INTLITERAL, yytext()); } 
+    {DoubleLiteral} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
+    {BooleanLiteral} {return symbol(sym.T_BOOLEANLITERAL, yytext()); }
+    {Identifer} {return symbol(sym.T_ID, yytext()); }
     {Whitespace} { /* ignore */}
     {MultiLineComment} { /* ignore */}
     {SingleLineComment} { /* ignore */}
