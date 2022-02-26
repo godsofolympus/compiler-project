@@ -40,6 +40,7 @@ floatingPointAll = {floatingpoint} | {scientificFloat}
 singleLineComment = \/\/([^\r\n])*
 multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
 
+StringChar=[^\n\r\"\\]+
 
 /* states or xstates*/
 %state STRING
@@ -108,14 +109,28 @@ multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
     "}" {return symbol(sym.CURLY_BRACKET_RIGHT); }
 }
 
-/* other rules */
+/* identifier rules*/
+
+/* string rules */
 
 <YYINITIAL> {
-    \" { string.setLength(0); yybegin(STRING); }
+
+    "\"" { string.setLength(0);
+            yybegin(STRING); }
 }
 
 <STRING> {
+    "\"" { yybegin(YYINITIAL);
+            return symbol(sym.STRING_LITERAL,
+            string.toString()); }
 
+    {StringChar} {string.append(yytext()); }
+
+    "\t" {string.append('\t'); }
+    "\n" {string.append('\n'); }
+    "\r" {string.append('\r'); }
+    "\\\"" {string.append('\"'); }
+    "\\" {string.append('\\'); }
 }
 
 /* error fallback */
