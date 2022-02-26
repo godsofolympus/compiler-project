@@ -1,19 +1,12 @@
-/* imports (user code): only java_cup.runtime is needed */
 import java_cup.runtime.*;
 
 %%
 
 /* options */
-
-/* name of the output class */
 %class Lexer
 %public
 %unicode
-
-
-/* needed for cup compatibility */
 %cup
-
 %line
 %column
 
@@ -32,10 +25,6 @@ import java_cup.runtime.*;
 %}
 
 /* macros */
-
-
-/* states or xstates,YYINITIAL is predefined*/
-%state STRING
 letter=[A-Za-z]
 digit=[0-9]
 hexadigit = {digit} | [a-fA-F]
@@ -51,16 +40,11 @@ floatingPointAll = {floatingpoint} | {scientificFloat}
 singleLineComment = \/\/([^\r\n])*
 multiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
 
-%%
 
-/* rules 
-format:
-<STRING> {
-    expr1 { action1 }
-    expr2 { action2 }
-}
-the longest match will take  precedence.
-*/
+/* states or xstates*/
+%state STRING
+
+%%
 
 /* keywords */
 
@@ -68,6 +52,10 @@ the longest match will take  precedence.
 
 <YYINITIAL> {
     \" { string.setLength(0); yybegin(STRING); }
+}
+
+<STRING> {
+
 }
 
 /* error fallback */
