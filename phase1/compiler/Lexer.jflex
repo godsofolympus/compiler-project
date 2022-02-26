@@ -111,6 +111,10 @@ StringChar=[^\n\r\"\\]+
 
 /* identifier rules*/
 
+<YYINITIAL> {
+    
+}
+
 /* string rules */
 
 <YYINITIAL> {
