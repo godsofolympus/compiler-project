@@ -24,3 +24,5 @@
 hs_err_pid*
 Lexer.java
 processed.txt
+.vscode
+.idea
