@@ -26,24 +26,24 @@ import java_cup.runtime.*;
 
 /* macros */
 Identifier={Letter}({Digit} | {Letter} | {Underline})*
-DoubleLiteral = {DoubleNormal} | {ScientificDouble}
+DoubleLiteral = {DoubleNormal} | {DoubleScientific}
 IntLiteral = Hexadecimal | Decimal
 BooleanLiteral = "true" | "false"
 Comment = SingleLineComment | MultiLineComment
 
-DoubleNormal = ({Digit}+\.{Digit}*)
+DoubleNormal = ({Digit}+\.{Digit}* | {Digit}*\.{Digit}+)
 DoubleScientific = {DoubleNormal}[Ee][+-]?{Decimal}
 Decimal=({Digit})+
 Hexadecimal= 0[xX]({Hexadigit})+
 SingleLineComment = \/\/([^\r\n])*
 MultiLineComment= \/\*( [^*] | (\*+[^*/]) )*\*+\/
+Whitespace={EndLine} | [ \t\f]
 
 Letter=[A-Za-z]
-Digit=[0-9]
 Hexadigit = {Digit} | [a-fA-F]
+Digit=[0-9]
 Underline="_"
 EndLine = \n|\r|\r\n
-Whitespace={EndLine} | [\t\f]
 StringCharset=[^\n\r\"\\]+
 
 /* states or xstates*/
@@ -121,8 +121,7 @@ StringCharset=[^\n\r\"\\]+
     {BooleanLiteral} {return symbol(sym.T_BOOLEANLITERAL, yytext()); }
     {Identifer} {return symbol(sym.T_ID, yytext()); }
     {Whitespace} { /* ignore */}
-    {MultiLineComment} { /* ignore */}
-    {SingleLineComment} { /* ignore */}
+    {Comment} { /* ignore */}
 }
 
 /* string rules */
@@ -140,11 +139,11 @@ StringCharset=[^\n\r\"\\]+
 
     {StringChar} {string.append(yytext()); }
 
-    "\t" {string.append('\t'); }
-    "\n" {string.append('\n'); }
-    "\r" {string.append('\r'); }
+    "\\t" {string.append('\t'); }
+    "\\n" {string.append('\n'); }
+    "\\r" {string.append('\r'); }
     "\\\"" {string.append('\"'); }
-    "\\" {string.append('\\'); }
+    "\\\\" {string.append('\\'); }
 }
 
 /* error fallback */
