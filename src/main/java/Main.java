@@ -8,8 +8,8 @@ public class Main {
     public static void main(String[] args) {
         for (int i = 0; i < TEST_COUNT; i++) {
             Preprocessor preprocessor = new Preprocessor(
-                TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_FORMAT,
-                TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_OUTPUT_FORMAT);
+                    TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_FORMAT,
+                    TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_OUTPUT_FORMAT);
             preprocessor.preprocess();
         }
     }
