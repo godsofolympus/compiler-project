@@ -1,3 +1,0 @@
-import "file.d"
-define SEMICOLON ;
-class Program { void main () {SEMICOLON} }
