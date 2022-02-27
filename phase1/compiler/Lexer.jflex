@@ -27,9 +27,9 @@ import java_cup.runtime.*;
 /* macros */
 Identifier={Letter}({Digit} | {Letter} | {Underline})*
 DoubleLiteral = {DoubleNormal} | {DoubleScientific}
-IntLiteral = Hexadecimal | Decimal
+IntLiteral = {Hexadecimal} | {Decimal}
 BooleanLiteral = "true" | "false"
-Comment = SingleLineComment | MultiLineComment
+Comment = {SingleLineComment} | {MultiLineComment}
 
 DoubleNormal = ({Digit}+\.{Digit}* | {Digit}*\.{Digit}+)
 DoubleScientific = {DoubleNormal}[Ee][+-]?{Decimal}
@@ -119,7 +119,7 @@ StringCharset=[^\n\r\"\\]+
     {IntLiteral} {return symbol(sym.T_INTLITERAL, yytext()); } 
     {DoubleLiteral} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
     {BooleanLiteral} {return symbol(sym.T_BOOLEANLITERAL, yytext()); }
-    {Identifer} {return symbol(sym.T_ID, yytext()); }
+    {Identifier} {return symbol(sym.T_ID, yytext()); }
     {Whitespace} { /* ignore */}
     {Comment} { /* ignore */}
 }
@@ -137,7 +137,7 @@ StringCharset=[^\n\r\"\\]+
             return symbol(sym.T_STRINGLITERAL,
             string.toString()); }
 
-    {StringChar} {string.append(yytext()); }
+    {StringCharset} {string.append(yytext()); }
 
     "\\t" {string.append('\t'); }
     "\\n" {string.append('\n'); }
