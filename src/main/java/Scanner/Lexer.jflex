@@ -1,5 +1,6 @@
 package Scanner;
 
+import java_cup.sym;
 import java_cup.runtime.*;
 
 %%
@@ -14,6 +15,13 @@ import java_cup.runtime.*;
 
 /* copied code */
 %{
+    public static final int T_KEYWORD = 0;
+    public static final int T_OPERATOR = 1;
+    public static final int T_INTLITERAL = 2;
+    public static final int T_DOUBLELITERAL = 3;
+    public static final int T_BOOLEANLITERAL = 4;
+    public static final int T_ID = 5;
+    public static final int T_STRINGLITERAL = 6;
 
     StringBuffer string = new StringBuffer(); /* used for detecting string literals*/
 
@@ -56,75 +64,74 @@ StringCharset=[^\n\r\"\\]+
 
 /* keywords */
 <YYINITIAL> {
-    "__func__" { return symbol(sym.FUNC); }
-    "__line__" { return symbol(sym.LINE); }
-    "bool" { return symbol(sym.BOOL); }
-    "break" { return symbol(sym.BREAK); }
-    "btoi" { return symbol(sym.BTOI); }
-    "class" { return symbol(sym.CLASS); }
-    "continue" { return symbol(sym.CONTINUE); }
-    /* define is not present since the preprocessor stage */
-    "dtoi" { return symbol(sym.DTOI); }
-    "else" { return symbol(sym.ELSE); }
-    "for" { return symbol(sym.FOR); }
-    "if" { return symbol(sym.IF); }
-    "important" { return symbol(sym.IMPORTANT); }
-    "int" { return symbol(sym.ITOB); }
-    "NewArray" { return symbol(sym.NEW_ARRAY); }
-    "null" { return symbol(sym.NULL); }
-    "Print" { return symbol(sym.PRINT); }
-    "private" { return symbol(sym.PRIVATE); }
-    "public" { return symbol(sym.PUBLIC); }
-    "ReadInteger" { return symbol(sym.READ_INTEGER); }
-    "ReadLine" { return symbol(sym.READ_LINE); }
-    "return" { return symbol(sym.RETURN); }
-    "string" { return symbol(sym.STRING); }
-    "this" { return symbol(sym.THIS); }
-    "void" { return symbol(sym.VOID); }
-    "while" { return symbol(sym.WHILE); }
+    "__func__"      { return symbol( T_KEYWORD, yytext()); }
+    "__line__"      { return symbol( T_KEYWORD, yytext()); }
+    "bool"          { return symbol( T_KEYWORD, yytext()); }
+    "break"         { return symbol( T_KEYWORD, yytext()); }
+    "btoi"          { return symbol( T_KEYWORD, yytext()); }
+    "class"         { return symbol( T_KEYWORD, yytext()); }
+    "continue"      { return symbol( T_KEYWORD, yytext()); }
+    "dtoi"          { return symbol( T_KEYWORD, yytext()); }
+    "else"          { return symbol( T_KEYWORD, yytext()); }
+    "for"           { return symbol( T_KEYWORD, yytext()); }
+    "if"            { return symbol( T_KEYWORD, yytext()); }
+    "important"     { return symbol( T_KEYWORD, yytext()); }
+    "int"           { return symbol( T_KEYWORD, yytext()); }
+    "NewArray"      { return symbol( T_KEYWORD, yytext()); }
+    "null"          { return symbol( T_KEYWORD, yytext()); }
+    "Print"         { return symbol( T_KEYWORD, yytext()); }
+    "private"       { return symbol( T_KEYWORD, yytext()); }
+    "public"        { return symbol( T_KEYWORD, yytext()); }
+    "ReadInteger"   { return symbol( T_KEYWORD, yytext()); }
+    "ReadLine"      { return symbol( T_KEYWORD, yytext()); }
+    "return"        { return symbol( T_KEYWORD, yytext()); }
+    "string"        { return symbol( T_KEYWORD, yytext()); }
+    "this"          { return symbol( T_KEYWORD, yytext()); }
+    "void"          { return symbol( T_KEYWORD, yytext()); }
+    "while"         { return symbol( T_KEYWORD, yytext()); }
 }
 
 /* operators */
 <YYINITIAL> {
-    "+" {return symbol(sym.PLUS); }
-    "-" {return symbol(sym.MINUS); }
-    "*" {return symbol(sym.MULTIPLY); }
-    "/" {return symbol(sym.DIVIDE); }
-    "%" {return symbol(sym.MOD); }
-    "<" {return symbol(sym.LESS); }
-    "<=" {return symbol(sym.LESS_EQUAL); }
-    ">" {return symbol(sym.GREATER); }
-    ">=" {return symbol(sym.GREATER_EQUAL); }
-    "=" {return symbol(sym.EQUAL); }
-    "+=" {return symbol(sym.PLUS_EQUAL); }
-    "-=" {return symbol(sym.MINUS_EQUAL); }
-    "*=" {return symbol(sym.MULTIPLY_EQUAL); }
-    "/=" {return symbol(sym.DIVIDE_EQUAL); }
-    "==" {return symbol(sym.EQUAL_EQUAL); }
-    "!=" {return symbol(sym.NOT_EQUAL); }
-    "&&" {return symbol(sym.AND_AND); }
-    "||" {return symbol(sym.OR_OR); }
-    "!" {return symbol(sym.NOT); }
-    ";" {return symbol(sym.SEMICOLON); }
-    "," {return symbol(sym.COMMA); }
-    "." {return symbol(sym.DOT); }
-    "[" {return symbol(sym.SQUARE_BRACKET_LEFT); }
-    "]" {return symbol(sym.SQUARE_BRACKET_RIGHT); }
-    "(" {return symbol(sym.PARENTHESIS_LEFT); }
-    ")" {return symbol(sym.PARENTHESIS_RIGHT); }
-    "{" {return symbol(sym.CURLY_BRACKET_LEFT); }
-    "}" {return symbol(sym.CURLY_BRACKET_RIGHT); }
+    "+"     { return symbol(T_OPERATOR, yytext()); }
+    "-"     { return symbol(T_OPERATOR, yytext()); }
+    "*"     { return symbol(T_OPERATOR, yytext()); }
+    "/"     { return symbol(T_OPERATOR, yytext()); }
+    "%"     { return symbol(T_OPERATOR, yytext()); }
+    "<"     { return symbol(T_OPERATOR, yytext()); }
+    "<="    { return symbol(T_OPERATOR, yytext()); }
+    ">"     { return symbol(T_OPERATOR, yytext()); }
+    ">="    { return symbol(T_OPERATOR, yytext()); }
+    "="     { return symbol(T_OPERATOR, yytext()); }
+    "+="    { return symbol(T_OPERATOR, yytext()); }
+    "-="    { return symbol(T_OPERATOR, yytext()); }
+    "*="    { return symbol(T_OPERATOR, yytext()); }
+    "/="    { return symbol(T_OPERATOR, yytext()); }
+    "=="    { return symbol(T_OPERATOR, yytext()); }
+    "!="    { return symbol(T_OPERATOR, yytext()); }
+    "&&"    { return symbol(T_OPERATOR, yytext()); }
+    "||"    { return symbol(T_OPERATOR, yytext()); }
+    "!"     { return symbol(T_OPERATOR, yytext()); }
+    ";"     { return symbol(T_OPERATOR, yytext()); }
+    ","     { return symbol(T_OPERATOR, yytext()); }
+    "."     { return symbol(T_OPERATOR, yytext()); }
+    "["     { return symbol(T_OPERATOR, yytext()); }
+    "]"     { return symbol(T_OPERATOR, yytext()); }
+    "("     { return symbol(T_OPERATOR, yytext()); }
+    ")"     { return symbol(T_OPERATOR, yytext()); }
+    "{"     { return symbol(T_OPERATOR, yytext()); }
+    "}"     { return symbol(T_OPERATOR, yytext()); }
 }
 
 /* Identifier, literal and ignored rules*/
 
 <YYINITIAL> {
-    {IntLiteral} {return symbol(sym.T_INTLITERAL, yytext()); } 
-    {DoubleLiteral} {return symbol(sym.T_DOUBLELITERAL, yytext()); }
-    {BooleanLiteral} {return symbol(sym.T_BOOLEANLITERAL, yytext()); }
-    {Identifier} {return symbol(sym.T_ID, yytext()); }
-    {Whitespace} { /* ignore */}
-    {Comment} { /* ignore */}
+    {IntLiteral}        {return symbol(T_INTLITERAL, yytext()); } 
+    {DoubleLiteral}     {return symbol(T_DOUBLELITERAL, yytext()); }
+    {BooleanLiteral}    {return symbol(T_BOOLEANLITERAL, yytext()); }
+    {Identifier}        {return symbol(T_ID, yytext()); }
+    {Whitespace}        { /* ignore */}
+    {Comment}           { /* ignore */}
 }
 
 /* string rules */
@@ -137,8 +144,7 @@ StringCharset=[^\n\r\"\\]+
 
 <STRING> {
     "\"" { yybegin(YYINITIAL);
-            return symbol(sym.T_STRINGLITERAL,
-            string.toString()); }
+            return symbol(T_STRINGLITERAL, string.toString()); }
 
     {StringCharset} {string.append(yytext()); }
 
