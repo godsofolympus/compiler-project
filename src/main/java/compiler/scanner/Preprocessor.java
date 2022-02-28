@@ -49,7 +49,7 @@ public class Preprocessor {
         Matcher matcher = Pattern.compile("\"\"").matcher(string);
         int counter = 0;
         while (matcher.find()) {
-            matcher.appendReplacement(sb, strings.get(counter));
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(strings.get(counter)));
             counter++;
         }
         matcher.appendTail(sb);
@@ -58,7 +58,7 @@ public class Preprocessor {
 
     private String emptyStrings(String fileWithNoDefine) {
         StringBuilder sb = new StringBuilder();
-        Matcher stringMatcher = Pattern.compile("\"[^\"]*\"").matcher(fileWithNoDefine);
+        Matcher stringMatcher = Pattern.compile("(?<!\\\\)\".*(?<!\\\\)\"").matcher(fileWithNoDefine);
         while (stringMatcher.find()) {
             strings.add(stringMatcher.group());
             stringMatcher.appendReplacement(sb, "\"\"");
