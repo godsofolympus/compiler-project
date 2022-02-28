@@ -116,6 +116,7 @@ StringCharset=[^\n\r\"\\]+
     "this"          { return symbol( T_KEYWORD, yytext()); }
     "void"          { return symbol( T_KEYWORD, yytext()); }
     "while"         { return symbol( T_KEYWORD, yytext()); }
+    "import"        { return symbol( T_KEYWORD, yytext()); }
 }
 
 /* operators */
