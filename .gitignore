@@ -28,3 +28,4 @@ src/main/java/Lexer.java
 processed.txt
 .vscode
 .idea
+target
