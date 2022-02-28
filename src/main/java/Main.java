@@ -1,18 +1,36 @@
+import Scanner.Lexer;
 import Scanner.Preprocessor;
+import java_cup.sym;
+import java_cup.runtime.Symbol;
+
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    private static final String TEST_SRC = "test/";
-    private static final int TEST_COUNT = 5;
-    private static final String TEST_PREPROCESSOR_PRETEXT = "preprocessor";
-    private static final String TEST_FORMAT = ".txt";
-    private static final String TEST_OUTPUT_FORMAT = ".out.txt";
+
+    public static String run(java.io.File inputFile) throws Exception {
+        StringBuilder str = new StringBuilder();
+        
+        String inputFileName = inputFile.getName();
+
+        Preprocessor preprocessor = new Preprocessor(inputFile, inputFileName);
+        preprocessor.preprocess();
+
+        Lexer scanner = new Lexer(new FileReader(inputFile));
+        while (scanner.hasToken()) {
+            Symbol token = scanner.next_token();
+            str.append(scanner.getTokenString(token) + "\n");
+        }
+        return str.toString();
+    }
 
     public static void main(String[] args) {
-        for (int i = 0; i < TEST_COUNT; i++) {
-            Preprocessor preprocessor = new Preprocessor(
-                    TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_FORMAT,
-                    TEST_SRC + TEST_PREPROCESSOR_PRETEXT + i + TEST_OUTPUT_FORMAT);
-            preprocessor.preprocess();
+        String output = "";
+        try {
+            output = run(new File("input.txt"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        System.out.println(output);
     }
 }

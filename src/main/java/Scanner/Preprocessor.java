@@ -23,6 +23,11 @@ public class Preprocessor {
         this.outputFileName = outputFileName;
     }
 
+    public Preprocessor(File inputFile, String outputFileName) {
+        this.inputFile = inputFile;
+        this.outputFileName = outputFileName;
+    }
+
     public void preprocess() {
         try {
             Scanner scanner = new Scanner(inputFile);

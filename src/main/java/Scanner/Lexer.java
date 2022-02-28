@@ -411,7 +411,29 @@ public class Lexer implements java_cup.runtime.Scanner {
     public static final int T_ID = 5;
     public static final int T_STRINGLITERAL = 6;
 
+    private boolean eof = false;
+
     StringBuffer string = new StringBuffer(); /* used for detecting string literals*/
+
+    public String getTokenString (Symbol token) {
+        if (token.sym == T_KEYWORD || token.sym == T_OPERATOR)
+            return (String) token.value;
+        else if (token.sym == T_INTLITERAL)
+            return "T_INTLITERAL " + (String) token.value; 
+        else if (token.sym == T_DOUBLELITERAL)
+            return "T_DOUBLELITERAL " + (String) token.value; 
+        else if (token.sym == T_BOOLEANLITERAL)
+            return "T_BOOLEANLITERAL " + (String) token.value; 
+        else if (token.sym == T_ID)
+            return "T_ID " + (String) token.value; 
+        else if (token.sym == T_STRINGLITERAL)
+            return "T_STRINGLITERAL \"" + (String) token.value + "\""; 
+        return "";
+    }
+
+    public boolean hasToken() {
+        return !this.eof;
+    }
 
     /* used for cup*/
     private Symbol symbol(int type) {
@@ -653,7 +675,8 @@ public class Lexer implements java_cup.runtime.Scanner {
   private void zzDoEOF() throws java.io.IOException {
     if (!zzEOFDone) {
       zzEOFDone = true;
-      yyclose();
+    this.eof = true;
+  yyclose();
     }
   }
 
