@@ -67,8 +67,7 @@ DoubleLiteral = {DoubleNormal} | {DoubleScientific}
 IntLiteral = {Hexadecimal} | {Decimal}
 BooleanLiteral = "true" | "false"
 Comment = {SingleLineComment} | {MultiLineComment}
-
-DoubleNormal = ({Digit}+\.{Digit}* | {Digit}*\.{Digit}+)
+DoubleNormal = ({Digit}+\.{Digit}*)
 DoubleScientific = {DoubleNormal}[Ee][+-]?{Decimal}
 Decimal=({Digit})+
 Hexadecimal= 0[xX]({Hexadigit})+
@@ -101,7 +100,6 @@ StringCharset=[^\n\r\"\\]+
     "else"          { return symbol( T_KEYWORD, yytext()); }
     "for"           { return symbol( T_KEYWORD, yytext()); }
     "if"            { return symbol( T_KEYWORD, yytext()); }
-    "important"     { return symbol( T_KEYWORD, yytext()); }
     "int"           { return symbol( T_KEYWORD, yytext()); }
     "NewArray"      { return symbol( T_KEYWORD, yytext()); }
     "null"          { return symbol( T_KEYWORD, yytext()); }
@@ -116,6 +114,12 @@ StringCharset=[^\n\r\"\\]+
     "void"          { return symbol( T_KEYWORD, yytext()); }
     "while"         { return symbol( T_KEYWORD, yytext()); }
     "import"        { return symbol( T_KEYWORD, yytext()); }
+    "new"        { return symbol( T_KEYWORD, yytext()); }
+    "double"        { return symbol( T_KEYWORD, yytext()); }
+    "itob"        { return symbol( T_KEYWORD, yytext()); }
+    "itod"        { return symbol( T_KEYWORD, yytext()); }
+
+
 }
 
 /* operators */
