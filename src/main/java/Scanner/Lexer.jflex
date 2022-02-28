@@ -15,13 +15,13 @@ import java_cup.runtime.*;
 
 /* copied code */
 %{
-    public static final int T_KEYWORD = 0;
-    public static final int T_OPERATOR = 1;
-    public static final int T_INTLITERAL = 2;
-    public static final int T_DOUBLELITERAL = 3;
-    public static final int T_BOOLEANLITERAL = 4;
-    public static final int T_ID = 5;
-    public static final int T_STRINGLITERAL = 6;
+    public static final int T_KEYWORD = 1;
+    public static final int T_OPERATOR = 2;
+    public static final int T_INTLITERAL = 3;
+    public static final int T_DOUBLELITERAL = 4;
+    public static final int T_BOOLEANLITERAL = 5;
+    public static final int T_ID = 6;
+    public static final int T_STRINGLITERAL = 7;
 
     private boolean eof = false;
 

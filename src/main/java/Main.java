@@ -19,6 +19,8 @@ public class Main {
         Lexer scanner = new Lexer(new FileReader(inputFile));
         while (scanner.hasToken()) {
             Symbol token = scanner.next_token();
+            if (token.sym == 0)
+                break;
             str.append(scanner.getTokenString(token) + "\n");
         }
         return str.toString();
@@ -31,6 +33,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(output);
+        System.out.print(output);
     }
 }
