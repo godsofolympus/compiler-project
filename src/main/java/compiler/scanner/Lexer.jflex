@@ -15,6 +15,7 @@ import java_cup.runtime.*;
 
 /* copied code */
 %{
+    public static final int T_EOF = 0;
     public static final int T_KEYWORD = 1;
     public static final int T_OPERATOR = 2;
     public static final int T_INTLITERAL = 3;
@@ -180,6 +181,8 @@ StringCharset=[^\n\r\"\\]+
     "\\\"" {string.append('\"'); }
     "\\\\" {string.append('\\'); }
 }
+
+<<EOF>>     { return symbol(T_EOF); }
 
 /* error fallback */
 [^] { throw new Error("Illegal character <" + yytext() + ">"); }

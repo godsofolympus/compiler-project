@@ -403,6 +403,7 @@ public class Lexer implements java_cup.runtime.Scanner {
   private int zzFinalHighSurrogate = 0;
 
   /* user code: */
+    public static final int T_EOF = 0;
     public static final int T_KEYWORD = 1;
     public static final int T_OPERATOR = 2;
     public static final int T_INTLITERAL = 3;
@@ -825,7 +826,9 @@ public class Lexer implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
-          { return new java_cup.runtime.Symbol(sym.EOF); }
+              {
+                return symbol(T_EOF);
+              }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
