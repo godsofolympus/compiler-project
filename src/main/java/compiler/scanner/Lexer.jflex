@@ -1,4 +1,4 @@
-package Scanner;
+package compiler.scanner;
 
 import java_cup.sym;
 import java_cup.runtime.*;

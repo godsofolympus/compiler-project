@@ -1,10 +1,10 @@
-import Scanner.Lexer;
-import Scanner.Preprocessor;
-import java_cup.sym;
+package compiler;
 import java_cup.runtime.Symbol;
 
 import java.io.*;
-import java.util.*;
+
+import compiler.scanner.Lexer;
+import compiler.scanner.Preprocessor;
 
 public class Main {
 
