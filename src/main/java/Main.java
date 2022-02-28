@@ -1,3 +1,5 @@
+import Scanner.Preprocessor;
+
 public class Main {
     private static final String TEST_SRC = "test/";
     private static final int TEST_COUNT = 5;

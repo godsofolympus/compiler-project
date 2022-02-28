@@ -1,3 +1,5 @@
+package Scanner;
+
 import java_cup.runtime.*;
 
 %%
@@ -12,6 +14,7 @@ import java_cup.runtime.*;
 
 /* copied code */
 %{
+
     StringBuffer string = new StringBuffer(); /* used for detecting string literals*/
 
     /* used for cup*/
