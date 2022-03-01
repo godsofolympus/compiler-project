@@ -10,12 +10,11 @@ public class Main {
 
     public static String run(java.io.File inputFile) throws Exception {
         StringBuilder str = new StringBuilder();
-        
-        String inputFileName = inputFile.getName();
 
-        Preprocessor preprocessor = new Preprocessor(inputFile, inputFileName);
+        Preprocessor preprocessor = new Preprocessor(inputFile, "pp_tmp~");
         preprocessor.preprocess();
 
+        inputFile = new File("pp_tmp~");
         Lexer scanner = new Lexer(new FileReader(inputFile));
         while (scanner.hasToken()) {
             Symbol token = scanner.next_token();
