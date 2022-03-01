@@ -81,7 +81,7 @@ Digit=[0-9]
 Underline="_"
 EndLine = \n|\r|\r\n
 StringCharset=([^\n\r\"\\]+ | {EsapeCharset})
-EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\\\")
+EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\'" | "\\\\")
 
 /* states or xstates*/
 %state STRING
