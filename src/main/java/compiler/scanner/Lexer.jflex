@@ -80,7 +80,8 @@ Hexadigit = {Digit} | [a-fA-F]
 Digit=[0-9]
 Underline="_"
 EndLine = \n|\r|\r\n
-StringCharset=[^\n\r\"\\]+
+StringCharset=([^\n\r\"\\]+ | {EsapeCharset})
+EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\\\")
 
 /* states or xstates*/
 %state STRING
@@ -114,10 +115,10 @@ StringCharset=[^\n\r\"\\]+
     "void"          { return symbol( T_KEYWORD, yytext()); }
     "while"         { return symbol( T_KEYWORD, yytext()); }
     "import"        { return symbol( T_KEYWORD, yytext()); }
-    "new"        { return symbol( T_KEYWORD, yytext()); }
+    "new"           { return symbol( T_KEYWORD, yytext()); }
     "double"        { return symbol( T_KEYWORD, yytext()); }
-    "itob"        { return symbol( T_KEYWORD, yytext()); }
-    "itod"        { return symbol( T_KEYWORD, yytext()); }
+    "itob"          { return symbol( T_KEYWORD, yytext()); }
+    "itod"          { return symbol( T_KEYWORD, yytext()); }
 
 
 }
@@ -178,12 +179,6 @@ StringCharset=[^\n\r\"\\]+
             return symbol(T_STRINGLITERAL, string.toString()); }
 
     {StringCharset} {string.append(yytext()); }
-
-    "\\t" {string.append('\t'); }
-    "\\n" {string.append('\n'); }
-    "\\r" {string.append('\r'); }
-    "\\\"" {string.append('\"'); }
-    "\\\\" {string.append('\\'); }
 }
 
 <<EOF>>     { return symbol(T_EOF); }
