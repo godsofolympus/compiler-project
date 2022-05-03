@@ -17,8 +17,9 @@ terminal            DTOI, ITOB, BTOI, ITOB;
 terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
+terminal            UMINUS, NOT;
 terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, PLUS_EQUAL, MINUS_EQUAL, MULTIPLY_EQUAL, DIVIDE,EQUAL,
-                    EQUAL_EQUAL, NOT_EUQAL, OR_OR, AND_AND, NOT;
+                    EQUAL_EQUAL, NOT_EUQAL, OR_OR, AND_AND;
 terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
                     CURLY_BRACKETS_RIGHT;
 
@@ -41,5 +42,14 @@ non terminal Object Expr;
 non terminal Object Call;
 
 // precedence and associativity declarations
+precedence nonassoc EQUAL;
+precedence left OR_OR;
+precedence left AND_AND;
+precedence nonassoc EQUAL_EQUAL, NOT_EUQAL;
+precedence nonassoc LESS, LESS_EQUAL, GREATER_EQUAL, GREATER_EQUAL;
+precedence left PLUS, MINUS;
+precedence left MULTIPLY, DIVIDE, MOD;
+precedence nonassoc NOT, UMINUS;
+precedence left BRACKETS_LEFT, DOT;
 
 // the grammar
