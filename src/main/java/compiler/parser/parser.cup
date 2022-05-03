@@ -9,17 +9,36 @@ init with {: scanner.init() :};
 scan with {: return scanner.next_token(); :};
 
 // symbol lists
-terminal VOID, INT, DOUBLE, BOOL, STRING;
-terminal CLASS, INTERFACE, NULL, THIS, EXTENDS, IMPLEMENTS;
-terminal FOR, WHILE, IF, ELSE, RETURN, BREAK, CONTINUE;
-terminal NEW, NEW_ARRAY, PRINT, READ_INTEGER, READ_LINE;
-terminal DTOI, ITOB, BTOI, ITOB;
-terminal PRIVATE, PROTECTED, PUBLIC, IMPORT;
+terminal            VOID, INT, DOUBLE, BOOL, STRING;
+terminal            CLASS, INTERFACE, THIS, EXTENDS, IMPLEMENTS;
+terminal            FOR, WHILE, IF, ELSE, RETURN, BREAK, CONTINUE;
+terminal            NEW, NEW_ARRAY, PRINT, READ_INTEGER, READ_LINE;
+terminal            DTOI, ITOB, BTOI, ITOB;
+terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 
-terminal PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
-terminal LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EUQAL, OR_OR, NOT;
-terminal SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT;
+terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
+terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, PLUS_EQUAL, MINUS_EQUAL, MULTIPLY_EQUAL, DIVIDE,EQUAL,
+                    EQUAL_EQUAL, NOT_EUQAL, OR_OR, AND_AND, NOT;
+terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
+                    CURLY_BRACKETS_RIGHT;
 
+terminal Integer    INT_LITERAL;
+terminal Double     DOUBLE_LITERAL;
+terminal Boolean    BOOLEAN_LITERAL;
+terminal String     STRING_LITERAL;
+terminal String     NULL;
+
+terminal String     IDENTIFIER;
+
+
+non terminal        Program, Macro, Decl, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
+                    IntefaceDecl, Prototype, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
+                    PrintStmt, Actuals;
+
+non terminal Object Constant;
+non terminal Object LValue;
+non terminal Object Expr;
+non terminal Object Call;
 
 // precedence and associativity declarations
 
