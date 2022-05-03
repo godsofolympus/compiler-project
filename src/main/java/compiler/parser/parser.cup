@@ -1,0 +1,26 @@
+// package and import specifications
+package compiler.parser;
+
+import java_cup.runtime.*;
+import compiler.scanner.*;
+
+// user code components
+init with {: scanner.init() :};
+scan with {: return scanner.next_token(); :};
+
+// symbol lists
+terminal VOID, INT, DOUBLE, BOOL, STRING;
+terminal CLASS, INTERFACE, NULL, THIS, EXTENDS, IMPLEMENTS;
+terminal FOR, WHILE, IF, ELSE, RETURN, BREAK, CONTINUE;
+terminal NEW, NEW_ARRAY, PRINT, READ_INTEGER, READ_LINE;
+terminal DTOI, ITOB, BTOI, ITOB;
+terminal PRIVATE, PROTECTED, PUBLIC, IMPORT;
+
+terminal PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
+terminal LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EUQAL, OR_OR, NOT;
+terminal SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT;
+
+
+// precedence and associativity declarations
+
+// the grammar
