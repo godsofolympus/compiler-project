@@ -11,7 +11,6 @@ parser code {:
                     this.scanner = scanner;
                 } 
             :};
-init with {: scanner.init() :};
 scan with {: return scanner.next_token(); :};
 
 // symbol lists

@@ -41,6 +41,7 @@
                 <cupDefinition>src/main/java/compiler/parser/parser.cup</cupDefinition>
                 <packageName>compiler.parser</packageName>
                 <outputDirectory>src/main/java/compiler/parser</outputDirectory>
+                <expectedConflicts>50</expectedConflicts>
             </configuration>
             </plugin>
         </plugins>
