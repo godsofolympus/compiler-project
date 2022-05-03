@@ -120,9 +120,9 @@ EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\'" | "\\\\")
 /* Identifier, literal and ignored rules*/
 
 <YYINITIAL> {
-    {IntLiteral}        {return symbol(sym.INT_CONSTANT yytext()); } 
-    {DoubleLiteral}     {return symbol(sym.DOUBLE_CONSTANT, yytext()); }
-    {BooleanLiteral}    {return symbol(sym.BOOL_CONSTANT, yytext()); }
+    {IntLiteral}        {return symbol(sym.INT_CONSTANT, Integer.parseInt(yytext())); } 
+    {DoubleLiteral}     {return symbol(sym.DOUBLE_CONSTANT, Double.parseDouble(yytext())); }
+    {BooleanLiteral}    {return symbol(sym.BOOL_CONSTANT, Boolean.ParseBoolean(yytext())); }
     {Identifier}        {return symbol(IDENTIFIER, yytext()); }
     {Whitespace}        { /* ignore */}
     {Comment}           { /* ignore */}
