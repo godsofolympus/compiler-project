@@ -5,6 +5,13 @@ import java_cup.runtime.*;
 import compiler.scanner.*;
 
 // user code components
+parser code {:  
+                private Lexer scanner;
+                
+                public parser(Lexer scanner) {
+                    this.scanner = scanner;
+                } 
+            :};
 init with {: scanner.init() :};
 scan with {: return scanner.next_token(); :};
 
