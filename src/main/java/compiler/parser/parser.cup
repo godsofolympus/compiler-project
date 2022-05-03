@@ -13,7 +13,7 @@ terminal            VOID, INT, DOUBLE, BOOL, STRING;
 terminal            CLASS, INTERFACE, THIS, EXTENDS, IMPLEMENTS;
 terminal            FOR, WHILE, IF, ELSE, RETURN, BREAK, CONTINUE;
 terminal            NEW, NEW_ARRAY, PRINT, READ_INTEGER, READ_LINE;
-terminal            DTOI, ITOB, BTOI, ITOB;
+terminal            DTOI, ITOD, BTOI, ITOB;
 terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
@@ -25,7 +25,7 @@ terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANT
 
 terminal Integer    INT_CONSTANT;
 terminal Double     DOUBLE_CONSTANT;
-terminal Boolean    BOOLEAN_CONSTANT;
+terminal Boolean    BOOL_CONSTANT;
 terminal String     STRING_CONSTANT;
 terminal String     NULL;
 
@@ -37,7 +37,7 @@ non terminal        Program, Macro, Decl, VariableDecl, Variable, Type, Function
                     PrintStmt, Actuals;
 
 non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar, VariableDeclStar, StmtStar,
-                    ExprOptional;
+                    ExprOptional, ElseStmtOptional, StmtOptional, ExprPlusComma;
 
 non terminal Object Constant;
 non terminal Object LValue;
@@ -83,3 +83,25 @@ VariableDeclStar    ::= VariableDeclStar VariableDecl | /* epsilon */ ;
 StmtStar            ::= StmtStar Stmt | /* epsilon */ ;
 Stmt                ::= ExprOptional SEMICOLON | IfStmt | WhileStmt | ForStmt | BreakStmt | ContinueStmt | ReturnStmt | PrintStmt | StmtBlock;
 ExprOptional        ::= Expr | /* epsilon */ ;
+IfStmt              ::= IF PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt ElseStmtOptional;
+ElseStmtOptional    ::= else Stmt | /* epsilon */ ;
+WhileStmt           ::= WHILE PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt;
+ForStmt             ::= for PARANTHESIS_LEFT StmtOptional SEMICOLON Stmt SEMICOLON StmtOptional PARANTHESIS_RIGHT Stmt;
+StmtOptional        ::= Stmt | /* epsilon */ ;
+ReturnStmt          ::= RETURN ExprOptional SEMICOLON;
+BreakStmt           ::= BREAK SEMICOLON;
+ContinueStmt        ::= CONTINUE SEMICOLON;
+PrintStmt           ::= PRINT PARANTHESIS_LEFT ExprPlusComma PARANTHESIS_RIGHT SEMICOLON;
+ExprPlusComma       ::= Expr | ExprPlusComma COMMA Expr;
+Expr                ::= LValue EQUAL Expr | Constant | LValue | THIS | Call | PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |
+                        Expr PLUS Expr | Expr MINUS Expr | Expr MULTIPLY Expr | Expr DIVIDE Expr |
+                        Expr MOD Expr | MINUS Expr | Expr LESS Expr | Expr LESS_EQUAL Expr |
+                        Expr GREATER Expr | Expr GREATER_EQUAL Expr | Expr EQUAL_EQUAL Expr | Expr NOT_EUQAL Expr |
+                        Expr AND_AND Expr | Expr OR_OR Expr | NOT Expr | READ_INTEGER PARANTHESIS_LEFT PARANTHESIS_RIGHT |
+                        READ_LINE PARANTHESIS_LEFT PARANTHESIS_RIGHT | NEW IDENTIFIER | NEW_ARRAY PARANTHESIS_LEFT Expr COMMA Type PARANTHESIS_RIGHT |
+                        ITOD PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT | DTOI PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |
+                        ITOB PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT | BTOI PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT;
+LValue              ::= IDENTIFIER | Expr DOT IDENTIFIER | Expr BRACKETS_LEFT Expr BRACKETS_RIGHT;
+Call                ::= IDENTIFIER PARANTHESIS_LEFT Actuals PARANTHESIS_RIGHT | Expr DOT IDENTIFIER PARANTHESIS_LEFT Actuals PARANTHESIS_RIGHT;
+Actuals             ::= ExprPlusComma | /* epsilon */ ;
+Constant            ::= INT_CONSTANT | DOUBLE_CONSTANT | BOOL_CONSTANT | STRING_CONSTANT | NULL;
