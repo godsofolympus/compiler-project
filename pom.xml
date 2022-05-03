@@ -17,9 +17,32 @@
         <!-- https://mvnrepository.com/artifact/com.github.vbmacher/java-cup -->
         <dependency>
             <groupId>com.github.vbmacher</groupId>
-            <artifactId>java-cup</artifactId>
-            <version>11b</version>
+            <artifactId>java-cup-runtime</artifactId>
+            <version>11b-20160615-1</version>
         </dependency>
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+            <groupId>com.github.vbmacher</groupId>
+            <artifactId>cup-maven-plugin</artifactId>
+            <version>11b-20160615-1</version>
+            <executions>
+                <execution>
+                <goals>
+                    <goal>generate</goal>
+                </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <className>parser</className>
+                <symbolsName>sym</symbolsName>
+                <cupDefinition>src/main/java/compiler/parser/parser.cup</cupDefinition>
+                <packageName>compiler.parser</packageName>
+                <outputDirectory>src/main/java/compiler/parser</outputDirectory>
+            </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
