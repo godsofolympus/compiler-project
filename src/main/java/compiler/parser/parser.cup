@@ -23,18 +23,21 @@ terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, PLUS_EQUAL,
 terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
                     CURLY_BRACKETS_RIGHT;
 
-terminal Integer    INT_LITERAL;
-terminal Double     DOUBLE_LITERAL;
-terminal Boolean    BOOLEAN_LITERAL;
-terminal String     STRING_LITERAL;
+terminal Integer    INT_CONSTANT;
+terminal Double     DOUBLE_CONSTANT;
+terminal Boolean    BOOLEAN_CONSTANT;
+terminal String     STRING_CONSTANT;
 terminal String     NULL;
 
 terminal String     IDENTIFIER;
 
 
 non terminal        Program, Macro, Decl, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
-                    IntefaceDecl, Prototype, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
+                    InterfaceDecl, Prototype, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
                     PrintStmt, Actuals;
+
+non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar, VariableDeclStar, StmtStar,
+                    ExprOptional;
 
 non terminal Object Constant;
 non terminal Object LValue;
@@ -53,3 +56,30 @@ precedence nonassoc NOT, UMINUS;
 precedence left BRACKETS_LEFT, DOT;
 
 // the grammar
+start with Program;
+
+Program             ::= Decl | Program Decl | Macro Program;
+Macro               ::= IMPORT STRING_CONSTANT;
+Decl                ::= VariableDecl | FunctionDecl | ClassDecl | InterfaceDecl;
+VariableDecl        ::= Variable SEMICOLON;
+Variable            ::= Type IDENTIFIER;
+Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type BRACKETS_LEFT BRACKETS_RIGHT;
+FunctionDecl        ::= Type IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock |
+                        VOID IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock;
+Formals             ::= Variable | Formals COMMA Variable |  /* epsilon */;
+ClassDecl           ::= CLASS IDENTIFIER ClassDeclExtends ClassDeclImplements CURLY_BRACKETS_LEFT ClassDeclFields CURLY_BRACKETS_RIGHT;
+ClassDeclExtends    ::= EXTENDS IDENTIFIER | /* epsilon */ ;
+ClassDeclImplements ::= IMPLEMENTS IdentifierStar | /* epsilon */ ;
+IdentifierStar      ::= IDENTIFIER | IdentifierStar COMMA IDENTIFIER;
+ClassDeclFields     ::= ClassDeclFields Field | /* epsilon */ ;
+Field               ::= AccessMode VariableDecl | AccessMode FunctionDecl;
+AccessMode          ::= PRIVATE | PROTECTED | PUBLIC | /* epsilon */ ;
+InterfaceDecl       ::= INTERFACE IDENTIFIER CURLY_BRACKETS_LEFT PrototypeStar CURLY_BRACKETS_RIGHT;
+PrototypeStar       ::= PrototypeStar Prototype | /* epsilon */ ;
+Prototype           ::= Type IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON |
+                        VOID IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON;
+StmtBlock           ::= CURLY_BRACKETS_LEFT VariableDeclStar StmtStar CURLY_BRACKETS_RIGHT;
+VariableDeclStar    ::= VariableDeclStar VariableDecl | /* epsilon */ ;
+StmtStar            ::= StmtStar Stmt | /* epsilon */ ;
+Stmt                ::= ExprOptional SEMICOLON | IfStmt | WhileStmt | ForStmt | BreakStmt | ContinueStmt | ReturnStmt | PrintStmt | StmtBlock;
+ExprOptional        ::= Expr | /* epsilon */ ;
