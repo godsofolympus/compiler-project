@@ -23,7 +23,7 @@ terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
 terminal            UMINUS, NOT;
-terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EUQAL, OR_OR, AND_AND;
+terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EQUAL, OR_OR, AND_AND;
 terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
                     CURLY_BRACKETS_RIGHT;
 
@@ -31,7 +31,7 @@ terminal Integer    INT_CONSTANT;
 terminal Double     DOUBLE_CONSTANT;
 terminal Boolean    BOOL_CONSTANT;
 terminal String     STRING_CONSTANT;
-terminal String     NULL;
+terminal             NULL;
 
 terminal String     IDENTIFIER;
 
@@ -53,7 +53,7 @@ precedence left ELSE;
 precedence right EQUAL;
 precedence left OR_OR;
 precedence left AND_AND;
-precedence left EQUAL_EQUAL, NOT_EUQAL;
+precedence left EQUAL_EQUAL, NOT_EQUAL;
 precedence left LESS, LESS_EQUAL, GREATER, GREATER_EQUAL;
 precedence left PLUS, MINUS;
 precedence left MULTIPLY, DIVIDE, MOD;
@@ -102,7 +102,7 @@ ExprPlusComma       ::= Expr | ExprPlusComma COMMA Expr;
 Expr                ::= LValue EQUAL Expr | Constant | LValue | THIS | Call | PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |
                         Expr PLUS Expr | Expr MINUS Expr | Expr MULTIPLY Expr | Expr DIVIDE Expr |
                         Expr MOD Expr | MINUS Expr | Expr LESS Expr | Expr LESS_EQUAL Expr |
-                        Expr GREATER Expr | Expr GREATER_EQUAL Expr | Expr EQUAL_EQUAL Expr | Expr NOT_EUQAL Expr |
+                        Expr GREATER Expr | Expr GREATER_EQUAL Expr | Expr EQUAL_EQUAL Expr | Expr NOT_EQUAL Expr |
                         Expr AND_AND Expr | Expr OR_OR Expr | NOT Expr | READ_INTEGER PARANTHESIS_LEFT PARANTHESIS_RIGHT |
                         READ_LINE PARANTHESIS_LEFT PARANTHESIS_RIGHT | NEW IDENTIFIER | NEW_ARRAY PARANTHESIS_LEFT Expr COMMA Type PARANTHESIS_RIGHT |
                         ITOD PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT | DTOI PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |

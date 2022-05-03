@@ -16,6 +16,7 @@ public interface sym {
   public static final int UMINUS = 37;
   public static final int READ_LINE = 23;
   public static final int BOOL_CONSTANT = 59;
+  public static final int NOT_EQUAL = 45;
   public static final int DOUBLE = 4;
   public static final int GREATER = 41;
   public static final int PRIVATE = 28;
@@ -25,7 +26,6 @@ public interface sym {
   public static final int LESS = 39;
   public static final int FOR = 12;
   public static final int MINUS = 33;
-  public static final int NOT_EUQAL = 45;
   public static final int SEMICOLON = 48;
   public static final int NOT = 38;
   public static final int COMMA = 49;
@@ -117,7 +117,7 @@ public interface sym {
   "GREATER_EQUAL",
   "EQUAL",
   "EQUAL_EQUAL",
-  "NOT_EUQAL",
+  "NOT_EQUAL",
   "OR_OR",
   "AND_AND",
   "SEMICOLON",

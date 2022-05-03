@@ -43,6 +43,24 @@
                 <expectedConflicts>50</expectedConflicts>
             </configuration>
             </plugin>
+            <plugin>
+                <groupId>de.jflex</groupId>
+                <artifactId>jflex-maven-plugin</artifactId>
+                <version>1.8.2</version>
+                <executions>
+                <execution>
+                    <goals>
+                    <goal>generate</goal>
+                    </goals>
+                    <configuration>
+                    <outputDirectory>src/main/java</outputDirectory>
+                    <lexDefinitions>
+                        <lexDefinition>src/main/java/compiler/scanner/Lexer.jflex</lexDefinition>
+                    </lexDefinitions>
+                    </configuration>
+                </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
