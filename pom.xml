@@ -39,8 +39,7 @@
                 <className>parser</className>
                 <symbolsName>sym</symbolsName>
                 <cupDefinition>src/main/java/compiler/parser/parser.cup</cupDefinition>
-                <packageName>compiler.parser</packageName>
-                <outputDirectory>src/main/java/compiler/parser</outputDirectory>
+                <outputDirectory>src/main/java/</outputDirectory>
                 <expectedConflicts>50</expectedConflicts>
             </configuration>
             </plugin>
