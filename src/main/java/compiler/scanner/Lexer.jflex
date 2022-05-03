@@ -1,6 +1,7 @@
 package compiler.scanner;
 
 import java_cup.runtime.*;
+import compiler.parser.sym;
 
 %%
 
@@ -14,40 +15,8 @@ import java_cup.runtime.*;
 
 /* copied code */
 %{
-    public static final int T_EOF = 0;
-    public static final int T_KEYWORD = 1;
-    public static final int T_OPERATOR = 2;
-    public static final int T_INTLITERAL = 3;
-    public static final int T_DOUBLELITERAL = 4;
-    public static final int T_BOOLEANLITERAL = 5;
-    public static final int T_ID = 6;
-    public static final int T_STRINGLITERAL = 7;
-
-    private boolean eof = false;
-
-    StringBuffer string = new StringBuffer(); /* used for detecting string literals*/
-
-    public String getTokenString (Symbol token) {
-        if (token.sym == T_KEYWORD || token.sym == T_OPERATOR)
-            return (String) token.value;
-        else if (token.sym == T_INTLITERAL)
-            return "T_INTLITERAL " + (String) token.value; 
-        else if (token.sym == T_DOUBLELITERAL)
-            return "T_DOUBLELITERAL " + (String) token.value; 
-        else if (token.sym == T_BOOLEANLITERAL)
-            return "T_BOOLEANLITERAL " + (String) token.value; 
-        else if (token.sym == T_ID)
-            return "T_ID " + (String) token.value; 
-        else if (token.sym == T_STRINGLITERAL)
-            return "T_STRINGLITERAL \"" + (String) token.value + "\""; 
-        return "";
-    }
-
-    public boolean hasToken() {
-        return !this.eof;
-    }
-
-    /* used for cup*/
+    StringBuffer string = new StringBuffer();
+    
     private Symbol symbol(int type) {
         return new Symbol(type, yyline, yycolumn);
     }
@@ -56,10 +25,6 @@ import java_cup.runtime.*;
         return new Symbol(type, yyline, yycolumn, value);  
     }
 %}
-
-%eof{
-this.eof = true;
-%eof}
 
 /* macros */
 Identifier={Letter}({Digit} | {Letter} | {Underline})*
@@ -90,78 +55,75 @@ EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\'" | "\\\\")
 
 /* keywords */
 <YYINITIAL> {
-    "__func__"      { return symbol( T_KEYWORD, yytext()); }
-    "__line__"      { return symbol( T_KEYWORD, yytext()); }
-    "bool"          { return symbol( T_KEYWORD, yytext()); }
-    "break"         { return symbol( T_KEYWORD, yytext()); }
-    "btoi"          { return symbol( T_KEYWORD, yytext()); }
-    "class"         { return symbol( T_KEYWORD, yytext()); }
-    "continue"      { return symbol( T_KEYWORD, yytext()); }
-    "dtoi"          { return symbol( T_KEYWORD, yytext()); }
-    "else"          { return symbol( T_KEYWORD, yytext()); }
-    "for"           { return symbol( T_KEYWORD, yytext()); }
-    "if"            { return symbol( T_KEYWORD, yytext()); }
-    "int"           { return symbol( T_KEYWORD, yytext()); }
-    "NewArray"      { return symbol( T_KEYWORD, yytext()); }
-    "null"          { return symbol( T_KEYWORD, yytext()); }
-    "Print"         { return symbol( T_KEYWORD, yytext()); }
-    "private"       { return symbol( T_KEYWORD, yytext()); }
-    "public"        { return symbol( T_KEYWORD, yytext()); }
-    "ReadInteger"   { return symbol( T_KEYWORD, yytext()); }
-    "ReadLine"      { return symbol( T_KEYWORD, yytext()); }
-    "return"        { return symbol( T_KEYWORD, yytext()); }
-    "string"        { return symbol( T_KEYWORD, yytext()); }
-    "this"          { return symbol( T_KEYWORD, yytext()); }
-    "void"          { return symbol( T_KEYWORD, yytext()); }
-    "while"         { return symbol( T_KEYWORD, yytext()); }
-    "import"        { return symbol( T_KEYWORD, yytext()); }
-    "new"           { return symbol( T_KEYWORD, yytext()); }
-    "double"        { return symbol( T_KEYWORD, yytext()); }
-    "itob"          { return symbol( T_KEYWORD, yytext()); }
-    "itod"          { return symbol( T_KEYWORD, yytext()); }
-
+    "void"          { return symbol( sym.VOID }
+    "int"          { return symbol( sym.INT }
+    "double"          { return symbol( sym.DOUBLE }
+    "bool"          { return symbol( sym.BOOL }
+    "string"          { return symbol( sym.STRING }
+    "class"          { return symbol( sym.CLASS }
+    "interface"          { return symbol( sym.INTERFACE }
+    "null"          { return symbol( sym.NULL }
+    "this"          { return symbol( sym.THIS }
+    "extends"          { return symbol( sym.EXTENDS }
+    "implements"          { return symbol( sym.IMPLEMENTS }
+    "for"          { return symbol( sym.FOR }
+    "while"          { return symbol( sym.WHILE }
+    "if"          { return symbol( sym.IF }
+    "else"          { return symbol( sym.ELSE }
+    "return"          { return symbol( sym.RETURN }
+    "break"          { return symbol( sym.BREAK }
+    "continue"          { return symbol( sym.CONTINUE }
+    "new"          { return symbol( sym.NEW }
+    "NewArray"          { return symbol( sym.NewArray }
+    "Print"          { return symbol( sym.Print }
+    "ReadInteger"          { return symbol( sym.ReadInteger }
+    "ReadLine"          { return symbol( sym.ReadLine }
+    "dtoi"          { return symbol( sym.DTOI }
+    "itod"          { return symbol( sym.ITOD }
+    "btoi"          { return symbol( sym.BTOI }
+    "itob"          { return symbol( sym.ITOB }
+    "private"          { return symbol( sym.PRIVATE }
+    "protected"          { return symbol( sym.PROTECTED }
+    "public"          { return symbol( sym.PUBLIC }
+    "import"          { return symbol( sym.IMPORT }
 
 }
 
 /* operators */
 <YYINITIAL> {
-    "+"     { return symbol(T_OPERATOR, yytext()); }
-    "-"     { return symbol(T_OPERATOR, yytext()); }
-    "*"     { return symbol(T_OPERATOR, yytext()); }
-    "/"     { return symbol(T_OPERATOR, yytext()); }
-    "%"     { return symbol(T_OPERATOR, yytext()); }
-    "<"     { return symbol(T_OPERATOR, yytext()); }
-    "<="    { return symbol(T_OPERATOR, yytext()); }
-    ">"     { return symbol(T_OPERATOR, yytext()); }
-    ">="    { return symbol(T_OPERATOR, yytext()); }
-    "="     { return symbol(T_OPERATOR, yytext()); }
-    "+="    { return symbol(T_OPERATOR, yytext()); }
-    "-="    { return symbol(T_OPERATOR, yytext()); }
-    "*="    { return symbol(T_OPERATOR, yytext()); }
-    "/="    { return symbol(T_OPERATOR, yytext()); }
-    "=="    { return symbol(T_OPERATOR, yytext()); }
-    "!="    { return symbol(T_OPERATOR, yytext()); }
-    "&&"    { return symbol(T_OPERATOR, yytext()); }
-    "||"    { return symbol(T_OPERATOR, yytext()); }
-    "!"     { return symbol(T_OPERATOR, yytext()); }
-    ";"     { return symbol(T_OPERATOR, yytext()); }
-    ","     { return symbol(T_OPERATOR, yytext()); }
-    "."     { return symbol(T_OPERATOR, yytext()); }
-    "["     { return symbol(T_OPERATOR, yytext()); }
-    "]"     { return symbol(T_OPERATOR, yytext()); }
-    "("     { return symbol(T_OPERATOR, yytext()); }
-    ")"     { return symbol(T_OPERATOR, yytext()); }
-    "{"     { return symbol(T_OPERATOR, yytext()); }
-    "}"     { return symbol(T_OPERATOR, yytext()); }
+    "+"     { return symbol( sym.PLUS }
+    "-"     { return symbol( sym.MINUS }
+    "*"     { return symbol( sym.MULTIPLY }
+    "/"     { return symbol( sym.DIVIDE }
+    "%"     { return symbol( sym.MOD }
+    "<"     { return symbol( sym.LESS }
+    "<="    { return symbol( sym.LESS_EQUAL }
+    ">"     { return symbol( sym.GREATER }
+    ">="    { return symbol( sym.GREATER_EQUAL }
+    "="     { return symbol( sym.EQUAL }
+    "=="    { return symbol( sym.EQUAL_EQUAL }
+    "!="    { return symbol( sym.NOT_EQUAL }
+    "&&"    { return symbol( sym.AND_AND }
+    "||"    { return symbol( sym.OR_OR }
+    "!"     { return symbol( sym.NOT }
+    ";"     { return symbol( sym.SEMICOLON }
+    ","     { return symbol( sym.COMMA }
+    "."     { return symbol( sym.DOT }
+    "["     { return symbol( sym.BRACKETS_LEFT }
+    "]"     { return symbol( sym.BRACKETS_RIGHT }
+    "("     { return symbol( sym.PARANTHESIS_LEFT }
+    ")"     { return symbol( sym.PARANTHESIS_RIGHT }
+    "{"     { return symbol( sym.CURLY_BRACKETS_LEFT }
+    "}"     { return symbol( sym.CURLY_BRACKETS_RIGHT }
 }
 
 /* Identifier, literal and ignored rules*/
 
 <YYINITIAL> {
-    {IntLiteral}        {return symbol(T_INTLITERAL, yytext()); } 
-    {DoubleLiteral}     {return symbol(T_DOUBLELITERAL, yytext()); }
-    {BooleanLiteral}    {return symbol(T_BOOLEANLITERAL, yytext()); }
-    {Identifier}        {return symbol(T_ID, yytext()); }
+    {IntLiteral}        {return symbol(sym.INT_CONSTANT yytext()); } 
+    {DoubleLiteral}     {return symbol(sym.DOUBLE_CONSTANT, yytext()); }
+    {BooleanLiteral}    {return symbol(sym.BOOL_CONSTANT, yytext()); }
+    {Identifier}        {return symbol(IDENTIFIER, yytext()); }
     {Whitespace}        { /* ignore */}
     {Comment}           { /* ignore */}
 }
@@ -176,12 +138,12 @@ EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\'" | "\\\\")
 
 <STRING> {
     "\"" { yybegin(YYINITIAL);
-            return symbol(T_STRINGLITERAL, string.toString()); }
+            return symbol(sym.STRING_CONSTANT, string.toString()); }
 
     {StringCharset} {string.append(yytext()); }
 }
 
-<<EOF>>     { return symbol(T_EOF); }
+<<EOF>>     { return symbol(sym.EOF); }
 
 /* error fallback */
 [^] { throw new Error("Illegal character <" + yytext() + ">"); }
