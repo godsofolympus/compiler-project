@@ -50,15 +50,17 @@ non terminal Object Expr;
 non terminal Object Call;
 
 // precedence and associativity declarations
-precedence nonassoc EQUAL;
+precedence left ELSE;
+precedence right EQUAL;
 precedence left OR_OR;
 precedence left AND_AND;
-precedence nonassoc EQUAL_EQUAL, NOT_EUQAL;
-precedence nonassoc LESS, LESS_EQUAL, GREATER_EQUAL, GREATER_EQUAL;
+precedence left EQUAL_EQUAL, NOT_EUQAL;
+precedence left LESS, LESS_EQUAL, GREATER, GREATER_EQUAL;
 precedence left PLUS, MINUS;
 precedence left MULTIPLY, DIVIDE, MOD;
-precedence nonassoc NOT, UMINUS;
+precedence right NOT, UMINUS;
 precedence left BRACKETS_LEFT, DOT;
+precedence left PARANTHESIS_LEFT;
 
 // the grammar
 start with Program;
