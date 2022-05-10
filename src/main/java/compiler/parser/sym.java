@@ -9,13 +9,13 @@ package compiler.parser;
 public interface sym {
   /* terminals */
   public static final int DIVIDE = 35;
-  public static final int PARANTHESIS_RIGHT = 54;
-  public static final int PARANTHESIS_LEFT = 53;
+  public static final int PARANTHESIS_RIGHT = 55;
+  public static final int PARANTHESIS_LEFT = 54;
   public static final int AND_AND = 47;
   public static final int NEW_ARRAY = 20;
   public static final int UMINUS = 37;
   public static final int READ_LINE = 23;
-  public static final int BOOL_CONSTANT = 59;
+  public static final int BOOL_CONSTANT = 60;
   public static final int NOT_EQUAL = 45;
   public static final int DOUBLE = 4;
   public static final int GREATER = 41;
@@ -45,18 +45,18 @@ public interface sym {
   public static final int GREATER_EQUAL = 42;
   public static final int NEW = 19;
   public static final int error = 1;
-  public static final int NULL = 61;
-  public static final int BRACKETS_RIGHT = 52;
+  public static final int NULL = 62;
+  public static final int BRACKETS_RIGHT = 53;
   public static final int MOD = 36;
   public static final int BREAK = 17;
   public static final int VOID = 2;
-  public static final int BRACKETS_LEFT = 51;
+  public static final int BRACKETS_LEFT = 52;
   public static final int DTOI = 24;
-  public static final int CURLY_BRACKETS_RIGHT = 56;
+  public static final int CURLY_BRACKETS_RIGHT = 57;
   public static final int IMPORT = 31;
   public static final int ELSE = 15;
   public static final int PROTECTED = 29;
-  public static final int STRING_CONSTANT = 60;
+  public static final int STRING_CONSTANT = 61;
   public static final int ITOD = 25;
   public static final int ITOB = 27;
   public static final int WHILE = 13;
@@ -64,13 +64,14 @@ public interface sym {
   public static final int EXTENDS = 10;
   public static final int BTOI = 26;
   public static final int STRING = 6;
-  public static final int INT_CONSTANT = 57;
-  public static final int CURLY_BRACKETS_LEFT = 55;
-  public static final int DOUBLE_CONSTANT = 58;
+  public static final int INT_CONSTANT = 58;
+  public static final int OPEN_CLOSE_BRACKETS = 51;
+  public static final int CURLY_BRACKETS_LEFT = 56;
+  public static final int DOUBLE_CONSTANT = 59;
   public static final int IMPLEMENTS = 11;
   public static final int EQUAL_EQUAL = 44;
   public static final int PRINT = 21;
-  public static final int IDENTIFIER = 62;
+  public static final int IDENTIFIER = 63;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -123,6 +124,7 @@ public interface sym {
   "SEMICOLON",
   "COMMA",
   "DOT",
+  "OPEN_CLOSE_BRACKETS",
   "BRACKETS_LEFT",
   "BRACKETS_RIGHT",
   "PARANTHESIS_LEFT",

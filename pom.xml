@@ -40,7 +40,6 @@
                 <symbolsName>sym</symbolsName>
                 <cupDefinition>src/main/java/compiler/parser/parser.cup</cupDefinition>
                 <outputDirectory>src/main/java/</outputDirectory>
-                <expectedConflicts>50</expectedConflicts>
             </configuration>
             </plugin>
             <plugin>

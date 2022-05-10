@@ -24,7 +24,7 @@ terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
 terminal            UMINUS, NOT;
 terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EQUAL, OR_OR, AND_AND;
-terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
+terminal            SEMICOLON, COMMA, DOT, OPEN_CLOSE_BRACKETS, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
                     CURLY_BRACKETS_RIGHT;
 
 terminal Integer    INT_CONSTANT;
@@ -36,12 +36,12 @@ terminal             NULL;
 terminal String     IDENTIFIER;
 
 
-non terminal        Program, Macro, Decl, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
-                    InterfaceDecl, Prototype, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
+non terminal        Program, Macro, MacroStar, Decl, DeclStar, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
+                    InterfaceDecl, Prototype, StmtBlock, InsideStmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
                     PrintStmt, Actuals;
 
-non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar, VariableDeclStar, StmtStar,
-                    ExprOptional, ElseStmtOptional, StmtOptional, ExprPlusComma;
+non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar, StmtStar,
+                    ExprOptional, ElseStmtOptional , ExprPlusComma;
 
 non terminal Object Constant;
 non terminal Object LValue;
@@ -64,12 +64,14 @@ precedence left PARANTHESIS_LEFT;
 // the grammar
 start with Program;
 
-Program             ::= Decl | Program Decl | Macro Program;
+Program             ::= MacroStar Decl DeclStar;
 Macro               ::= IMPORT STRING_CONSTANT;
+MacroStar           ::= Macro MacroStar | /* epsilon */;
 Decl                ::= VariableDecl | FunctionDecl | ClassDecl | InterfaceDecl;
+DeclStar            ::= Decl DeclStar | /* epsilon */;
 VariableDecl        ::= Variable SEMICOLON;
 Variable            ::= Type IDENTIFIER;
-Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type BRACKETS_LEFT BRACKETS_RIGHT;
+Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type OPEN_CLOSE_BRACKETS;
 FunctionDecl        ::= Type IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock |
                         VOID IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock;
 Formals             ::= Variable | Formals COMMA Variable |  /* epsilon */;
@@ -84,16 +86,15 @@ InterfaceDecl       ::= INTERFACE IDENTIFIER CURLY_BRACKETS_LEFT PrototypeStar C
 PrototypeStar       ::= PrototypeStar Prototype | /* epsilon */ ;
 Prototype           ::= Type IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON |
                         VOID IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON;
-StmtBlock           ::= CURLY_BRACKETS_LEFT VariableDeclStar StmtStar CURLY_BRACKETS_RIGHT;
-VariableDeclStar    ::= VariableDeclStar VariableDecl | /* epsilon */ ;
-StmtStar            ::= StmtStar Stmt | /* epsilon */ ;
+StmtBlock           ::= CURLY_BRACKETS_LEFT InsideStmtBlock CURLY_BRACKETS_RIGHT;
+InsideStmtBlock     ::= VariableDecl InsideStmtBlock | StmtStar;
+StmtStar            ::= Stmt StmtStar | /* epsilon */ ;
 Stmt                ::= ExprOptional SEMICOLON | IfStmt | WhileStmt | ForStmt | BreakStmt | ContinueStmt | ReturnStmt | PrintStmt | StmtBlock;
 ExprOptional        ::= Expr | /* epsilon */ ;
 IfStmt              ::= IF PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt ElseStmtOptional;
 ElseStmtOptional    ::= ELSE Stmt | /* epsilon */ ;
 WhileStmt           ::= WHILE PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt;
-ForStmt             ::= FOR PARANTHESIS_LEFT StmtOptional SEMICOLON Stmt SEMICOLON StmtOptional PARANTHESIS_RIGHT Stmt;
-StmtOptional        ::= Stmt | /* epsilon */ ;
+ForStmt             ::= FOR PARANTHESIS_LEFT ExprOptional SEMICOLON Stmt SEMICOLON ExprOptional PARANTHESIS_RIGHT Stmt;
 ReturnStmt          ::= RETURN ExprOptional SEMICOLON;
 BreakStmt           ::= BREAK SEMICOLON;
 ContinueStmt        ::= CONTINUE SEMICOLON;
