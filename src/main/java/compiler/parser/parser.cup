@@ -24,7 +24,7 @@ terminal            PRIVATE, PROTECTED, PUBLIC, IMPORT;
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
 terminal            UMINUS, NOT;
 terminal            LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL, EQUAL_EQUAL, NOT_EQUAL, OR_OR, AND_AND;
-terminal            SEMICOLON, COMMA, DOT, OPEN_CLOSE_BRACKETS, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
+terminal            SEMICOLON, COMMA, DOT, BRACKETS_LEFT_RIGHT, BRACKETS_LEFT, BRACKETS_RIGHT, PARANTHESIS_LEFT, PARANTHESIS_RIGHT, CURLY_BRACKETS_LEFT,
                     CURLY_BRACKETS_RIGHT;
 
 terminal Integer    INT_CONSTANT;
@@ -71,7 +71,7 @@ Decl                ::= VariableDecl | FunctionDecl | ClassDecl | InterfaceDecl;
 DeclStar            ::= Decl DeclStar | /* epsilon */;
 VariableDecl        ::= Variable SEMICOLON;
 Variable            ::= Type IDENTIFIER;
-Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type OPEN_CLOSE_BRACKETS;
+Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type BRACKETS_LEFT_RIGHT;
 FunctionDecl        ::= Type IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock |
                         VOID IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock;
 Formals             ::= Variable | Formals COMMA Variable |  /* epsilon */;

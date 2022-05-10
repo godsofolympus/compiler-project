@@ -939,7 +939,7 @@ class CUP$Parser$actions {
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 18: // Type ::= Type OPEN_CLOSE_BRACKETS 
+          case 18: // Type ::= Type BRACKETS_LEFT_RIGHT 
             {
               Object RESULT =null;
 

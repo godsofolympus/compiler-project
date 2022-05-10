@@ -57,6 +57,7 @@ public interface sym {
   public static final int ELSE = 15;
   public static final int PROTECTED = 29;
   public static final int STRING_CONSTANT = 61;
+  public static final int BRACKETS_LEFT_RIGHT = 51;
   public static final int ITOD = 25;
   public static final int ITOB = 27;
   public static final int WHILE = 13;
@@ -65,7 +66,6 @@ public interface sym {
   public static final int BTOI = 26;
   public static final int STRING = 6;
   public static final int INT_CONSTANT = 58;
-  public static final int OPEN_CLOSE_BRACKETS = 51;
   public static final int CURLY_BRACKETS_LEFT = 56;
   public static final int DOUBLE_CONSTANT = 59;
   public static final int IMPLEMENTS = 11;
@@ -124,7 +124,7 @@ public interface sym {
   "SEMICOLON",
   "COMMA",
   "DOT",
-  "OPEN_CLOSE_BRACKETS",
+  "BRACKETS_LEFT_RIGHT",
   "BRACKETS_LEFT",
   "BRACKETS_RIGHT",
   "PARANTHESIS_LEFT",

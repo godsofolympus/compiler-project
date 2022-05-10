@@ -109,6 +109,7 @@ EsapeCharset=("\\t" | "\\n" | "\\r" | "\\\"" | "\\'" | "\\\\")
     ";"     { return symbol( sym.SEMICOLON); }
     ","     { return symbol( sym.COMMA); }
     "."     { return symbol( sym.DOT); }
+    "[]"    { return symbol( sym.BRACKETS_LEFT_RIGHT); }
     "["     { return symbol( sym.BRACKETS_LEFT); }
     "]"     { return symbol( sym.BRACKETS_RIGHT); }
     "("     { return symbol( sym.PARANTHESIS_LEFT); }

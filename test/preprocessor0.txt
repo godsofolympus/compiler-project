@@ -1,8 +1,0 @@
-define PI 3.1415
-define FOR100 for (i = 0; i < 100; i ++)
-int main () {
-    int i;
-    FOR100 {
-    Print( i , "   PI  sdls" ) ;
-7   }
-8 }
