@@ -1,10 +1,13 @@
 package compiler;
-import java_cup.runtime.*;
+
 
 import java.io.*;
 
+import compiler.parser.Parser;
 import compiler.scanner.Lexer;
 import compiler.scanner.Preprocessor;
+import java_cup.runtime.Symbol;
+
 
 public class Main {
 
@@ -14,8 +17,12 @@ public class Main {
         inputFile = new File(".pp_tmp");
 
         Lexer scanner;
+        Parser parser;
         try {
             scanner = new Lexer(new FileReader(inputFile));
+            parser = new Parser(scanner);
+            parser.parse();
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;

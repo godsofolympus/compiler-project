@@ -7,7 +7,7 @@ import compiler.scanner.*;
 parser code {:  
                 private Lexer scanner;
 
-                public parser(Lexer scanner) {
+                public Parser(Lexer scanner) {
                     this.scanner = scanner;
                 } 
             :};
@@ -94,7 +94,7 @@ ExprOptional        ::= Expr | /* epsilon */ ;
 IfStmt              ::= IF PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt ElseStmtOptional;
 ElseStmtOptional    ::= ELSE Stmt | /* epsilon */ ;
 WhileStmt           ::= WHILE PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt;
-ForStmt             ::= FOR PARANTHESIS_LEFT ExprOptional SEMICOLON Stmt SEMICOLON ExprOptional PARANTHESIS_RIGHT Stmt;
+ForStmt             ::= FOR PARANTHESIS_LEFT ExprOptional SEMICOLON Expr SEMICOLON ExprOptional PARANTHESIS_RIGHT Stmt;
 ReturnStmt          ::= RETURN ExprOptional SEMICOLON;
 BreakStmt           ::= BREAK SEMICOLON;
 ContinueStmt        ::= CONTINUE SEMICOLON;
