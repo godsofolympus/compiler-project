@@ -10,18 +10,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Preprocessor {
-
-    private final StringBuilder stringBuilder = new StringBuilder();
     private final Pattern definePattern = Pattern.compile("^\\s*define\\s+([a-zA-Z][\\w_]*)\\s+(\\S.*)$");
+
+    private final Pattern importPattern = Pattern.compile("^\\s*import\\s+\\S+$");
     private final Map<String, String> defineStatements = new HashMap<>();
     private final ArrayList<String> strings = new ArrayList<>();
     private final File inputFile;
     private final String outputFileName;
 
-    public Preprocessor(String inputFileName, String outputFileName) {
-        this.inputFile = new File(inputFileName);
-        this.outputFileName = outputFileName;
-    }
+    private boolean stopProcess = false;
 
     public Preprocessor(File inputFile, String outputFileName) {
         this.inputFile = inputFile;
@@ -31,8 +28,8 @@ public class Preprocessor {
     public void preprocess() {
         try {
             Scanner scanner = new Scanner(inputFile);
-            while (scanner.hasNextLine()) processLine(scanner.nextLine());
-            String stringlessFile = emptyStrings(stringBuilder.toString());
+            String definelessString = extractMacros(scanner);
+            String stringlessFile = emptyStrings(definelessString);
             String replacedString = replaceMacros(stringlessFile);
             String preprocessedString = replaceStrings(replacedString); 
             FileWriter fileWriter = new FileWriter(outputFileName);
@@ -42,6 +39,25 @@ public class Preprocessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String extractMacros(Scanner scanner) {
+        StringBuilder sb = new StringBuilder();
+        boolean stopProcess = false;
+        while (!stopProcess && scanner.hasNextLine()) {
+            String currentLine = scanner.nextLine();
+            Matcher defineMatcher = definePattern.matcher(currentLine);
+            Matcher importMatcher = importPattern.matcher(currentLine);
+            if (defineMatcher.find()) defineStatements.put(defineMatcher.group(1), defineMatcher.group(2));
+            else {
+                if (!importMatcher.find()) stopProcess = true;
+                sb.append(currentLine).append('\n');
+            }
+        }
+        while (scanner.hasNextLine()) {
+            sb.append(scanner.nextLine()).append('\n');
+        }
+        return sb.toString();
     }
 
     private String replaceStrings(String string) {
@@ -65,12 +81,6 @@ public class Preprocessor {
         }
         stringMatcher.appendTail(sb);
         return sb.toString();
-    }
-
-    private void processLine(String line) {
-        Matcher matcher = definePattern.matcher(line);
-        if (matcher.find()) defineStatements.put(matcher.group(1), matcher.group(2));
-        else stringBuilder.append(line).append('\n');
     }
 
     private String replaceMacros(String currentString) {
