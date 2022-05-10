@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class Preprocessor {
     private final Pattern definePattern = Pattern.compile("^\\s*define\\s+([a-zA-Z][\\w_]*)\\s+(\\S.*)$");
 
-    private final Pattern importPattern = Pattern.compile("^\\s*import\\s+\\S+$");
+    private final Pattern importPattern = Pattern.compile("^\\s*import\\s+\\S+");
     private final Map<String, String> defineStatements = new HashMap<>();
     private final ArrayList<String> strings = new ArrayList<>();
     private final File inputFile;
@@ -48,7 +48,7 @@ public class Preprocessor {
             String currentLine = scanner.nextLine();
             Matcher defineMatcher = definePattern.matcher(currentLine);
             Matcher importMatcher = importPattern.matcher(currentLine);
-            if (defineMatcher.find()) defineStatements.put(defineMatcher.group(1), defineMatcher.group(2));
+            if (defineMatcher.find()) {defineStatements.put(defineMatcher.group(1), defineMatcher.group(2));}
             else {
                 if (!importMatcher.find()) stopProcess = true;
                 sb.append(currentLine).append('\n');
