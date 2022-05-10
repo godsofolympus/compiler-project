@@ -53,7 +53,7 @@
                     <goal>generate</goal>
                     </goals>
                     <configuration>
-                    <outputDirectory>src/main/java/compiler/scanner</outputDirectory>
+                    <outputDirectory>src/main/java</outputDirectory>
                     <lexDefinitions>
                         <lexDefinition>src/main/java/compiler/scanner/Lexer.jflex</lexDefinition>
                     </lexDefinitions>
