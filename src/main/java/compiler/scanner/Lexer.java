@@ -885,7 +885,6 @@ public class Lexer implements java_cup.runtime.Scanner {
               }
       }
       else {
-        System.out.println(yytext());
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
             { throw new Error("Illegal character <" + yytext() + ">");

@@ -1,7 +1,9 @@
 package compiler.parser;
 
+import java.util.*;
 import java_cup.runtime.*;
 import compiler.scanner.*;
+import compiler.AST.*;
 
 // user code components
 parser code {:  
@@ -36,7 +38,11 @@ terminal             NULL;
 terminal String     IDENTIFIER;
 
 
-non terminal        Program, Macro, MacroStar, Decl, DeclStar, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
+non terminal Program Program;
+non terminal Decl Decl;
+non terminal LinkedList<Decl> DeclStar;
+
+non terminal        Macro, MacroStar, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
                     InterfaceDecl, Prototype, StmtBlock, InsideStmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
                     PrintStmt, Actuals;
 
@@ -64,11 +70,23 @@ precedence left PARANTHESIS_LEFT;
 // the grammar
 start with Program;
 
-Program             ::= MacroStar Decl DeclStar;
+Program ::= MacroStar Decl:d DeclStar:ds    {: ds.add(d); RESULT = new Program(ds); :};
+
 Macro               ::= IMPORT STRING_CONSTANT;
 MacroStar           ::= Macro MacroStar | /* epsilon */;
-Decl                ::= VariableDecl | FunctionDecl | ClassDecl | InterfaceDecl;
-DeclStar            ::= Decl DeclStar | /* epsilon */;
+
+Decl
+    ::= VariableDecl {: RESULT = Decl.variableDecl(); :}
+    | FunctionDecl {: RESULT = Decl.functionDecl(); :}
+    | ClassDecl {: RESULT = Decl.classDecl(); :}
+    | InterfaceDecl {: RESULT = Decl.interfaceDecl(); :}
+    ;
+
+DeclStar
+    ::= Decl:d DeclStar:ds   {: ds.add(d); RESULT = ds; :}
+    |   {: RESULT = new LinkedList<Decl>(); :}
+    ;
+
 VariableDecl        ::= Variable SEMICOLON;
 Variable            ::= Type IDENTIFIER;
 Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type BRACKETS_LEFT_RIGHT;
