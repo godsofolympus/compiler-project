@@ -2,12 +2,13 @@ package compiler;
 
 
 import java.io.*;
-import java.util.LinkedList;
 
+
+import compiler.AST.Decl;
+import compiler.AST.Program;
 import compiler.parser.Parser;
 import compiler.scanner.Lexer;
 import compiler.scanner.Preprocessor;
-import java_cup.runtime.Symbol;
 
 
 public class Main {
@@ -16,14 +17,12 @@ public class Main {
         Preprocessor preprocessor = new Preprocessor(inputFile, ".pp_tmp");
         preprocessor.preprocess();
         inputFile = new File(".pp_tmp");
-
         Lexer scanner;
         Parser parser;
         try {
             scanner = new Lexer(new FileReader(inputFile));
             parser = new Parser(scanner);
-            parser.parse();
-
+            Program program = (Program) parser.parse().value;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

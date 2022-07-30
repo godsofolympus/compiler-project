@@ -4,6 +4,7 @@ import java.util.*;
 import java_cup.runtime.*;
 import compiler.scanner.*;
 import compiler.AST.*;
+import compiler.models.*;
 
 // user code components
 parser code {:  
@@ -41,12 +42,23 @@ terminal String     IDENTIFIER;
 non terminal Program Program;
 non terminal Decl Decl;
 non terminal LinkedList<Decl> DeclStar;
+non terminal LinkedList<Variable> VariableDeclStar;
+non terminal Variable VariableDecl;
+non terminal Variable Variable;
+non terminal Type Type;
+non terminal Primitive PrimitiveType;
+non terminal LinkedList<Variable> Formals;
+non terminal StmtBlock StmtBlock;
+non terminal StmtBlock InsideStmtBlock;
+non terminal LinkedList<Stmt> StmtStar;
+non terminal Stmt Stmt;
+non terminal Decl FunctionDecl;
 
-non terminal        Macro, MacroStar, VariableDecl, Variable, Type, FunctionDecl, Formals, ClassDecl, Field, AccessMode,
-                    InterfaceDecl, Prototype, StmtBlock, InsideStmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
+non terminal        Macro, MacroStar, ClassDecl, Field, AccessMode,
+                    InterfaceDecl, Prototype, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
                     PrintStmt, Actuals;
 
-non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar, StmtStar,
+non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar,
                     ExprOptional, ElseStmtOptional , ExprPlusComma;
 
 non terminal Object Constant;
@@ -72,12 +84,12 @@ start with Program;
 
 Program ::= MacroStar Decl:d DeclStar:ds    {: ds.add(d); RESULT = new Program(ds); :};
 
-Macro               ::= IMPORT STRING_CONSTANT;
-MacroStar           ::= Macro MacroStar | /* epsilon */;
+Macro ::= IMPORT STRING_CONSTANT;
+MacroStar ::= Macro MacroStar | /* epsilon */;
 
 Decl
-    ::= VariableDecl {: RESULT = Decl.variableDecl(); :}
-    | FunctionDecl {: RESULT = Decl.functionDecl(); :}
+    ::= VariableDecl:v {: RESULT = Decl.variableDecl(v); :}
+    | FunctionDecl:f {: RESULT = f; :}
     | ClassDecl {: RESULT = Decl.classDecl(); :}
     | InterfaceDecl {: RESULT = Decl.interfaceDecl(); :}
     ;
@@ -87,12 +99,38 @@ DeclStar
     |   {: RESULT = new LinkedList<Decl>(); :}
     ;
 
-VariableDecl        ::= Variable SEMICOLON;
-Variable            ::= Type IDENTIFIER;
-Type                ::= INT | DOUBLE | BOOL | STRING | IDENTIFIER | Type BRACKETS_LEFT_RIGHT;
-FunctionDecl        ::= Type IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock |
-                        VOID IDENTIFIER PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT StmtBlock;
-Formals             ::= Variable | Formals COMMA Variable |  /* epsilon */;
+VariableDeclStar
+    ::= VariableDecl:v VariableDeclStar:vs {: vs.add(v); RESULT = vs; :}
+    |   {:RESULT = new LinkedList<Variable>(); :}
+    ;
+
+VariableDecl        ::= Variable:v SEMICOLON {: RESULT = v; :};
+Variable            ::= Type:t IDENTIFIER:id {: RESULT = new Variable(t, id); :};
+
+PrimitiveType
+    ::= INT {: RESULT = Primitive.INT; :}
+    | DOUBLE {: RESULT = Primitive.DOUBLE; :}
+    | BOOL {: RESULT = Primitive.BOOL; :}
+    | STRING {: RESULT = Primitive.STRING; :}
+    ;
+
+Type
+    ::= PrimitiveType:pt {: RESULT = Type.primitiveType(pt); :}
+    | IDENTIFIER:id {: RESULT =  Type.nonPrimitiveType(id); :}
+    | Type:t BRACKETS_LEFT_RIGHT {: RESULT = Type.arrayType(t); :}
+    ;
+
+FunctionDecl
+    ::= Type:t IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, t, f, sb); :}
+    |   VOID IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, null, f, sb); :}
+    ;
+
+Formals
+    ::= Variable:v {: LinkedList<Variable> list = new LinkedList<>(); list.add(v); RESULT = list; :}
+    | Formals:f COMMA Variable:v {: f.add(v); RESULT = f; :}
+    | {: RESULT = new LinkedList<Variable>(); :} /* epsilon */
+    ;
+
 ClassDecl           ::= CLASS IDENTIFIER ClassDeclExtends ClassDeclImplements CURLY_BRACKETS_LEFT ClassDeclFields CURLY_BRACKETS_RIGHT;
 ClassDeclExtends    ::= EXTENDS IDENTIFIER | /* epsilon */ ;
 ClassDeclImplements ::= IMPLEMENTS IdentifierStar | /* epsilon */ ;
@@ -104,10 +142,27 @@ InterfaceDecl       ::= INTERFACE IDENTIFIER CURLY_BRACKETS_LEFT PrototypeStar C
 PrototypeStar       ::= PrototypeStar Prototype | /* epsilon */ ;
 Prototype           ::= Type IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON |
                         VOID IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON;
-StmtBlock           ::= CURLY_BRACKETS_LEFT InsideStmtBlock CURLY_BRACKETS_RIGHT;
-InsideStmtBlock     ::= VariableDecl InsideStmtBlock | StmtStar;
-StmtStar            ::= Stmt StmtStar | /* epsilon */ ;
-Stmt                ::= ExprOptional SEMICOLON | IfStmt | WhileStmt | ForStmt | BreakStmt | ContinueStmt | ReturnStmt | PrintStmt | StmtBlock;
+StmtBlock           ::= CURLY_BRACKETS_LEFT InsideStmtBlock:sb CURLY_BRACKETS_RIGHT {: RESULT = sb; :};
+
+InsideStmtBlock     ::= VariableDeclStar:vs StmtStar:ss {: RESULT = new StmtBlock(vs, ss); :};
+
+StmtStar
+    ::= Stmt:s StmtStar:ss {: ss.add(s); RESULT = ss; :}
+    | {: RESULT = new LinkedList<Stmt>(); :}/* epsilon */
+    ;
+
+Stmt
+    ::= ExprOptional SEMICOLON {: RESULT = Stmt.exprStmt(); :}
+    | IfStmt {: RESULT = Stmt.ifStmt(); :}
+    | WhileStmt {: RESULT = Stmt.whileStmt(); :}
+    | ForStmt {: RESULT = Stmt.forStmt(); :}
+    | BreakStmt {: RESULT = Stmt.breakStmt(); :}
+    | ContinueStmt {: RESULT = Stmt.continueStmt(); :}
+    | ReturnStmt {: RESULT = Stmt.returnStmt(); :}
+    | PrintStmt {: RESULT = Stmt.printStmt(); :}
+    | StmtBlock {: RESULT = Stmt.blockStmt(); :}
+    ;
+
 ExprOptional        ::= Expr | /* epsilon */ ;
 IfStmt              ::= IF PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt ElseStmtOptional;
 ElseStmtOptional    ::= ELSE Stmt | /* epsilon */ ;
