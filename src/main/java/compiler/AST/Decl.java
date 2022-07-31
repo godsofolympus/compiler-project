@@ -30,9 +30,30 @@ public abstract class Decl {
         }
     }
 
-    public static ClassDecl classDecl() {return new ClassDecl();}
-    public static class ClassDecl extends Decl {}
+    public static ClassDecl classDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields)
+    {return new ClassDecl(id, superClass, interfaces, classFields);}
+    public static class ClassDecl extends Decl {
+        public String id;
+        public String superClass;
+        public List<String> interfaces;
+        public List<ClassField> classFields;
 
-    public static InterfaceDecl interfaceDecl() {return new InterfaceDecl();}
-    public static class InterfaceDecl extends Decl {}
+        public ClassDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields) {
+            this.id = id;
+            this.superClass = superClass;
+            this.interfaces = interfaces;
+            this.classFields = classFields;
+        }
+    }
+
+    public static InterfaceDecl interfaceDecl(String id, List<Prototype> prototypes) {return new InterfaceDecl(id, prototypes);}
+    public static class InterfaceDecl extends Decl {
+        public String id;
+        public List<Prototype> prototypes;
+
+        public InterfaceDecl(String id, List<Prototype> prototypes) {
+            this.id = id;
+            this.prototypes = prototypes;
+        }
+    }
 }

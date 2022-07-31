@@ -52,7 +52,7 @@ non terminal StmtBlock StmtBlock;
 non terminal StmtBlock InsideStmtBlock;
 non terminal LinkedList<Stmt> StmtStar;
 non terminal Stmt Stmt;
-non terminal Decl FunctionDecl;
+non terminal Decl.FunctionDecl FunctionDecl;
 non terminal LValue LValue;
 non terminal Expr Expr;
 non terminal Constant Constant;
@@ -66,11 +66,18 @@ non terminal Stmt WhileStmt;
 non terminal Stmt ForStmt;
 non terminal Stmt ReturnStmt;
 non terminal Stmt PrintStmt;
+non terminal String ClassDeclExtends;
+non terminal LinkedList<String> ClassDeclImplements;
+non terminal LinkedList<String> IdentifierStar;
+non terminal LinkedList<ClassField> ClassDeclFields;
+non terminal AccessMode AccessMode;
+non terminal ClassField Field;
+non terminal Decl ClassDecl;
+non terminal Decl InterfaceDecl;
+non terminal Prototype Prototype;
+non terminal LinkedList<Prototype> PrototypeStar;
 
-non terminal        Macro, MacroStar, ClassDecl, Field, AccessMode,
-                    InterfaceDecl, Prototype, BreakStmt, ContinueStmt;
-
-non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar;
+non terminal        Macro, MacroStar, BreakStmt, ContinueStmt;
 
 
 // precedence and associativity declarations
@@ -97,8 +104,8 @@ MacroStar ::= Macro MacroStar | /* epsilon */;
 Decl
     ::= VariableDecl:v {: RESULT = Decl.variableDecl(v); :}
     | FunctionDecl:f {: RESULT = f; :}
-    | ClassDecl {: RESULT = Decl.classDecl(); :}
-    | InterfaceDecl {: RESULT = Decl.interfaceDecl(); :}
+    | ClassDecl:c {: RESULT = c; :}
+    | InterfaceDecl:i {: RESULT = i; :}
     ;
 
 DeclStar
@@ -138,17 +145,37 @@ Formals
     | {: RESULT = new LinkedList<Variable>(); :} /* epsilon */
     ;
 
-ClassDecl           ::= CLASS IDENTIFIER ClassDeclExtends ClassDeclImplements CURLY_BRACKETS_LEFT ClassDeclFields CURLY_BRACKETS_RIGHT;
-ClassDeclExtends    ::= EXTENDS IDENTIFIER | /* epsilon */ ;
-ClassDeclImplements ::= IMPLEMENTS IdentifierStar | /* epsilon */ ;
-IdentifierStar      ::= IDENTIFIER | IdentifierStar COMMA IDENTIFIER;
-ClassDeclFields     ::= ClassDeclFields Field | /* epsilon */ ;
-Field               ::= AccessMode VariableDecl | AccessMode FunctionDecl;
-AccessMode          ::= PRIVATE | PROTECTED | PUBLIC | /* epsilon */ ;
-InterfaceDecl       ::= INTERFACE IDENTIFIER CURLY_BRACKETS_LEFT PrototypeStar CURLY_BRACKETS_RIGHT;
-PrototypeStar       ::= PrototypeStar Prototype | /* epsilon */ ;
-Prototype           ::= Type IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON |
-                        VOID IdentifierStar PARANTHESIS_LEFT Formals PARANTHESIS_RIGHT SEMICOLON;
+ClassDecl
+    ::= CLASS IDENTIFIER:id ClassDeclExtends:ce ClassDeclImplements:ci CURLY_BRACKETS_LEFT ClassDeclFields:cf CURLY_BRACKETS_RIGHT
+    {: RESULT = Decl.classDecl(id, ce, ci, cf); :};
+
+ClassDeclExtends    ::= EXTENDS IDENTIFIER:id {: RESULT = id; :} | /* epsilon */ ;
+ClassDeclImplements ::= IMPLEMENTS IdentifierStar:ids {: RESULT = ids; :} | {: RESULT = new LinkedList<String>(); :} /* epsilon */ ;
+
+IdentifierStar
+    ::= IDENTIFIER:id {: LinkedList<String> ids = new LinkedList<String>(); ids.add(id); RESULT = ids; :}
+    | IdentifierStar:ids COMMA IDENTIFIER:id {: ids.add(id); RESULT = ids; :};
+
+ClassDeclFields     ::= ClassDeclFields:fs Field:f {: fs.add(f); RESULT = fs; :} | {: RESULT = new LinkedList<ClassField>(); :} /* epsilon */ ;
+
+Field
+    ::= AccessMode:am VariableDecl:v {: RESULT = ClassField.varField(am, v); :}
+    | AccessMode:am FunctionDecl:fd {: RESULT = ClassField.methodField(am, fd); :};
+
+AccessMode
+    ::= PRIVATE {: RESULT = AccessMode.PRIVATE; :}
+    | PROTECTED {: RESULT = AccessMode.PROTECTED; :}
+    | PUBLIC {: RESULT = AccessMode.PUBLIC; :}
+    | /* epsilon */ ;
+
+InterfaceDecl       ::= INTERFACE IDENTIFIER:id CURLY_BRACKETS_LEFT PrototypeStar:ps CURLY_BRACKETS_RIGHT {: RESULT = Decl.interfaceDecl(id, ps); :};
+PrototypeStar       ::= PrototypeStar:ps Prototype:p {: ps.add(p); RESULT = ps; :} | {: RESULT = new LinkedList<Prototype>(); :} /* epsilon */ ;
+
+Prototype
+    ::= Type:t IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT SEMICOLON {: RESULT = new Prototype(t, id, f); :}
+    | VOID IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT SEMICOLON {: RESULT = new Prototype(null, id, f); :}
+    ;
+
 StmtBlock           ::= CURLY_BRACKETS_LEFT InsideStmtBlock:sb CURLY_BRACKETS_RIGHT {: RESULT = sb; :};
 
 InsideStmtBlock     ::= VariableDeclStar:vs StmtStar:ss {: RESULT = new StmtBlock(vs, ss); :};
