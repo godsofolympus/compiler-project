@@ -53,18 +53,25 @@ non terminal StmtBlock InsideStmtBlock;
 non terminal LinkedList<Stmt> StmtStar;
 non terminal Stmt Stmt;
 non terminal Decl FunctionDecl;
+non terminal LValue LValue;
+non terminal Expr Expr;
+non terminal Constant Constant;
+non terminal Call Call;
+non terminal LinkedList<Expr> Actuals;
+non terminal LinkedList<Expr> ExprPlusComma;
+non terminal Expr ExprOptional;
+non terminal Stmt ElseStmtOptional;
+non terminal Stmt IfStmt;
+non terminal Stmt WhileStmt;
+non terminal Stmt ForStmt;
+non terminal Stmt ReturnStmt;
+non terminal Stmt PrintStmt;
 
 non terminal        Macro, MacroStar, ClassDecl, Field, AccessMode,
-                    InterfaceDecl, Prototype, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, ContinueStmt,
-                    PrintStmt, Actuals;
+                    InterfaceDecl, Prototype, BreakStmt, ContinueStmt;
 
-non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar,
-                    ExprOptional, ElseStmtOptional , ExprPlusComma;
+non terminal        ClassDeclExtends, ClassDeclImplements, ClassDeclFields, IdentifierStar, PrototypeStar;
 
-non terminal Object Constant;
-non terminal Object LValue;
-non terminal Object Expr;
-non terminal Object Call;
 
 // precedence and associativity declarations
 precedence left ELSE;
@@ -152,36 +159,91 @@ StmtStar
     ;
 
 Stmt
-    ::= ExprOptional SEMICOLON {: RESULT = Stmt.exprStmt(); :}
-    | IfStmt {: RESULT = Stmt.ifStmt(); :}
-    | WhileStmt {: RESULT = Stmt.whileStmt(); :}
-    | ForStmt {: RESULT = Stmt.forStmt(); :}
+    ::= ExprOptional:e SEMICOLON {: RESULT = Stmt.exprStmt(e); :}
+    | IfStmt:s {: RESULT = s; :}
+    | WhileStmt:s {: RESULT = s; :}
+    | ForStmt:s {: RESULT = s; :}
     | BreakStmt {: RESULT = Stmt.breakStmt(); :}
     | ContinueStmt {: RESULT = Stmt.continueStmt(); :}
-    | ReturnStmt {: RESULT = Stmt.returnStmt(); :}
-    | PrintStmt {: RESULT = Stmt.printStmt(); :}
-    | StmtBlock {: RESULT = Stmt.blockStmt(); :}
+    | ReturnStmt:s {: RESULT = s; :}
+    | PrintStmt:s {: RESULT = s; :}
+    | StmtBlock:sb {: RESULT = Stmt.blockStmt(sb); :}
     ;
 
-ExprOptional        ::= Expr | /* epsilon */ ;
-IfStmt              ::= IF PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt ElseStmtOptional;
-ElseStmtOptional    ::= ELSE Stmt | /* epsilon */ ;
-WhileStmt           ::= WHILE PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT Stmt;
-ForStmt             ::= FOR PARANTHESIS_LEFT ExprOptional SEMICOLON Expr SEMICOLON ExprOptional PARANTHESIS_RIGHT Stmt;
-ReturnStmt          ::= RETURN ExprOptional SEMICOLON;
+ExprOptional
+    ::= Expr:e {: RESULT = e; :}
+    | /* epsilon */ ;
+
+IfStmt              ::= IF PARANTHESIS_LEFT Expr:cond PARANTHESIS_RIGHT Stmt:s ElseStmtOptional:el {: RESULT = Stmt.ifStmt(cond, s, el); :};
+ElseStmtOptional    ::= ELSE Stmt:s {: RESULT = s; :} | /* epsilon */ ;
+WhileStmt           ::= WHILE PARANTHESIS_LEFT Expr:cond PARANTHESIS_RIGHT Stmt:s {: RESULT = Stmt.whileStmt(cond, s); :};
+
+ForStmt
+    ::= FOR PARANTHESIS_LEFT ExprOptional:i SEMICOLON Expr:c SEMICOLON ExprOptional:u PARANTHESIS_RIGHT Stmt:s {: RESULT = Stmt.forStmt(i, c, u, s); :}
+    ;
+
+ReturnStmt          ::= RETURN ExprOptional:e SEMICOLON {: RESULT = Stmt.returnStmt(e); :};
 BreakStmt           ::= BREAK SEMICOLON;
 ContinueStmt        ::= CONTINUE SEMICOLON;
-PrintStmt           ::= PRINT PARANTHESIS_LEFT ExprPlusComma PARANTHESIS_RIGHT SEMICOLON;
-ExprPlusComma       ::= Expr | ExprPlusComma COMMA Expr;
-Expr                ::= LValue EQUAL Expr | Constant | LValue | THIS | Call | PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |
-                        Expr PLUS Expr | Expr MINUS Expr | Expr MULTIPLY Expr | Expr DIVIDE Expr |
-                        Expr MOD Expr | MINUS Expr | Expr LESS Expr | Expr LESS_EQUAL Expr |
-                        Expr GREATER Expr | Expr GREATER_EQUAL Expr | Expr EQUAL_EQUAL Expr | Expr NOT_EQUAL Expr |
-                        Expr AND_AND Expr | Expr OR_OR Expr | NOT Expr | READ_INTEGER PARANTHESIS_LEFT PARANTHESIS_RIGHT |
-                        READ_LINE PARANTHESIS_LEFT PARANTHESIS_RIGHT | NEW IDENTIFIER | NEW_ARRAY PARANTHESIS_LEFT Expr COMMA Type PARANTHESIS_RIGHT |
-                        ITOD PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT | DTOI PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT |
-                        ITOB PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT | BTOI PARANTHESIS_LEFT Expr PARANTHESIS_RIGHT;
-LValue              ::= IDENTIFIER | Expr DOT IDENTIFIER | Expr BRACKETS_LEFT Expr BRACKETS_RIGHT;
-Call                ::= IDENTIFIER PARANTHESIS_LEFT Actuals PARANTHESIS_RIGHT | Expr DOT IDENTIFIER PARANTHESIS_LEFT Actuals PARANTHESIS_RIGHT;
-Actuals             ::= ExprPlusComma | /* epsilon */ ;
-Constant            ::= INT_CONSTANT | DOUBLE_CONSTANT | BOOL_CONSTANT | STRING_CONSTANT | NULL;
+PrintStmt           ::= PRINT PARANTHESIS_LEFT ExprPlusComma:es PARANTHESIS_RIGHT SEMICOLON {: RESULT = Stmt.printStmt(es); :};
+
+ExprPlusComma
+    ::= Expr:e {: LinkedList<Expr> exprs = new LinkedList<>(); exprs.add(e); RESULT = exprs; :}
+    | ExprPlusComma:es COMMA Expr:e {: es.add(e); RESULT = es; :}
+    ;
+
+Expr
+    ::= LValue:l EQUAL Expr:r {:RESULT = Expr.assignExpr(l, r); :}
+    | Constant:c {: RESULT = Expr.constExpr(c); :}
+    | LValue:lv {: RESULT = Expr.lValExpr(lv); :}
+    | THIS {: RESULT = Expr.thisExpr(); :}
+    | Call:c {: RESULT = Expr.callExpr(c); :}
+    | PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = e; :}
+    | Expr:e1 PLUS Expr:e2 {: RESULT = Expr.ArithExpr.addExpr(e1, e2); :}
+    | Expr:e1 MINUS Expr:e2 {: RESULT = Expr.ArithExpr.subExpr(e1, e2); :}
+    | Expr:e1 MULTIPLY Expr:e2 {: RESULT = Expr.ArithExpr.multExpr(e1, e2); :}
+    | Expr:e1 DIVIDE Expr:e2 {: RESULT = Expr.ArithExpr.divExpr(e1, e2); :}
+    | Expr:e1 MOD Expr:e2 {: RESULT = Expr.ArithExpr.modExpr(e1, e2); :}
+    | MINUS Expr:e {: RESULT = Expr.ArithExpr.minusExpr(e); :}
+    | Expr:e1 LESS Expr:e2 {: RESULT = Expr.CompExpr.lessExpr(e1, e2); :}
+    | Expr:e1 LESS_EQUAL Expr:e2 {: RESULT = Expr.CompExpr.lessEqExpr(e1, e2); :}
+    | Expr:e1 GREATER Expr:e2 {: RESULT = Expr.CompExpr.greaterExpr(e1, e2); :}
+    | Expr:e1 GREATER_EQUAL Expr:e2 {: RESULT = Expr.CompExpr.greaterEqExpr(e1, e2); :}
+    | Expr:e1 EQUAL_EQUAL Expr:e2 {: RESULT = Expr.CompExpr.eqExpr(e1, e2); :}
+    | Expr:e1 NOT_EQUAL Expr:e2 {: RESULT = Expr.CompExpr.notEqExpr(e1, e2); :}
+    | Expr:e1 AND_AND Expr:e2 {: RESULT = Expr.LogicalExpr.andExpr(e1, e2); :}
+    | Expr:e1 OR_OR Expr:e2 {: RESULT = Expr.LogicalExpr.orExpr(e1, e2); :}
+    | NOT Expr:e {: RESULT = Expr.LogicalExpr.notExpr(e); :}
+    | READ_INTEGER PARANTHESIS_LEFT PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.readIntExpr(); :}
+    | READ_LINE PARANTHESIS_LEFT PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.readLineExpr(); :}
+    | NEW IDENTIFIER:id {: RESULT = Expr.InitExpr.objInit(id); :}
+    | NEW_ARRAY PARANTHESIS_LEFT Expr:e COMMA Type:t PARANTHESIS_RIGHT {: RESULT = Expr.InitExpr.arrInit(e, t); :}
+    | ITOD PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.itodExpr(e); :}
+    | DTOI PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.dtoiExpr(e); :}
+    | ITOB PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.itobExpr(e); :}
+    | BTOI PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.btoiExpr(e); :}
+    ;
+
+LValue
+    ::= IDENTIFIER:id {: RESULT = LValue.simpleLVal(id); :}
+    | Expr:e DOT IDENTIFIER:id {: RESULT = LValue.dottedLVal(e, id); :}
+    | Expr:e BRACKETS_LEFT Expr:idx BRACKETS_RIGHT {: RESULT = LValue.indexedLVal(e, idx); :}
+    ;
+
+Call
+    ::= IDENTIFIER:id PARANTHESIS_LEFT Actuals:a PARANTHESIS_RIGHT {: RESULT = Call.simpleCall(id, a); :}
+    | Expr:e DOT IDENTIFIER:id PARANTHESIS_LEFT Actuals:a PARANTHESIS_RIGHT {: RESULT = Call.dottedCall(e, id, a); :}
+    ;
+
+Actuals
+    ::= ExprPlusComma:es {: RESULT = es; :}
+    | {: RESULT = new LinkedList<Expr>(); :} /* epsilon */
+    ;
+
+Constant
+    ::= INT_CONSTANT:i {: RESULT = Constant.intConst(i); :}
+    | DOUBLE_CONSTANT:d {: RESULT = Constant.doubleConst(d); :}
+    | BOOL_CONSTANT:b {: RESULT = Constant.boolConst(b); :}
+    | STRING_CONSTANT:s {: RESULT = Constant.stringConst(s); :}
+    | NULL {: RESULT = Constant.nullConst(); :}
+    ;
