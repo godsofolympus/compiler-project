@@ -1,8 +1,11 @@
 package compiler.AST;
 
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
+
 import java.util.List;
 
-public abstract class Stmt {
+public abstract class Stmt implements Visitable {
 
     public static ExprStmt exprStmt(Expr expr) {return new ExprStmt(expr);}
     public static class ExprStmt extends Stmt {
@@ -10,6 +13,11 @@ public abstract class Stmt {
 
         public ExprStmt(Expr expr) {
             this.expr = expr;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 
@@ -24,6 +32,11 @@ public abstract class Stmt {
             this.stmt = stmt;
             this.elseStmt = elseStmt;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
     }
 
     public static WhileStmt whileStmt(Expr cond, Stmt stmt) {return new WhileStmt(cond, stmt);}
@@ -34,6 +47,11 @@ public abstract class Stmt {
         public WhileStmt(Expr cond, Stmt stmt) {
             this.cond = cond;
             this.stmt = stmt;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 
@@ -50,13 +68,28 @@ public abstract class Stmt {
             this.update = update;
             this.stmt = stmt;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
     }
 
     public static BreakStmt breakStmt() {return new BreakStmt();}
-    public static class BreakStmt extends Stmt {}
+    public static class BreakStmt extends Stmt {
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+    }
 
     public static ContinueStmt continueStmt() {return new ContinueStmt();}
-    public static class ContinueStmt extends Stmt {}
+    public static class ContinueStmt extends Stmt {
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+    }
 
     public static ReturnStmt returnStmt(Expr expr) {return new ReturnStmt(expr);}
     public static class ReturnStmt extends Stmt {
@@ -64,6 +97,11 @@ public abstract class Stmt {
 
         public ReturnStmt(Expr expr) {
             this.expr = expr;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 
@@ -74,6 +112,11 @@ public abstract class Stmt {
         public PrintStmt(List<Expr> exprs) {
             this.exprs = exprs;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
     }
 
     public static BlockStmt blockStmt(StmtBlock stmtBlock) {return new BlockStmt(stmtBlock);}
@@ -82,6 +125,11 @@ public abstract class Stmt {
 
         public BlockStmt(StmtBlock stmtBlock) {
             this.stmtBlock = stmtBlock;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 }
