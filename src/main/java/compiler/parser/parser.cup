@@ -49,7 +49,6 @@ non terminal Type Type;
 non terminal Primitive PrimitiveType;
 non terminal LinkedList<Variable> Formals;
 non terminal StmtBlock StmtBlock;
-non terminal StmtBlock InsideStmtBlock;
 non terminal LinkedList<Stmt> StmtStar;
 non terminal Stmt Stmt;
 non terminal Decl.FunctionDecl FunctionDecl;
@@ -114,7 +113,7 @@ DeclStar
     ;
 
 VariableDeclStar
-    ::= VariableDecl:v VariableDeclStar:vs {: vs.add(v); RESULT = vs; :}
+    ::= VariableDeclStar:vs VariableDecl:v {: vs.add(v); RESULT = vs; :}
     |   {:RESULT = new LinkedList<Variable>(); :}
     ;
 
@@ -176,9 +175,7 @@ Prototype
     | VOID IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT SEMICOLON {: RESULT = new Prototype(null, id, f); :}
     ;
 
-StmtBlock           ::= CURLY_BRACKETS_LEFT InsideStmtBlock:sb CURLY_BRACKETS_RIGHT {: RESULT = sb; :};
-
-InsideStmtBlock     ::= VariableDeclStar:vs StmtStar:ss {: RESULT = new StmtBlock(vs, ss); :};
+StmtBlock           ::= CURLY_BRACKETS_LEFT VariableDeclStar:vs StmtStar:ss CURLY_BRACKETS_RIGHT {: RESULT = new StmtBlock(vs, ss); :};
 
 StmtStar
     ::= Stmt:s StmtStar:ss {: ss.add(s); RESULT = ss; :}

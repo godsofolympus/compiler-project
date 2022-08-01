@@ -17,7 +17,7 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(expr);
         }
     }
 

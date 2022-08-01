@@ -2,8 +2,10 @@ package compiler.AST;
 
 import compiler.models.Scope;
 import compiler.models.Typed;
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
 
-public abstract class LValue implements Typed {
+public abstract class LValue implements Visitable, Typed {
 
     public static SimpleLVal simpleLVal(String id) {return new SimpleLVal(id);}
     public static class SimpleLVal extends LValue {
@@ -16,6 +18,11 @@ public abstract class LValue implements Typed {
         @Override
         public Type getType() {
             return Scope.getInstance().getEntry(id).getType();
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -33,6 +40,11 @@ public abstract class LValue implements Typed {
         public Type getType() {
             return null;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
     }
 
     public static IndexedLVal indexedLVal(Expr expr, Expr index) {return new IndexedLVal(expr, index);}
@@ -48,6 +60,11 @@ public abstract class LValue implements Typed {
         @Override
         public Type getType() {
             return null;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 }

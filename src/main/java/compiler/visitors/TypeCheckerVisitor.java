@@ -45,4 +45,27 @@ public class TypeCheckerVisitor implements Visitor{
         ifStmt.stmt.accept(this);
         if (ifStmt.elseStmt != null) ifStmt.elseStmt.accept(this);
     }
+
+    @Override
+    public void visit(LValue lValue) {
+        lValue.accept(this);
+    }
+
+    @Override
+    public void visit(LValue.SimpleLVal lValue) {}
+
+    @Override
+    public void visit(Expr expr) {
+        expr.accept(this);
+    }
+
+    @Override
+    public void visit(Expr.AssignExpr assignExpr) {
+        assignExpr.leftHandSide.accept(this);
+        assignExpr.rightHandSide.accept(this);
+        Type leftType = assignExpr.leftHandSide.getType();
+        Type rightType = assignExpr.rightHandSide.getType();
+        if (!rightType.isLessThan(leftType))
+            throw new InvalidTypeException(leftType, rightType);
+    }
 }
