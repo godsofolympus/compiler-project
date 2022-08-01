@@ -8,4 +8,6 @@ public interface Visitor {
     void visit(Program program);
     void visit(Decl.VariableDecl variableDecl);
     void visit(Decl.FunctionDecl functionDecl);
+
+    void visit(Stmt.IfStmt ifStmt);
 }

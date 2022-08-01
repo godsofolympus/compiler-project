@@ -1,6 +1,10 @@
 package compiler.AST;
 
-public abstract class Expr {
+import compiler.models.Typed;
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
+
+public abstract class Expr implements Visitable, Typed {
     public static AssignExpr assignExpr(LValue left, Expr right) {return new AssignExpr(left, right);}
     public static class AssignExpr extends Expr {
         public LValue leftHandSide;
@@ -9,6 +13,16 @@ public abstract class Expr {
         public AssignExpr(LValue leftHandSide, Expr rightHandSide) {
             this.leftHandSide = leftHandSide;
             this.rightHandSide = rightHandSide;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return Type.nullType();
         }
     }
 
@@ -19,6 +33,16 @@ public abstract class Expr {
         public ConstExpr(Constant constant) {
             this.constant = constant;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return constant.getType();
+        }
     }
 
     public static LValExpr lValExpr(LValue lValue) {return new LValExpr(lValue);}
@@ -28,10 +52,30 @@ public abstract class Expr {
         public LValExpr(LValue lValue) {
             this.lValue = lValue;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
     }
 
     public static ThisExpr thisExpr() {return new ThisExpr();}
-    public static class ThisExpr extends Expr {}
+    public static class ThisExpr extends Expr {
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
+    }
 
     public static CallExpr callExpr(Call call) {return new CallExpr(call);}
     public static class CallExpr extends Expr {
@@ -39,6 +83,16 @@ public abstract class Expr {
 
         public CallExpr(Call call) {
             this.call = call;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
         }
     }
 
@@ -50,6 +104,16 @@ public abstract class Expr {
         public ArithExpr(Expr expr1, Expr expr2) {
             this.expr1 = expr1;
             this.expr2 = expr2;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
         }
 
         public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
@@ -105,6 +169,16 @@ public abstract class Expr {
             this.expr2 = expr2;
         }
 
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
+
         public static LessExpr lessExpr(Expr expr1, Expr expr2) {return new LessExpr(expr1, expr2);}
         public static class LessExpr extends CompExpr{
             public LessExpr(Expr expr1, Expr expr2) {
@@ -158,6 +232,16 @@ public abstract class Expr {
             this.expr2 = expr2;
         }
 
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
+
         public static AndExpr andExpr(Expr expr1, Expr expr2) {return new AndExpr(expr1, expr2);}
         public static class AndExpr extends LogicalExpr {
             public AndExpr(Expr expr1, Expr expr2) {
@@ -181,6 +265,16 @@ public abstract class Expr {
     }
 
     public static abstract class FunctionExpr extends Expr {
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
 
         public static ReadIntExpr readIntExpr() {return new ReadIntExpr();}
         public static class ReadIntExpr extends FunctionExpr {}
@@ -226,6 +320,16 @@ public abstract class Expr {
     }
 
     public static abstract class InitExpr extends Expr {
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
 
         public static ObjInit objInit(String id) {return new ObjInit(id);}
         public static class ObjInit extends InitExpr {

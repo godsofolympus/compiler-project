@@ -1,12 +1,20 @@
 package compiler.AST;
 
-public abstract class Constant {
+import compiler.models.Primitive;
+import compiler.models.Typed;
+
+public abstract class Constant implements Typed {
 
     public static IntConst intConst(Integer value) {return new IntConst(value);}
     public static class IntConst extends Constant {
         public Integer value;
         public IntConst(Integer value) {
             this.value = value;
+        }
+
+        @Override
+        public Type getType() {
+            return Type.primitiveType(Primitive.INT);
         }
     }
 
@@ -17,6 +25,11 @@ public abstract class Constant {
         public BoolConst(Boolean value) {
             this.value = value;
         }
+
+        @Override
+        public Type getType() {
+            return Type.primitiveType(Primitive.BOOL);
+        }
     }
 
     public static DoubleConst doubleConst(Double value) {return new DoubleConst(value);}
@@ -25,6 +38,11 @@ public abstract class Constant {
 
         public DoubleConst(Double value) {
             this.value = value;
+        }
+
+        @Override
+        public Type getType() {
+            return Type.primitiveType(Primitive.DOUBLE);
         }
     }
 
@@ -35,8 +53,18 @@ public abstract class Constant {
         public StringConst(String value) {
             this.value = value;
         }
+
+        @Override
+        public Type getType() {
+            return Type.primitiveType(Primitive.STRING);
+        }
     }
 
     public static NullConst nullConst() {return new NullConst();}
-    public static class NullConst extends Constant {}
+    public static class NullConst extends Constant {
+        @Override
+        public Type getType() {
+            return Type.nullType();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package compiler.AST;
 
+import compiler.models.Scope;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
@@ -65,6 +66,13 @@ public abstract class Decl implements Visitable {
         @Override
         public void accept(Visitor visitor) {
 
+        }
+
+        public boolean isSubClassOf(String otherClassId) {
+            if (this.superClass == null) return false;
+            if (this.superClass.equals(otherClassId)) return true;
+            ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
+            return parentClass.isSubClassOf(otherClassId);
         }
     }
 
