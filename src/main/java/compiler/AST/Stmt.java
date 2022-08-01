@@ -1,5 +1,7 @@
 package compiler.AST;
 
+import compiler.models.Context;
+import compiler.models.ContextualScoped;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
@@ -40,7 +42,7 @@ public abstract class Stmt implements Visitable {
     }
 
     public static WhileStmt whileStmt(Expr cond, Stmt stmt) {return new WhileStmt(cond, stmt);}
-    public static class WhileStmt extends Stmt {
+    public static class WhileStmt extends Stmt implements ContextualScoped {
         public Expr cond;
         public Stmt stmt;
 
@@ -51,12 +53,17 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
 
+        @Override
+        public Context getContext() {
+            return Context.LOOP;
         }
     }
 
     public static ForStmt forStmt(Expr init, Expr cond, Expr update, Stmt stmt) {return new ForStmt(init, cond, update, stmt);}
-    public static class ForStmt extends Stmt {
+    public static class ForStmt extends Stmt implements ContextualScoped {
         public Expr init;
         public Expr cond;
         public Expr update;
@@ -71,7 +78,12 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
 
+        @Override
+        public Context getContext() {
+            return Context.LOOP;
         }
     }
 
@@ -79,7 +91,7 @@ public abstract class Stmt implements Visitable {
     public static class BreakStmt extends Stmt {
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
     }
 
@@ -127,7 +139,7 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
     }
 }

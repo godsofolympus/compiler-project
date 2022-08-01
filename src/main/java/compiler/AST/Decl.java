@@ -1,5 +1,7 @@
 package compiler.AST;
 
+import compiler.models.Context;
+import compiler.models.ContextualScoped;
 import compiler.models.Scope;
 import compiler.models.Typed;
 import compiler.visitors.Visitable;
@@ -25,7 +27,7 @@ public abstract class Decl implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
@@ -37,7 +39,7 @@ public abstract class Decl implements Visitable, Typed {
     public static FunctionDecl functionDecl(String id, Type type, List<Variable> formals, StmtBlock stmtBlock) {
         return new FunctionDecl(id, type, formals, stmtBlock);
     }
-    public static class FunctionDecl extends Decl {
+    public static class FunctionDecl extends Decl implements ContextualScoped {
         public Type type;
         public List<Variable> formals;
         public StmtBlock stmtBlock;
@@ -57,6 +59,11 @@ public abstract class Decl implements Visitable, Typed {
         @Override
         public Type getType() {
             return type;
+        }
+
+        @Override
+        public Context getContext() {
+            return Context.FUNCTION;
         }
     }
 
