@@ -1,6 +1,9 @@
 package compiler.AST;
 
-public abstract class LValue {
+import compiler.models.Scope;
+import compiler.models.Typed;
+
+public abstract class LValue implements Typed {
 
     public static SimpleLVal simpleLVal(String id) {return new SimpleLVal(id);}
     public static class SimpleLVal extends LValue {
@@ -8,6 +11,11 @@ public abstract class LValue {
 
         public SimpleLVal(String id) {
             this.id = id;
+        }
+
+        @Override
+        public Type getType() {
+            return Scope.getInstance().getEntry(id).getType();
         }
     }
 
@@ -20,6 +28,11 @@ public abstract class LValue {
             this.expr = expr;
             this.id = id;
         }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
     }
 
     public static IndexedLVal indexedLVal(Expr expr, Expr index) {return new IndexedLVal(expr, index);}
@@ -30,6 +43,11 @@ public abstract class LValue {
         public IndexedLVal(Expr expr, Expr index) {
             this.expr = expr;
             this.index = index;
+        }
+
+        @Override
+        public Type getType() {
+            return null;
         }
     }
 }

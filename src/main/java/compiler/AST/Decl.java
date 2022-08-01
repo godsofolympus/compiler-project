@@ -1,12 +1,13 @@
 package compiler.AST;
 
 import compiler.models.Scope;
+import compiler.models.Typed;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
 import java.util.List;
 
-public abstract class Decl implements Visitable {
+public abstract class Decl implements Visitable, Typed {
     public String id;
 
     public Decl(String id) {
@@ -25,6 +26,11 @@ public abstract class Decl implements Visitable {
         @Override
         public void accept(Visitor visitor) {
 
+        }
+
+        @Override
+        public Type getType() {
+            return variable.type;
         }
     }
 
@@ -45,7 +51,12 @@ public abstract class Decl implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
 
+        @Override
+        public Type getType() {
+            return type;
         }
     }
 
@@ -74,6 +85,11 @@ public abstract class Decl implements Visitable {
             ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
             return parentClass.isSubClassOf(otherClassId);
         }
+
+        @Override
+        public Type getType() {
+            return Type.nonPrimitiveType(id);
+        }
     }
 
     public static InterfaceDecl interfaceDecl(String id, List<Prototype> prototypes) {return new InterfaceDecl(id, prototypes);}
@@ -88,6 +104,11 @@ public abstract class Decl implements Visitable {
         @Override
         public void accept(Visitor visitor) {
 
+        }
+
+        @Override
+        public Type getType() {
+            return Type.nonPrimitiveType(id);
         }
     }
 }

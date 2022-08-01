@@ -60,7 +60,7 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return null;
+            return lValue.getType();
         }
     }
 

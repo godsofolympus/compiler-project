@@ -35,7 +35,7 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
     }
 
@@ -114,9 +114,7 @@ public abstract class Stmt implements Visitable {
         }
 
         @Override
-        public void accept(Visitor visitor) {
-
-        }
+        public void accept(Visitor visitor) {}
     }
 
     public static BlockStmt blockStmt(StmtBlock stmtBlock) {return new BlockStmt(stmtBlock);}

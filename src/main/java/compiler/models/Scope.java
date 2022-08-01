@@ -10,11 +10,11 @@ public class Scope {
 
     private static Scope instance;
     public static Scope getInstance() {
-        if (instance == null) return new Scope(null);
+        if (instance == null) instance = new Scope(null);
         return instance;
     }
     public Scope parent;
-    public Map<String, Decl> symbolTable;
+    private final Map<String, Decl> symbolTable;
 
     private Scope(Scope parent) {
         this.parent = parent;
@@ -36,8 +36,12 @@ public class Scope {
         while (currentScope != null) {
             Decl entry = currentScope.symbolTable.get(id);
             if (entry != null) return entry;
-            currentScope = instance.parent;
+            currentScope = currentScope.parent;
         }
-        throw new SymbolNotFoundException("symbol " + id + " is not found");
+        throw new SymbolNotFoundException(id);
+    }
+
+    public void setEntry(String id, Decl decl) {
+        instance.symbolTable.put(id, decl);
     }
 }

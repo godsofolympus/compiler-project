@@ -10,7 +10,7 @@ public class TypeCheckerVisitor implements Visitor{
     @Override
     public void visit(Program program) {
         for (Decl decl : program.decls) {
-            Scope.getInstance().symbolTable.put(decl.id, decl);
+            Scope.getInstance().setEntry(decl.id, decl);
         }
         for (Decl decl : program.decls) {
             decl.accept(this);
@@ -19,17 +19,17 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Decl.VariableDecl variableDecl) {
-        Scope.getInstance().symbolTable.put(variableDecl.id, variableDecl);
+        Scope.getInstance().setEntry(variableDecl.id, variableDecl);
     }
 
     @Override
     public void visit(Decl.FunctionDecl functionDecl) {
         Scope scope = Scope.getInstance().pushScope();
         for (Variable formal : functionDecl.formals) {
-            scope.symbolTable.put(formal.id, Decl.variableDecl(formal));
+            scope.setEntry(formal.id, Decl.variableDecl(formal));
         }
         for (Variable variable : functionDecl.stmtBlock.variableDecl) {
-            scope.symbolTable.put(variable.id, Decl.variableDecl(variable));
+            scope.setEntry(variable.id, Decl.variableDecl(variable));
         }
         for (Stmt stmt : functionDecl.stmtBlock.stmts) {
             stmt.accept(this);
