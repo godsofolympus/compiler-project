@@ -46,7 +46,7 @@ non terminal LinkedList<Variable> VariableDeclStar;
 non terminal Variable VariableDecl;
 non terminal Variable Variable;
 non terminal Type Type;
-non terminal Primitive PrimitiveType;
+non terminal Type PrimitiveType;
 non terminal LinkedList<Variable> Formals;
 non terminal StmtBlock StmtBlock;
 non terminal LinkedList<Stmt> StmtStar;
@@ -121,14 +121,14 @@ VariableDecl        ::= Variable:v SEMICOLON {: RESULT = v; :};
 Variable            ::= Type:t IDENTIFIER:id {: RESULT = new Variable(t, id); :};
 
 PrimitiveType
-    ::= INT {: RESULT = Primitive.INT; :}
-    | DOUBLE {: RESULT = Primitive.DOUBLE; :}
-    | BOOL {: RESULT = Primitive.BOOL; :}
-    | STRING {: RESULT = Primitive.STRING; :}
+    ::= INT {: RESULT = Type.PrimitiveType.NumberType.integerType(); :}
+    | DOUBLE {: RESULT = Type.PrimitiveType.NumberType.doubleType(); :}
+    | BOOL {: RESULT = Type.PrimitiveType.booleanType(); :}
+    | STRING {: RESULT = Type.PrimitiveType.stringType(); :}
     ;
 
 Type
-    ::= PrimitiveType:pt {: RESULT = Type.primitiveType(pt); :}
+    ::= PrimitiveType:pt {: RESULT = pt; :}
     | IDENTIFIER:id {: RESULT =  Type.nonPrimitiveType(id); :}
     | Type:t BRACKETS_LEFT_RIGHT {: RESULT = Type.arrayType(t); :}
     ;

@@ -1,36 +1,52 @@
 package compiler.AST;
 
-import compiler.models.Primitive;
 import compiler.models.Scope;
 
 public abstract class Type {
     public abstract boolean isLessThan(Type other);
 
-    public static PrimitiveType primitiveType(Primitive primitive) {return new PrimitiveType(primitive);}
-    public static NonPrimitiveType nonPrimitiveType(String name) {return new NonPrimitiveType(name);}
-    public static ArrayType arrayType(Type baseType) {return new ArrayType(baseType);}
+    public static NonPrimitiveType nonPrimitiveType(String name) {
+        return new NonPrimitiveType(name);
+    }
+
+    public static ArrayType arrayType(Type baseType) {
+        return new ArrayType(baseType);
+    }
+
     public static class PrimitiveType extends Type {
-        public Primitive primitive;
-        public PrimitiveType(Primitive primitive) {
-            this.primitive = primitive;
-        }
 
         @Override
         public boolean isLessThan(Type other) {
-            if (getClass() != other.getClass()) return false;
-            return this.primitive == ((PrimitiveType) other).primitive;
+            return this.getClass() == other.getClass();
         }
 
-        @Override
-        public String toString() {
-            return "PrimitiveType{" +
-                    "primitive=" + primitive +
-                    '}';
+        public static NumberType numberType() {return new NumberType();}
+
+        public static class NumberType extends PrimitiveType {
+            @Override
+            public boolean isLessThan(Type other) {
+                if (other.getClass() == NumberType.class) return true;
+                return super.isLessThan(other);
+            }
+
+            public static IntegerType integerType() {return new IntegerType();}
+            public static class IntegerType extends NumberType{}
+
+            public static DoubleType doubleType() {return new DoubleType();}
+            public static class DoubleType extends NumberType{}
         }
+
+        public static BooleanType booleanType() {return new BooleanType();}
+        public static class BooleanType extends PrimitiveType {}
+
+        public static StringType stringType() {return new StringType();}
+        public static class StringType extends PrimitiveType{}
+
     }
 
     public static class NonPrimitiveType extends Type {
         public String id;
+
         public NonPrimitiveType(String id) {
             this.id = id;
         }
@@ -53,6 +69,7 @@ public abstract class Type {
 
     public static class ArrayType extends Type {
         public Type baseType;
+
         public ArrayType(Type baseType) {
             this.baseType = baseType;
         }
@@ -71,7 +88,9 @@ public abstract class Type {
         }
     }
 
-    public static VoidType voidType() {return new VoidType();}
+    public static VoidType voidType() {
+        return new VoidType();
+    }
 
     public static class VoidType extends Type {
         @Override
@@ -80,7 +99,9 @@ public abstract class Type {
         }
     }
 
-    public static NullType nullType() {return new NullType();}
+    public static NullType nullType() {
+        return new NullType();
+    }
 
     public static class NullType extends Type {
 

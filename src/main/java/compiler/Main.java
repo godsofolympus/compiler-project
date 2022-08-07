@@ -4,12 +4,11 @@ package compiler;
 import java.io.*;
 
 
-import compiler.AST.Decl;
 import compiler.AST.Program;
 import compiler.parser.Parser;
 import compiler.scanner.Lexer;
 import compiler.scanner.Preprocessor;
-import compiler.visitors.TypeCheckerVisitor;
+import compiler.visitors.SemanticCheckerVisitor;
 
 
 public class Main {
@@ -24,7 +23,7 @@ public class Main {
             scanner = new Lexer(new FileReader(inputFile));
             parser = new Parser(scanner);
             Program program = (Program) parser.parse().value;
-            TypeCheckerVisitor visitor = new TypeCheckerVisitor();
+            SemanticCheckerVisitor visitor = new SemanticCheckerVisitor();
             visitor.visit(program);
         } catch (Exception e) {
             e.printStackTrace();
@@ -32,6 +31,23 @@ public class Main {
         }
         // TODO: add parser
         return true;
+//        Preprocessor preprocessor = new Preprocessor(inputFile, ".pp_tmp");
+//        preprocessor.preprocess();
+//        inputFile = new File(".pp_tmp");
+//        Lexer scanner;
+//        Parser parser;
+//        try {
+//            scanner = new Lexer(new FileReader(inputFile));
+//            parser = new Parser(scanner);
+//            Program program = (Program) parser.parse().value;
+//            TypeCheckerVisitor visitor = new TypeCheckerVisitor();
+//            visitor.visit(program);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        // TODO: add parser
+//        return true;
     }
 
     public static void main(String[] args) {

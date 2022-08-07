@@ -4,10 +4,9 @@ import compiler.AST.*;
 import compiler.Exceptions.*;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
-import compiler.models.Primitive;
 import compiler.models.Scope;
 
-public class TypeCheckerVisitor implements Visitor{
+public class SemanticCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Program program) {
@@ -42,8 +41,8 @@ public class TypeCheckerVisitor implements Visitor{
     @Override
     public void visit(Stmt.IfStmt ifStmt) {
         ifStmt.cond.accept(this);
-        if (!ifStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), ifStmt.cond.getType());
+        if (!ifStmt.cond.getType().isLessThan(Type.PrimitiveType.booleanType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.booleanType(), ifStmt.cond.getType());
         ifStmt.stmt.accept(this);
         if (ifStmt.elseStmt != null) ifStmt.elseStmt.accept(this);
     }
@@ -51,8 +50,8 @@ public class TypeCheckerVisitor implements Visitor{
     @Override
     public void visit(Stmt.WhileStmt whileStmt) {
         whileStmt.cond.accept(this);
-        if (!whileStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), whileStmt.cond.getType());
+        if (!whileStmt.cond.getType().isLessThan(Type.PrimitiveType.booleanType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.booleanType(), whileStmt.cond.getType());
         Scope.pushScope(whileStmt);
         whileStmt.stmt.accept(this);
         Scope.popScope();
@@ -62,8 +61,8 @@ public class TypeCheckerVisitor implements Visitor{
     public void visit(Stmt.ForStmt forStmt) {
         if (forStmt.init != null) forStmt.init.accept(this);
         forStmt.cond.accept(this);
-        if (!forStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), forStmt.cond.getType());
+        if (!forStmt.cond.getType().isLessThan(Type.PrimitiveType.booleanType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.booleanType(), forStmt.cond.getType());
         Scope.pushScope(forStmt);
         if (forStmt.update != null) forStmt.update.accept(this);
         forStmt.stmt.accept(this);
@@ -89,7 +88,7 @@ public class TypeCheckerVisitor implements Visitor{
         if (context == null)
             throw new ReturnOutsideFunctionException();
         Type exprType = returnStmt.expr.getType();
-        Type returnType = ((Decl.FunctionDecl) context).type;
+        Type returnType = ((Decl.FunctionDecl) context).returnType;
         if (!exprType.isLessThan(returnType))
             throw new IncompatibleTypesException(returnType, exprType);
     }
@@ -149,19 +148,42 @@ public class TypeCheckerVisitor implements Visitor{
             throw new IncompatibleTypesException(leftType, rightType);
     }
 
-    public void checkCallArguments(Call call, Decl.FunctionDecl functionDecl) {
-        for (Expr actual : call.actuals) {
-            actual.accept(this);
-        }
-        if (call.actuals.size() != functionDecl.formals.size())
-            throw new ArgumentNumberMismatchException(functionDecl.id, functionDecl.formals.size(), call.actuals.size());
-        for (int i = 0; i < call.actuals.size(); i++) {
-            Type formalType = functionDecl.formals.get(i).type;
-            Type actualType = call.actuals.get(i).getType();
-            if (!actualType.isLessThan(formalType))
-                throw new IncompatibleTypesException(formalType, actualType);
-        }
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr addExpr) {
+        addExpr.expr1.accept(this);
+        Type type1 = addExpr.expr1.getType();
+        if ((type1 instanceof Type.ArrayType) || (type1 instanceof Type.PrimitiveType.StringType) || (type1 instanceof Type.PrimitiveType.NumberType))
+            typeCheckBinaryExpr(addExpr, addExpr.expr1.getType());
+        else throw new InvalidOperationException("+", type1, addExpr.expr2.getType());
     }
+
+    public void typeCheckBinaryExpr(Expr.BinOpExpr binOpExpr, Type expectedType) {
+        binOpExpr.expr1.accept(this);
+        binOpExpr.expr2.accept(this);
+        Type type1 = binOpExpr.expr1.getType();
+        Type type2 = binOpExpr.expr2.getType();
+        if (!(type1.isLessThan(expectedType)))
+            throw new IncompatibleTypesException(expectedType ,type1);
+        if (!(type2.isLessThan(expectedType)))
+            throw new IncompatibleTypesException(expectedType ,type2);
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr arithExpr) {
+        typeCheckBinaryExpr(arithExpr, Type.PrimitiveType.numberType());
+    }
+
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr compExpr) {;
+        typeCheckBinaryExpr(compExpr, Type.PrimitiveType.numberType());
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.LogicalExpr logicalExpr) {
+        typeCheckBinaryExpr(logicalExpr, Type.PrimitiveType.booleanType());
+    }
+
 
     @Override
     public void visit(Call.SimpleCall simpleCall) {
@@ -184,5 +206,18 @@ public class TypeCheckerVisitor implements Visitor{
         this.checkCallArguments(dottedCall, method);
     }
 
+    public void checkCallArguments(Call call, Decl.FunctionDecl functionDecl) {
+        for (Expr actual : call.actuals) {
+            actual.accept(this);
+        }
+        if (call.actuals.size() != functionDecl.formals.size())
+            throw new ArgumentNumberMismatchException(functionDecl.id, functionDecl.formals.size(), call.actuals.size());
+        for (int i = 0; i < call.actuals.size(); i++) {
+            Type formalType = functionDecl.formals.get(i).type;
+            Type actualType = call.actuals.get(i).getType();
+            if (!actualType.isLessThan(formalType))
+                throw new IncompatibleTypesException(formalType, actualType);
+        }
+    }
 
 }

@@ -21,6 +21,10 @@ public interface Visitor {
     void visit(Expr.ThisExpr thisExpr);
     void visit(Expr.CallExpr callExpr);
     void visit(Expr.AssignExpr assignExpr);
+    void visit(Expr.BinOpExpr.AddExpr addExpr);
+    void visit(Expr.BinOpExpr.ArithExpr arithExpr);
+    void visit(Expr.BinOpExpr.CompExpr compExpr);
+    void visit(Expr.BinOpExpr.LogicalExpr logicalExpr);
     void visit(Call.SimpleCall simpleCall);
     void visit(Call.DottedCall dottedCall);
 }

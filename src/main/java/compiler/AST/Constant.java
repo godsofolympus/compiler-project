@@ -1,6 +1,5 @@
 package compiler.AST;
 
-import compiler.models.Primitive;
 import compiler.models.Typed;
 
 public abstract class Constant implements Typed {
@@ -14,7 +13,7 @@ public abstract class Constant implements Typed {
 
         @Override
         public Type getType() {
-            return Type.primitiveType(Primitive.INT);
+            return Type.PrimitiveType.NumberType.integerType();
         }
     }
 
@@ -28,7 +27,7 @@ public abstract class Constant implements Typed {
 
         @Override
         public Type getType() {
-            return Type.primitiveType(Primitive.BOOL);
+            return Type.PrimitiveType.NumberType.booleanType();
         }
     }
 
@@ -42,7 +41,7 @@ public abstract class Constant implements Typed {
 
         @Override
         public Type getType() {
-            return Type.primitiveType(Primitive.DOUBLE);
+            return Type.PrimitiveType.NumberType.doubleType();
         }
     }
 
@@ -56,7 +55,7 @@ public abstract class Constant implements Typed {
 
         @Override
         public Type getType() {
-            return Type.primitiveType(Primitive.STRING);
+            return Type.PrimitiveType.stringType();
         }
     }
 
@@ -64,7 +63,7 @@ public abstract class Constant implements Typed {
     public static class NullConst extends Constant {
         @Override
         public Type getType() {
-            return Type.nullType();
+            return Type.PrimitiveType.nullType();
         }
     }
 }

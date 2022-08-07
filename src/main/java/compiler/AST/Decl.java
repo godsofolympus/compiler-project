@@ -40,13 +40,13 @@ public abstract class Decl implements Visitable, Typed {
         return new FunctionDecl(id, type, formals, stmtBlock);
     }
     public static class FunctionDecl extends Decl implements ContextualScoped {
-        public Type type;
+        public Type returnType;
         public List<Variable> formals;
         public StmtBlock stmtBlock;
 
-        public FunctionDecl(String id, Type type, List<Variable> formals, StmtBlock stmtBlock) {
+        public FunctionDecl(String id, Type returnType, List<Variable> formals, StmtBlock stmtBlock) {
             super(id);
-            this.type = type;
+            this.returnType = returnType;
             this.formals = formals;
             this.stmtBlock = stmtBlock;
         }
@@ -58,7 +58,7 @@ public abstract class Decl implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return type;
+            return returnType;
         }
 
         @Override

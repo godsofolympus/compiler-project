@@ -94,44 +94,57 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return null;
+            return this.call.getType();
         }
     }
 
-    public static abstract class BinaryExpr extends Expr {
+    public static abstract class BinOpExpr extends Expr {
 
         public Expr expr1;
         public Expr expr2;
 
-        public BinaryExpr(Expr expr1, Expr expr2) {
+        public BinOpExpr(Expr expr1, Expr expr2) {
             this.expr1 = expr1;
             this.expr2 = expr2;
         }
 
-        @Override
-        public void accept(Visitor visitor) {
+        public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
 
+        public static class AddExpr extends BinOpExpr {
+            public AddExpr(Expr expr1, Expr expr2) {
+                super(expr1, expr2);
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                if (expr1.getType().isLessThan(Type.PrimitiveType.NumberType.integerType())) return expr2.getType();
+                return expr1.getType();
+            }
         }
 
-        @Override
-        public Type getType() {
-            return null;
-        }
-
-        public static class ArithExpr extends BinaryExpr {
+        public static class ArithExpr extends BinOpExpr {
 
             public ArithExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
 
-            public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
-            public static class AddExpr extends ArithExpr {
-                public AddExpr(Expr expr1, Expr expr2) {
-                    super(expr1, expr2);
-                }
+            @Override
+            public Type getType() {
+                if (expr1.getType().isLessThan(Type.PrimitiveType.NumberType.doubleType())) return Type.PrimitiveType.NumberType.doubleType();
+                return expr2.getType();
             }
 
             public static SubExpr subExpr(Expr expr1, Expr expr2) {return new SubExpr(expr1, expr2);}
+
             public static class SubExpr extends ArithExpr {
                 public SubExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
@@ -160,9 +173,19 @@ public abstract class Expr implements Visitable, Typed {
             }
         }
 
-        public static class CompExpr extends BinaryExpr {
+        public static class CompExpr extends BinOpExpr {
             public CompExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.booleanType();
             }
 
             public static LessExpr lessExpr(Expr expr1, Expr expr2) {return new LessExpr(expr1, expr2);}
@@ -208,33 +231,43 @@ public abstract class Expr implements Visitable, Typed {
             }
         }
 
-        public static class LogicalExpr extends BinaryExpr {
+        public static class LogicalExpr extends BinOpExpr {
 
             public LogicalExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
-        }
 
-        public static AndExpr andExpr(Expr expr1, Expr expr2) {return new AndExpr(expr1, expr2);}
-        public static class AndExpr extends LogicalExpr {
-            public AndExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
             }
-        }
 
-        public static OrExpr orExpr(Expr expr1, Expr expr2) {return new OrExpr(expr1, expr2);}
-        public static class OrExpr extends LogicalExpr {
-            public OrExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.booleanType();
+            }
+
+            public static AndExpr andExpr(Expr expr1, Expr expr2) {return new AndExpr(expr1, expr2);}
+            public static class AndExpr extends LogicalExpr {
+                public AndExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static OrExpr orExpr(Expr expr1, Expr expr2) {return new OrExpr(expr1, expr2);}
+            public static class OrExpr extends LogicalExpr {
+                public OrExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
             }
         }
     }
 
-    public static abstract class UnaryExpr extends Expr {
+    public static abstract class UnOpExpr extends Expr {
 
         public Expr expr;
 
-        public UnaryExpr(Expr expr) {
+        public UnOpExpr(Expr expr) {
             this.expr = expr;
         }
 
@@ -248,25 +281,25 @@ public abstract class Expr implements Visitable, Typed {
             return null;
         }
 
-        public static class ArithExpr extends UnaryExpr {
+        public static class ArithExpr extends UnOpExpr {
             public ArithExpr(Expr expr) {
                 super(expr);
             }
             public static MinusExpr minusExpr(Expr expr) {return new MinusExpr(expr);}
-            public static class MinusExpr extends UnaryExpr {
+            public static class MinusExpr extends UnOpExpr {
                 public MinusExpr(Expr expr) {
                     super(expr);
                 }
             }
         }
 
-        public static class LogicalExpr extends UnaryExpr {
+        public static class LogicalExpr extends UnOpExpr {
             public LogicalExpr(Expr expr) {
                 super(expr);
             }
 
             public static NotExpr notExpr(Expr expr) {return new NotExpr(expr);}
-            public static class NotExpr extends UnaryExpr {
+            public static class NotExpr extends UnOpExpr {
                 public NotExpr(Expr expr) {
                     super(expr);
                 }
