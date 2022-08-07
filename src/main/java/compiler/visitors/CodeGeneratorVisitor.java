@@ -15,7 +15,7 @@ import compiler.AST.Stmt.IfStmt;
 import compiler.AST.Stmt.WhileStmt;
 import compiler.AST.StmtBlock;
 
-public class CodeGeneratorVisitor implements Visitor{
+public abstract class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Program program) {
@@ -84,11 +84,7 @@ public class CodeGeneratorVisitor implements Visitor{
         
     }
 
-    @Override
-    public void visit(Expr expr) {
-        // TODO Auto-generated method stub
-        
-    }
+
 
     @Override
     public void visit(AssignExpr assignExpr) {

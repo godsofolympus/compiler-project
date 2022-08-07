@@ -71,6 +71,15 @@ public abstract class Type {
         }
     }
 
+    public static VoidType voidType() {return new VoidType();}
+
+    public static class VoidType extends Type {
+        @Override
+        public boolean isLessThan(Type other) {
+            return false;
+        }
+    }
+
     public static NullType nullType() {return new NullType();}
 
     public static class NullType extends Type {

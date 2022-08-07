@@ -1,9 +1,9 @@
 package compiler.visitors;
 
 import compiler.AST.*;
-import compiler.Exceptions.BreakOutsideLoopException;
-import compiler.Exceptions.InvalidTypeException;
+import compiler.Exceptions.*;
 import compiler.models.Context;
+import compiler.models.ContextualScoped;
 import compiler.models.Primitive;
 import compiler.models.Scope;
 
@@ -35,10 +35,15 @@ public class TypeCheckerVisitor implements Visitor{
     }
 
     @Override
+    public void visit(Stmt.ExprStmt exprStmt) {
+        exprStmt.expr.accept(this);
+    }
+
+    @Override
     public void visit(Stmt.IfStmt ifStmt) {
         ifStmt.cond.accept(this);
         if (!ifStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new InvalidTypeException(Type.primitiveType(Primitive.BOOL), ifStmt.cond.getType());
+            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), ifStmt.cond.getType());
         ifStmt.stmt.accept(this);
         if (ifStmt.elseStmt != null) ifStmt.elseStmt.accept(this);
     }
@@ -47,7 +52,7 @@ public class TypeCheckerVisitor implements Visitor{
     public void visit(Stmt.WhileStmt whileStmt) {
         whileStmt.cond.accept(this);
         if (!whileStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new InvalidTypeException(Type.primitiveType(Primitive.BOOL), whileStmt.cond.getType());
+            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), whileStmt.cond.getType());
         Scope.pushScope(whileStmt);
         whileStmt.stmt.accept(this);
         Scope.popScope();
@@ -58,7 +63,7 @@ public class TypeCheckerVisitor implements Visitor{
         if (forStmt.init != null) forStmt.init.accept(this);
         forStmt.cond.accept(this);
         if (!forStmt.cond.getType().isLessThan(Type.primitiveType(Primitive.BOOL)))
-            throw new InvalidTypeException(Type.primitiveType(Primitive.BOOL), forStmt.cond.getType());
+            throw new IncompatibleTypesException(Type.primitiveType(Primitive.BOOL), forStmt.cond.getType());
         Scope.pushScope(forStmt);
         if (forStmt.update != null) forStmt.update.accept(this);
         forStmt.stmt.accept(this);
@@ -68,7 +73,32 @@ public class TypeCheckerVisitor implements Visitor{
     @Override
     public void visit(Stmt.BreakStmt breakStmt) {
         if (Scope.getInstance().getContext(Context.LOOP) == null)
-            throw new BreakOutsideLoopException();
+            throw new BreakOutsideLoopException();;
+    }
+
+    @Override
+    public void visit(Stmt.ContinueStmt continueStmt) {
+        if (Scope.getInstance().getContext(Context.LOOP) == null)
+            throw new ContinueOutsideLoopException();
+    }
+
+    @Override
+    public void visit(Stmt.ReturnStmt returnStmt) {
+        returnStmt.expr.accept(this);
+        ContextualScoped context = Scope.getInstance().getContext(Context.FUNCTION);
+        if (context == null)
+            throw new ReturnOutsideFunctionException();
+        Type exprType = returnStmt.expr.getType();
+        Type returnType = ((Decl.FunctionDecl) context).type;
+        if (!exprType.isLessThan(returnType))
+            throw new IncompatibleTypesException(returnType, exprType);
+    }
+
+    @Override
+    public void visit(Stmt.PrintStmt printStmt) {
+        for (Expr expr : printStmt.exprs) {
+            expr.accept(this);
+        }
     }
 
     @Override
@@ -96,9 +126,17 @@ public class TypeCheckerVisitor implements Visitor{
     @Override
     public void visit(LValue.SimpleLVal lValue) {}
 
+
     @Override
-    public void visit(Expr expr) {
-        expr.accept(this);
+    public void visit(Expr.ThisExpr thisExpr) {
+        ContextualScoped classScope = Scope.getInstance().getContext(Context.CLASS);
+        if (classScope == null)
+            throw new ThisOutsideClassException();
+    }
+
+    @Override
+    public void visit(Expr.CallExpr callExpr) {
+        callExpr.call.accept(this);
     }
 
     @Override
@@ -108,6 +146,43 @@ public class TypeCheckerVisitor implements Visitor{
         Type leftType = assignExpr.leftHandSide.getType();
         Type rightType = assignExpr.rightHandSide.getType();
         if (!rightType.isLessThan(leftType))
-            throw new InvalidTypeException(leftType, rightType);
+            throw new IncompatibleTypesException(leftType, rightType);
     }
+
+    public void checkCallArguments(Call call, Decl.FunctionDecl functionDecl) {
+        for (Expr actual : call.actuals) {
+            actual.accept(this);
+        }
+        if (call.actuals.size() != functionDecl.formals.size())
+            throw new ArgumentNumberMismatchException(functionDecl.id, functionDecl.formals.size(), call.actuals.size());
+        for (int i = 0; i < call.actuals.size(); i++) {
+            Type formalType = functionDecl.formals.get(i).type;
+            Type actualType = call.actuals.get(i).getType();
+            if (!actualType.isLessThan(formalType))
+                throw new IncompatibleTypesException(formalType, actualType);
+        }
+    }
+
+    @Override
+    public void visit(Call.SimpleCall simpleCall) {
+        Decl decl = Scope.getInstance().getEntry(simpleCall.id);
+        if (!(decl instanceof Decl.FunctionDecl))
+            throw new NotCallableIdentifierException(simpleCall.id);
+        this.checkCallArguments(simpleCall, (Decl.FunctionDecl) decl);
+    }
+
+    @Override
+    public void visit(Call.DottedCall dottedCall) {
+        dottedCall.expr.accept(this);
+        Type exprType = dottedCall.expr.getType();
+        if (!(exprType instanceof Type.NonPrimitiveType))
+            throw new MethodNotFoundException(dottedCall.id);
+        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
+        Decl.FunctionDecl method = classDecl.getMethod(dottedCall.id);
+        if (method == null)
+            throw new MethodNotFoundException(dottedCall.id, exprType);
+        this.checkCallArguments(dottedCall, method);
+    }
+
+
 }

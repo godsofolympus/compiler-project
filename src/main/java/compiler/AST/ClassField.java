@@ -4,16 +4,19 @@ import compiler.models.AccessMode;
 
 public abstract class ClassField {
     public AccessMode accessMode;
+    public String id;
+
+    public ClassField(AccessMode accessMode, String id) {
+        this.accessMode = accessMode;
+        this.id = id;
+    }
 
     public static VarField varField(AccessMode accessMode, Variable variable) {return new VarField(accessMode, variable); }
-    public ClassField(AccessMode accessMode) {
-        this.accessMode = accessMode;
-    }
 
     public static class VarField extends ClassField {
         public Variable varDecl;
         public VarField(AccessMode accessMode, Variable varDecl) {
-            super(accessMode);
+            super(accessMode, varDecl.id);
             this.varDecl = varDecl;
         }
     }
@@ -23,7 +26,7 @@ public abstract class ClassField {
     public static class MethodField extends ClassField {
         public Decl.FunctionDecl functionDecl;
         public MethodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {
-            super(accessMode);
+            super(accessMode, functionDecl.id);
             this.functionDecl = functionDecl;
         }
     }

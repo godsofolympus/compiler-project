@@ -69,7 +69,7 @@ public abstract class Decl implements Visitable, Typed {
 
     public static ClassDecl classDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields)
     {return new ClassDecl(id, superClass, interfaces, classFields);}
-    public static class ClassDecl extends Decl {
+    public static class ClassDecl extends Decl implements ContextualScoped {
         public String superClass;
         public List<String> interfaces;
         public List<ClassField> classFields;
@@ -93,9 +93,25 @@ public abstract class Decl implements Visitable, Typed {
             return parentClass.isSubClassOf(otherClassId);
         }
 
+        public FunctionDecl getMethod(String id) {
+            //TODO check access
+            for (ClassField classField : this.classFields) {
+                if (classField.id.equals(id) && classField instanceof ClassField.MethodField)
+                    return ((ClassField.MethodField) classField).functionDecl;
+            }
+            if (superClass == null) return null;
+            ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
+            return parentClass.getMethod(id);
+        }
+
         @Override
         public Type getType() {
             return Type.nonPrimitiveType(id);
+        }
+
+        @Override
+        public Context getContext() {
+            return Context.CLASS;
         }
     }
 

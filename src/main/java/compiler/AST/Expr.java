@@ -1,5 +1,7 @@
 package compiler.AST;
 
+import compiler.models.Context;
+import compiler.models.Scope;
 import compiler.models.Typed;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
@@ -67,12 +69,13 @@ public abstract class Expr implements Visitable, Typed {
     public static class ThisExpr extends Expr {
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
         public Type getType() {
-            return null;
+            Decl.ClassDecl classDecl = (Decl.ClassDecl)Scope.getInstance().getContext(Context.CLASS);
+            return classDecl.getType();
         }
     }
 
@@ -86,7 +89,7 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
@@ -95,12 +98,12 @@ public abstract class Expr implements Visitable, Typed {
         }
     }
 
-    public static abstract class ArithExpr extends Expr {
+    public static abstract class BinaryExpr extends Expr {
 
         public Expr expr1;
         public Expr expr2;
 
-        public ArithExpr(Expr expr1, Expr expr2) {
+        public BinaryExpr(Expr expr1, Expr expr2) {
             this.expr1 = expr1;
             this.expr2 = expr2;
         }
@@ -115,130 +118,101 @@ public abstract class Expr implements Visitable, Typed {
             return null;
         }
 
-        public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
-        public static class AddExpr extends ArithExpr{
-            public AddExpr(Expr expr1, Expr expr2) {
+        public static class ArithExpr extends BinaryExpr {
+
+            public ArithExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
+
+            public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
+            public static class AddExpr extends ArithExpr {
+                public AddExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static SubExpr subExpr(Expr expr1, Expr expr2) {return new SubExpr(expr1, expr2);}
+            public static class SubExpr extends ArithExpr {
+                public SubExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static MultExpr multExpr(Expr expr1, Expr expr2) {return new MultExpr(expr1, expr2);}
+            public static class MultExpr extends ArithExpr {
+                public MultExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static DivExpr divExpr(Expr expr1, Expr expr2) {return new DivExpr(expr1, expr2);}
+            public static class DivExpr extends ArithExpr {
+                public DivExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static ModExpr modExpr(Expr expr1, Expr expr2) {return new ModExpr(expr1, expr2);}
+            public static class ModExpr extends ArithExpr {
+                public ModExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
         }
 
-        public static SubExpr subExpr(Expr expr1, Expr expr2) {return new SubExpr(expr1, expr2);}
-        public static class SubExpr extends ArithExpr{
-            public SubExpr(Expr expr1, Expr expr2) {
+        public static class CompExpr extends BinaryExpr {
+            public CompExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
+
+            public static LessExpr lessExpr(Expr expr1, Expr expr2) {return new LessExpr(expr1, expr2);}
+            public static class LessExpr extends CompExpr {
+                public LessExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static LessEqExpr lessEqExpr(Expr expr1, Expr expr2) {return new LessEqExpr(expr1, expr2);}
+            public static class LessEqExpr extends CompExpr {
+                public LessEqExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static GreaterExpr greaterExpr(Expr expr1, Expr expr2) {return new GreaterExpr(expr1, expr2);}
+            public static class GreaterExpr extends CompExpr {
+                public GreaterExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static GreaterEqExpr greaterEqExpr(Expr expr1, Expr expr2) {return new GreaterEqExpr(expr1, expr2);}
+            public static class GreaterEqExpr extends CompExpr {
+                public GreaterEqExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static EqExpr eqExpr(Expr expr1, Expr expr2) {return new EqExpr(expr1, expr2);}
+            public static class EqExpr extends CompExpr {
+                public EqExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static NotEqExpr notEqExpr(Expr expr1, Expr expr2) {return new NotEqExpr(expr1, expr2);}
+            public static class NotEqExpr extends CompExpr {
+                public NotEqExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
         }
 
-        public static MultExpr multExpr(Expr expr1, Expr expr2) {return new MultExpr(expr1, expr2);}
-        public static class MultExpr extends ArithExpr{
-            public MultExpr(Expr expr1, Expr expr2) {
+        public static class LogicalExpr extends BinaryExpr {
+
+            public LogicalExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
-        }
-
-        public static DivExpr divExpr(Expr expr1, Expr expr2) {return new DivExpr(expr1, expr2);}
-        public static class DivExpr extends ArithExpr{
-            public DivExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static ModExpr modExpr(Expr expr1, Expr expr2) {return new ModExpr(expr1, expr2);}
-        public static class ModExpr extends ArithExpr{
-            public ModExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static MinusExpr minusExpr(Expr expr) {return new MinusExpr(expr);}
-        public static class MinusExpr extends ArithExpr{
-            public MinusExpr(Expr expr1) {
-                super(expr1, null);
-            }
-        }
-    }
-
-    public static abstract class CompExpr extends Expr {
-
-        public Expr expr1;
-        public Expr expr2;
-
-        public CompExpr(Expr expr1, Expr expr2) {
-            this.expr1 = expr1;
-            this.expr2 = expr2;
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-
-        }
-
-        @Override
-        public Type getType() {
-            return null;
-        }
-
-        public static LessExpr lessExpr(Expr expr1, Expr expr2) {return new LessExpr(expr1, expr2);}
-        public static class LessExpr extends CompExpr{
-            public LessExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static LessEqExpr lessEqExpr(Expr expr1, Expr expr2) {return new LessEqExpr(expr1, expr2);}
-        public static class LessEqExpr extends CompExpr{
-            public LessEqExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static GreaterExpr greaterExpr(Expr expr1, Expr expr2) {return new GreaterExpr(expr1, expr2);}
-        public static class GreaterExpr extends CompExpr{
-            public GreaterExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static GreaterEqExpr greaterEqExpr(Expr expr1, Expr expr2) {return new GreaterEqExpr(expr1, expr2);}
-        public static class GreaterEqExpr extends CompExpr{
-            public GreaterEqExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static EqExpr eqExpr(Expr expr1, Expr expr2) {return new EqExpr(expr1, expr2);}
-        public static class EqExpr extends CompExpr{
-            public EqExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-
-        public static NotEqExpr notEqExpr(Expr expr1, Expr expr2) {return new NotEqExpr(expr1, expr2);}
-        public static class NotEqExpr extends CompExpr{
-            public NotEqExpr(Expr expr1, Expr expr2) {
-                super(expr1, expr2);
-            }
-        }
-    }
-
-    public static abstract class LogicalExpr extends Expr {
-
-        public Expr expr1;
-        public Expr expr2;
-
-        public LogicalExpr(Expr expr1, Expr expr2) {
-            this.expr1 = expr1;
-            this.expr2 = expr2;
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-
-        }
-
-        @Override
-        public Type getType() {
-            return null;
         }
 
         public static AndExpr andExpr(Expr expr1, Expr expr2) {return new AndExpr(expr1, expr2);}
@@ -254,13 +228,51 @@ public abstract class Expr implements Visitable, Typed {
                 super(expr1, expr2);
             }
         }
+    }
 
-        public static NotExpr notExpr(Expr expr) {return new NotExpr(expr);}
-        public static class NotExpr extends LogicalExpr {
-            public NotExpr(Expr expr1) {
-                super(expr1, null);
+    public static abstract class UnaryExpr extends Expr {
+
+        public Expr expr;
+
+        public UnaryExpr(Expr expr) {
+            this.expr = expr;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
+
+        public static class ArithExpr extends UnaryExpr {
+            public ArithExpr(Expr expr) {
+                super(expr);
+            }
+            public static MinusExpr minusExpr(Expr expr) {return new MinusExpr(expr);}
+            public static class MinusExpr extends UnaryExpr {
+                public MinusExpr(Expr expr) {
+                    super(expr);
+                }
             }
         }
+
+        public static class LogicalExpr extends UnaryExpr {
+            public LogicalExpr(Expr expr) {
+                super(expr);
+            }
+
+            public static NotExpr notExpr(Expr expr) {return new NotExpr(expr);}
+            public static class NotExpr extends UnaryExpr {
+                public NotExpr(Expr expr) {
+                    super(expr);
+                }
+            }
+        }
+
     }
 
     public static abstract class FunctionExpr extends Expr {

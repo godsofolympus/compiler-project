@@ -1,17 +1,30 @@
 package compiler.AST;
 
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
+
 import java.util.List;
 
-public abstract class Call {
+public abstract class Call implements Visitable {
+
+    public String id;
+    public List<Expr> actuals;
+
+    public Call(String id, List<Expr> actuals) {
+        this.id = id;
+        this.actuals = actuals;
+    }
 
     public static SimpleCall simpleCall(String id, List<Expr> actuals) {return new SimpleCall(id, actuals);}
     public static class SimpleCall extends Call {
-        public String id;
-        public List<Expr> actuals;
 
         public SimpleCall(String id, List<Expr> actuals) {
-            this.id = id;
-            this.actuals = actuals;
+            super(id, actuals);
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -19,13 +32,15 @@ public abstract class Call {
 
     public static class DottedCall extends Call {
         public Expr expr;
-        public String id;
-        public List<Expr> actuals;
 
         public DottedCall(Expr expr, String id, List<Expr> actuals) {
+            super(id, actuals);
             this.expr = expr;
-            this.id = id;
-            this.actuals = actuals;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
     }
 }

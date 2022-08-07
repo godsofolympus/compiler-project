@@ -19,7 +19,7 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
-            visitor.visit(expr);
+            visitor.visit(this);
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class Stmt implements Visitable {
     public static class ContinueStmt extends Stmt {
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
     }
 
@@ -113,7 +113,7 @@ public abstract class Stmt implements Visitable {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
     }
 
@@ -126,7 +126,9 @@ public abstract class Stmt implements Visitable {
         }
 
         @Override
-        public void accept(Visitor visitor) {}
+        public void accept(Visitor visitor) {
+            visitor.visit(this) ;
+        }
     }
 
     public static BlockStmt blockStmt(StmtBlock stmtBlock) {return new BlockStmt(stmtBlock);}
