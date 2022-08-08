@@ -6,12 +6,18 @@ import compiler.models.Context;
 import compiler.models.ContextualScoped;
 import compiler.models.Scope;
 
-public class SemanticCheckerVisitor implements Visitor{
+public class SemanticAnalyzerVisitor implements Visitor{
 
     @Override
     public void visit(Program program) {
         for (Decl decl : program.decls) {
             Scope.getInstance().setEntry(decl.id, decl);
+        }
+        try {
+            Scope.getInstance().getEntry("main");
+        }
+        catch (SymbolNotFoundException e) {
+            throw new MainMethodNotFoundException();
         }
         for (Decl decl : program.decls) {
             decl.accept(this);

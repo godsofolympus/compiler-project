@@ -4,6 +4,7 @@ import compiler.models.Scope;
 
 public abstract class Type {
     public abstract boolean isLessThan(Type other);
+    public abstract int getSize();
 
     public static NonPrimitiveType nonPrimitiveType(String name) {
         return new NonPrimitiveType(name);
@@ -13,7 +14,7 @@ public abstract class Type {
         return new ArrayType(baseType);
     }
 
-    public static class PrimitiveType extends Type {
+    public static abstract class PrimitiveType extends Type {
 
         @Override
         public boolean isLessThan(Type other) {
@@ -29,18 +30,50 @@ public abstract class Type {
                 return super.isLessThan(other);
             }
 
+            @Override
+            public int getSize() {
+                throw new RuntimeException();
+            }
+
             public static IntegerType integerType() {return new IntegerType();}
-            public static class IntegerType extends NumberType{}
+            public static class IntegerType extends NumberType{
+                @Override
+                public int getSize() {
+                    return 4;
+                }
+            }
 
             public static DoubleType doubleType() {return new DoubleType();}
-            public static class DoubleType extends NumberType{}
+            public static class DoubleType extends NumberType{
+                @Override
+                public int getSize() {
+                    return 8;
+                }
+            }
         }
 
         public static BooleanType booleanType() {return new BooleanType();}
-        public static class BooleanType extends PrimitiveType {}
+        public static class BooleanType extends PrimitiveType {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+        }
 
-        public static StringType stringType() {return new StringType();}
-        public static class StringType extends PrimitiveType{}
+        public static StringType stringType(String string) {return new StringType(string);}
+        public static class StringType extends PrimitiveType{
+            public String string;
+
+            public StringType(String string) {
+                this.string = string;
+            }
+
+            @Override
+            public int getSize() {
+                if (this.string == null) return 0;
+                return this.string.length() + 1;
+            }
+        }
 
     }
 
@@ -57,6 +90,11 @@ public abstract class Type {
             String otherId = ((NonPrimitiveType) other).id;
             Decl.ClassDecl currentClass = (Decl.ClassDecl) Scope.getInstance().getEntry(this.id);
             return currentClass.isSubClassOf(otherId);
+        }
+
+        @Override
+        public int getSize() {
+            return 0;
         }
 
         @Override
@@ -81,6 +119,11 @@ public abstract class Type {
         }
 
         @Override
+        public int getSize() {
+            return 0;
+        }
+
+        @Override
         public String toString() {
             return "ArrayType{" +
                     "baseType=" + baseType +
@@ -97,6 +140,11 @@ public abstract class Type {
         public boolean isLessThan(Type other) {
             return false;
         }
+
+        @Override
+        public int getSize() {
+            return 0;
+        }
     }
 
     public static NullType nullType() {
@@ -108,6 +156,11 @@ public abstract class Type {
         @Override
         public boolean isLessThan(Type other) {
             return true;
+        }
+
+        @Override
+        public int getSize() {
+            return 0;
         }
 
         @Override

@@ -5,10 +5,12 @@ import java.io.*;
 
 
 import compiler.AST.Program;
+import compiler.codegenerator.CodeGenerator;
 import compiler.parser.Parser;
 import compiler.scanner.Lexer;
 import compiler.scanner.Preprocessor;
-import compiler.visitors.SemanticCheckerVisitor;
+import compiler.visitors.CodeGeneratorVisitor;
+import compiler.visitors.SemanticAnalyzerVisitor;
 
 
 public class Main {
@@ -23,8 +25,12 @@ public class Main {
             scanner = new Lexer(new FileReader(inputFile));
             parser = new Parser(scanner);
             Program program = (Program) parser.parse().value;
-            SemanticCheckerVisitor visitor = new SemanticCheckerVisitor();
+            SemanticAnalyzerVisitor visitor = new SemanticAnalyzerVisitor();
             visitor.visit(program);
+            CodeGeneratorVisitor cgenVisitor = new CodeGeneratorVisitor();
+            cgenVisitor.visit(program);
+            System.out.println(CodeGenerator.getInstance().generated.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;

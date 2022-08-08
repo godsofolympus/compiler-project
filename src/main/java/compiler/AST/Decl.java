@@ -65,6 +65,22 @@ public abstract class Decl implements Visitable, Typed {
         public Context getContext() {
             return Context.FUNCTION;
         }
+
+        public int getSizeOfLocals() {
+            int sum = 0;
+            for (Variable variable : this.stmtBlock.variableDecl) {
+                sum += variable.type.getSize();
+            }
+            return sum;
+        }
+
+        public int getSizeofParameters() {
+            int sum = 0;
+            for (Variable formal : this.formals) {
+                sum += formal.type.getSize();
+            }
+            return sum;
+        }
     }
 
     public static ClassDecl classDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields)

@@ -6,10 +6,11 @@
 package compiler.parser;
 
 import java.util.*;
-
+import java_cup.runtime.*;
 import compiler.scanner.*;
 import compiler.AST.*;
 import compiler.models.*;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -987,7 +988,7 @@ class CUP$Parser$actions {
           case 18: // PrimitiveType ::= STRING 
             {
               Type RESULT =null;
-		 RESULT = Type.PrimitiveType.stringType(); 
+		 RESULT = Type.PrimitiveType.stringType(null); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("PrimitiveType",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1743,7 +1744,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.ArithExpr.addExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.ArithExpr.addExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1758,7 +1759,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.ArithExpr.subExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.ArithExpr.subExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1773,7 +1774,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.ArithExpr.multExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.ArithExpr.multExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1788,7 +1789,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.ArithExpr.divExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.ArithExpr.divExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1803,7 +1804,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.ArithExpr.modExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.ArithExpr.modExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1815,7 +1816,7 @@ class CUP$Parser$actions {
 		int eleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.UnOpExpr.ArithExpr.minusExpr(e);
+		 RESULT = Expr.UnOpExpr.ArithExpr.minusExpr(e); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1830,7 +1831,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.lessExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.lessExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1845,7 +1846,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.lessEqExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.lessEqExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1860,7 +1861,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.greaterExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.greaterExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1875,7 +1876,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.greaterEqExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.greaterEqExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1890,7 +1891,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.eqExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.eqExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1905,7 +1906,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.CompExpr.notEqExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.CompExpr.notEqExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1920,7 +1921,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.LogicalExpr.andExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.LogicalExpr.andExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1935,7 +1936,7 @@ class CUP$Parser$actions {
 		int e2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int e2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e2 = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.BinOpExpr.LogicalExpr.orExpr(e1, e2);
+		 RESULT = Expr.BinOpExpr.LogicalExpr.orExpr(e1, e2); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1947,7 +1948,7 @@ class CUP$Parser$actions {
 		int eleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Expr e = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Expr.UnOpExpr.LogicalExpr.notExpr(e);
+		 RESULT = Expr.UnOpExpr.LogicalExpr.notExpr(e); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Expr",14, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

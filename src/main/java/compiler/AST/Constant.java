@@ -55,7 +55,7 @@ public abstract class Constant implements Typed {
 
         @Override
         public Type getType() {
-            return Type.PrimitiveType.stringType();
+            return Type.PrimitiveType.stringType(value);
         }
     }
 

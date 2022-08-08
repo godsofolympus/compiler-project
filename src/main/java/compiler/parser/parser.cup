@@ -124,7 +124,7 @@ PrimitiveType
     ::= INT {: RESULT = Type.PrimitiveType.NumberType.integerType(); :}
     | DOUBLE {: RESULT = Type.PrimitiveType.NumberType.doubleType(); :}
     | BOOL {: RESULT = Type.PrimitiveType.booleanType(); :}
-    | STRING {: RESULT = Type.PrimitiveType.stringType(); :}
+    | STRING {: RESULT = Type.PrimitiveType.stringType(null); :}
     ;
 
 Type
@@ -223,21 +223,21 @@ Expr
     | THIS {: RESULT = Expr.thisExpr(); :}
     | Call:c {: RESULT = Expr.callExpr(c); :}
     | PARANTHESIS_LEFT Expr:e PARANTHESIS_RIGHT {: RESULT = e; :}
-    | Expr:e1 PLUS Expr:e2 {: RESULT = Expr.BinaryExpr.ArithExpr.addExpr(e1, e2); :}
-    | Expr:e1 MINUS Expr:e2 {: RESULT = Expr.BinaryExpr.ArithExpr.subExpr(e1, e2); :}
-    | Expr:e1 MULTIPLY Expr:e2 {: RESULT = Expr.BinaryExpr.ArithExpr.multExpr(e1, e2); :}
-    | Expr:e1 DIVIDE Expr:e2 {: RESULT = Expr.BinaryExpr.ArithExpr.divExpr(e1, e2); :}
-    | Expr:e1 MOD Expr:e2 {: RESULT = Expr.BinaryExpr.ArithExpr.modExpr(e1, e2); :}
-    | MINUS Expr:e {: RESULT = Expr.UnaryExpr.ArithExpr.minusExpr(e); :}
-    | Expr:e1 LESS Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.lessExpr(e1, e2); :}
-    | Expr:e1 LESS_EQUAL Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.lessEqExpr(e1, e2); :}
-    | Expr:e1 GREATER Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.greaterExpr(e1, e2); :}
-    | Expr:e1 GREATER_EQUAL Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.greaterEqExpr(e1, e2); :}
-    | Expr:e1 EQUAL_EQUAL Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.eqExpr(e1, e2); :}
-    | Expr:e1 NOT_EQUAL Expr:e2 {: RESULT = Expr.BinaryExpr.CompExpr.notEqExpr(e1, e2); :}
-    | Expr:e1 AND_AND Expr:e2 {: RESULT = Expr.BinaryExpr.LogicalExpr.andExpr(e1, e2); :}
-    | Expr:e1 OR_OR Expr:e2 {: RESULT = Expr.BinaryExpr.LogicalExpr.orExpr(e1, e2); :}
-    | NOT Expr:e {: RESULT = Expr.UnaryExpr.LogicalExpr.notExpr(e); :}
+    | Expr:e1 PLUS Expr:e2 {: RESULT = Expr.BinOpExpr.ArithExpr.addExpr(e1, e2); :}
+    | Expr:e1 MINUS Expr:e2 {: RESULT = Expr.BinOpExpr.ArithExpr.subExpr(e1, e2); :}
+    | Expr:e1 MULTIPLY Expr:e2 {: RESULT = Expr.BinOpExpr.ArithExpr.multExpr(e1, e2); :}
+    | Expr:e1 DIVIDE Expr:e2 {: RESULT = Expr.BinOpExpr.ArithExpr.divExpr(e1, e2); :}
+    | Expr:e1 MOD Expr:e2 {: RESULT = Expr.BinOpExpr.ArithExpr.modExpr(e1, e2); :}
+    | MINUS Expr:e {: RESULT = Expr.UnOpExpr.ArithExpr.minusExpr(e); :}
+    | Expr:e1 LESS Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.lessExpr(e1, e2); :}
+    | Expr:e1 LESS_EQUAL Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.lessEqExpr(e1, e2); :}
+    | Expr:e1 GREATER Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.greaterExpr(e1, e2); :}
+    | Expr:e1 GREATER_EQUAL Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.greaterEqExpr(e1, e2); :}
+    | Expr:e1 EQUAL_EQUAL Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.eqExpr(e1, e2); :}
+    | Expr:e1 NOT_EQUAL Expr:e2 {: RESULT = Expr.BinOpExpr.CompExpr.notEqExpr(e1, e2); :}
+    | Expr:e1 AND_AND Expr:e2 {: RESULT = Expr.BinOpExpr.LogicalExpr.andExpr(e1, e2); :}
+    | Expr:e1 OR_OR Expr:e2 {: RESULT = Expr.BinOpExpr.LogicalExpr.orExpr(e1, e2); :}
+    | NOT Expr:e {: RESULT = Expr.UnOpExpr.LogicalExpr.notExpr(e); :}
     | READ_INTEGER PARANTHESIS_LEFT PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.readIntExpr(); :}
     | READ_LINE PARANTHESIS_LEFT PARANTHESIS_RIGHT {: RESULT = Expr.FunctionExpr.readLineExpr(); :}
     | NEW IDENTIFIER:id {: RESULT = Expr.InitExpr.objInit(id); :}
