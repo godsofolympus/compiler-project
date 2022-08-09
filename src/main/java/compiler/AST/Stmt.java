@@ -9,6 +9,10 @@ import java.util.List;
 
 public abstract class Stmt implements Visitable {
 
+    public int getRequiredSpace() {
+        return 0;
+    }
+
     public static ExprStmt exprStmt(Expr expr) {return new ExprStmt(expr);}
     public static class ExprStmt extends Stmt {
         public Expr expr;
@@ -142,6 +146,11 @@ public abstract class Stmt implements Visitable {
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public int getRequiredSpace() {
+            return stmtBlock.getRequiredSpace();
         }
     }
 }

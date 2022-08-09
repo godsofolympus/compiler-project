@@ -17,8 +17,14 @@ public abstract class Decl implements Visitable, Typed {
     }
 
     public static VariableDecl variableDecl(Variable variable) {return new VariableDecl(variable);}
+    public static VariableDecl variableDecl(Variable variable, int offset) {
+        VariableDecl variableDecl = new VariableDecl(variable);
+        variableDecl.offset = offset;
+        return variableDecl;
+    }
     public static class VariableDecl extends Decl {
         public Variable variable;
+        public int offset;
 
         public VariableDecl(Variable variable) {
             super(variable.id);
@@ -44,6 +50,8 @@ public abstract class Decl implements Visitable, Typed {
         public List<Variable> formals;
         public StmtBlock stmtBlock;
 
+        private int offsetCounter;
+
         public FunctionDecl(String id, Type returnType, List<Variable> formals, StmtBlock stmtBlock) {
             super(id);
             this.returnType = returnType;
@@ -66,20 +74,20 @@ public abstract class Decl implements Visitable, Typed {
             return Context.FUNCTION;
         }
 
-        public int getSizeOfLocals() {
-            int sum = 0;
-            for (Variable variable : this.stmtBlock.variableDecl) {
-                sum += variable.type.getSize();
-            }
-            return sum;
-        }
-
         public int getSizeofParameters() {
             int sum = 0;
             for (Variable formal : this.formals) {
                 sum += formal.type.getSize();
             }
             return sum;
+        }
+
+        public int getOffsetCounter() {
+            return offsetCounter;
+        }
+
+        public void setOffsetCounter(int offsetCounter) {
+            this.offsetCounter = offsetCounter;
         }
     }
 

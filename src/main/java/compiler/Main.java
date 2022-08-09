@@ -29,8 +29,9 @@ public class Main {
             visitor.visit(program);
             CodeGeneratorVisitor cgenVisitor = new CodeGeneratorVisitor();
             cgenVisitor.visit(program);
-            System.out.println(CodeGenerator.getInstance().generated.toString());
-
+            FileWriter fileWriter = new FileWriter("res.s");
+            fileWriter.write(CodeGenerator.getInstance().generated.toString());
+            fileWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
             return false;

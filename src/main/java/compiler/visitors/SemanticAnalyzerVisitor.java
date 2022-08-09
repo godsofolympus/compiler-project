@@ -114,8 +114,8 @@ public class SemanticAnalyzerVisitor implements Visitor{
     @Override
     public void visit(StmtBlock stmtBlock) {
         Scope scope = Scope.pushScope(null);
-        for (Variable variable : stmtBlock.variableDecl) {
-            scope.setEntry(variable.id, Decl.variableDecl(variable));
+        for (Decl.VariableDecl variableDecl : stmtBlock.variableDecls) {
+            scope.setEntry(variableDecl.id, variableDecl);
         }
         for (Stmt stmt : stmtBlock.stmts) {
             stmt.accept(this);

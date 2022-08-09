@@ -11,11 +11,11 @@ public abstract class ClassField {
         this.id = id;
     }
 
-    public static VarField varField(AccessMode accessMode, Variable variable) {return new VarField(accessMode, variable); }
+    public static VarField varField(AccessMode accessMode, Decl.VariableDecl variableDecl) {return new VarField(accessMode, variableDecl); }
 
     public static class VarField extends ClassField {
-        public Variable varDecl;
-        public VarField(AccessMode accessMode, Variable varDecl) {
+        public Decl.VariableDecl varDecl;
+        public VarField(AccessMode accessMode, Decl.VariableDecl varDecl) {
             super(accessMode, varDecl.id);
             this.varDecl = varDecl;
         }

@@ -7,16 +7,26 @@ import java.util.List;
 
 public class StmtBlock implements Visitable {
 
-    public List<Variable> variableDecl;
+    public List<Decl.VariableDecl> variableDecls;
     public List<Stmt> stmts;
 
-    public StmtBlock(List<Variable> variableDecl, List<Stmt> stmts) {
-        this.variableDecl = variableDecl;
+    public StmtBlock(List<Decl.VariableDecl> variableDecls, List<Stmt> stmts) {
+        this.variableDecls = variableDecls;
         this.stmts = stmts;
     }
 
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
+    }
+    public int getRequiredSpace() {
+        int sum = 0;
+        for (Decl.VariableDecl variableDecl : this.variableDecls) {
+            sum += variableDecl.variable.type.getSize();
+        }
+        for (Stmt stmt : this.stmts) {
+            sum += stmt.getRequiredSpace();
+        }
+        return sum;
     }
 }

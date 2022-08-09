@@ -42,8 +42,8 @@ terminal String     IDENTIFIER;
 non terminal Program Program;
 non terminal Decl Decl;
 non terminal LinkedList<Decl> DeclStar;
-non terminal LinkedList<Variable> VariableDeclStar;
-non terminal Variable VariableDecl;
+non terminal LinkedList<Decl.VariableDecl> VariableDeclStar;
+non terminal Decl.VariableDecl VariableDecl;
 non terminal Variable Variable;
 non terminal Type Type;
 non terminal Type PrimitiveType;
@@ -101,7 +101,7 @@ Macro ::= IMPORT STRING_CONSTANT;
 MacroStar ::= Macro MacroStar | /* epsilon */;
 
 Decl
-    ::= VariableDecl:v {: RESULT = Decl.variableDecl(v); :}
+    ::= VariableDecl:v {: RESULT = v; :}
     | FunctionDecl:f {: RESULT = f; :}
     | ClassDecl:c {: RESULT = c; :}
     | InterfaceDecl:i {: RESULT = i; :}
@@ -114,10 +114,10 @@ DeclStar
 
 VariableDeclStar
     ::= VariableDeclStar:vs VariableDecl:v {: vs.add(v); RESULT = vs; :}
-    |   {:RESULT = new LinkedList<Variable>(); :}
+    |   {:RESULT = new LinkedList<Decl.VariableDecl>(); :}
     ;
 
-VariableDecl        ::= Variable:v SEMICOLON {: RESULT = v; :};
+VariableDecl        ::= Variable:v SEMICOLON {: RESULT = Decl.variableDecl(v); :};
 Variable            ::= Type:t IDENTIFIER:id {: RESULT = new Variable(t, id); :};
 
 PrimitiveType

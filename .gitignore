@@ -33,3 +33,4 @@ target
 
 input.txt
 .pp_tmp
+*.s

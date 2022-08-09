@@ -11,6 +11,8 @@ import compiler.AST.Stmt.ForStmt;
 import compiler.AST.Stmt.IfStmt;
 import compiler.AST.Stmt.WhileStmt;
 import compiler.codegenerator.CodeGenerator;
+import compiler.models.Context;
+import compiler.models.Scope;
 
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class CodeGeneratorVisitor implements Visitor{
                 cgen.generated.append("\t.text\n")
                         .append("\t.globl main\n");
                 cgen.genLabel("main");
-                generateFunctionEntry(functionDecl);
+                generateFunction(functionDecl);
             }
             else functionDecl.accept(this);
         }
@@ -43,16 +45,31 @@ public class CodeGeneratorVisitor implements Visitor{
         }
     }
 
-    public void generateFunctionEntry(FunctionDecl function) {
-        int paramSize = function.getSizeofParameters();
+    public void generateFunction(FunctionDecl functionDecl) {
+        Scope.pushScope(functionDecl);
+        int offsetCounter = 0;
+        for (Variable formal : functionDecl.formals) {
+            Scope.getInstance().setEntry(formal.id, Decl.variableDecl(formal, offsetCounter));
+            offsetCounter -= formal.type.getSize();
+        }
+        functionDecl.setOffsetCounter(offsetCounter - 8);
+        int paramSize = functionDecl.getSizeofParameters();
+        int localsSize = functionDecl.stmtBlock.getRequiredSpace();
+        this.generateFunctionEntry(paramSize, localsSize);
+        functionDecl.stmtBlock.accept(this);
+        this.generateFunctionExit(functionDecl.id, paramSize);
+        Scope.popScope();
+    }
+
+    public void generateFunctionEntry(int paramSize, int localsSize) {
         cgen.genPush(RA);
         cgen.genPush(FP);
         cgen.generate("addu", FP, SP, String.valueOf(paramSize + 8));
-        cgen.generate("subu", SP, SP, String.valueOf(function.getSizeOfLocals()));
-        for (Stmt stmt : function.stmtBlock.stmts) {
-            stmt.accept(this);
-        }
-        cgen.genLabel("_" + function.id + "_Exit");
+        cgen.generate("subu", SP, SP, String.valueOf(localsSize));
+    }
+
+    public void generateFunctionExit(String functionName, int paramSize) {
+        cgen.genLabel("_" + functionName + "_Exit");
         cgen.generateIndexed("lw", RA, FP, -paramSize);
         cgen.generate("move", T0, FP);
         cgen.generateIndexed("lw", FP, FP, -(paramSize + 4));
@@ -62,13 +79,17 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(VariableDecl variableDecl) {
-
+        FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
+        int offsetCounter = functionDecl.getOffsetCounter();
+        Scope.getInstance().setEntry(variableDecl.id, variableDecl);
+        offsetCounter -= variableDecl.variable.type.getSize();
+        functionDecl.setOffsetCounter(offsetCounter);
     }
 
     @Override
     public void visit(FunctionDecl functionDecl) {
         cgen.genLabel("_" + functionDecl.id);
-        generateFunctionEntry(functionDecl);
+        generateFunction(functionDecl);
     }
 
     @Override
@@ -117,14 +138,19 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        // TODO Auto-generated method stub
-        
+        Scope.pushScope(null);
+        blockStmt.stmtBlock.accept(this);
+        Scope.popScope();
     }
 
     @Override
     public void visit(StmtBlock stmtBlock) {
-        // TODO Auto-generated method stub
-        
+        for (VariableDecl variableDecl : stmtBlock.variableDecls) {
+            variableDecl.accept(this);
+        }
+        for (Stmt stmt : stmtBlock.stmts) {
+            stmt.accept(this);
+        }
     }
 
     @Override
