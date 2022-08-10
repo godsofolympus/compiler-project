@@ -167,9 +167,17 @@ public class SemanticAnalyzerVisitor implements Visitor{
         lValExpr.lValue.accept(this);
     }
 
+    @Override
+    public void visit(Expr.BinOpExpr binOpExpr) {
+
+    }
 
     @Override
-    public void visit(Expr.BinOpExpr.AddExpr addExpr) {}
+    public void visit(Expr.BinOpExpr.AddExpr addExpr) {
+        addExpr.expr1.accept(this);
+        Expr.BinOpExpr.AddExpr castedExpr = addExpr.downcast();
+        castedExpr.accept(this);
+    }
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr) {

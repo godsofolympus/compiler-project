@@ -110,14 +110,15 @@ public abstract class Expr implements Visitable, Typed {
         }
 
         public static AddExpr addExpr(Expr expr1, Expr expr2) {
-            Type type1 = expr1.getType();
-            if (type1.isLessThan(Type.PrimitiveType.integerType())) return AddExpr.intAddExpr(expr1, expr2);
-            else if (type1.isLessThan(Type.PrimitiveType.doubleType())) return AddExpr.doubleAddExpr(expr1, expr2);
-            else if (type1.isLessThan(Type.PrimitiveType.stringType())) return AddExpr.stringAddExpr(expr1, expr2);
-            else return AddExpr.arrayAddExpr(expr1, expr2);
-        }
+            return new AddExpr(expr1, expr2);}
 
-        public static abstract class AddExpr extends BinOpExpr {
+        public static class AddExpr extends BinOpExpr {
+            public AddExpr downcast() {
+                if (this.expr1.getType().isLessThan(Type.PrimitiveType.integerType())) return intAddExpr(this.expr1, this.expr2);
+                else if (this.expr1.getType().isLessThan(Type.PrimitiveType.doubleType())) return doubleAddExpr(this.expr1, this.expr2);
+                else if (this.expr1.getType().isLessThan(Type.PrimitiveType.stringType())) return stringAddExpr(this.expr1, this.expr2);
+                else return arrayAddExpr(this.expr1, this.expr2);
+            };
             public AddExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
@@ -137,6 +138,11 @@ public abstract class Expr implements Visitable, Typed {
 
                 public IntAddExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
             public static DoubleAddExpr doubleAddExpr(Expr expr1, Expr expr2) {return new DoubleAddExpr(expr1, expr2);}

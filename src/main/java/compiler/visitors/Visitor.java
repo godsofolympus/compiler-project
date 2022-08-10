@@ -23,6 +23,7 @@ public interface Visitor {
     void visit(Expr.CallExpr callExpr);
     void visit(Expr.AssignExpr assignExpr);
     void visit(Expr.LValExpr lValExpr);
+    void visit(Expr.BinOpExpr binOpExpr);
     void visit(Expr.BinOpExpr.AddExpr addExpr);
     void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr);
     void visit(Expr.BinOpExpr.AddExpr.DoubleAddExpr doubleAddExpr);
