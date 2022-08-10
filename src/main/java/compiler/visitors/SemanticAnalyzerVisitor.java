@@ -103,6 +103,7 @@ public class SemanticAnalyzerVisitor implements Visitor{
     public void visit(Stmt.PrintStmt printStmt) {
         for (Expr expr : printStmt.exprs) {
             expr.accept(this);
+
         }
     }
 
@@ -131,6 +132,10 @@ public class SemanticAnalyzerVisitor implements Visitor{
     @Override
     public void visit(LValue.SimpleLVal lValue) {}
 
+    @Override
+    public void visit(Expr.ConstExpr constExpr) {
+    }
+
 
     @Override
     public void visit(Expr.ThisExpr thisExpr) {
@@ -153,6 +158,12 @@ public class SemanticAnalyzerVisitor implements Visitor{
         if (!rightType.isLessThan(leftType))
             throw new IncompatibleTypesException(leftType, rightType);
     }
+
+    @Override
+    public void visit(Expr.LValExpr lValExpr) {
+        lValExpr.lValue.accept(this);
+    }
+
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr addExpr) {
@@ -186,6 +197,36 @@ public class SemanticAnalyzerVisitor implements Visitor{
     }
 
     @Override
+    public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
+
+    }
+
+    @Override
     public void visit(Expr.BinOpExpr.LogicalExpr logicalExpr) {
         typeCheckBinaryExpr(logicalExpr, Type.PrimitiveType.booleanType());
     }
@@ -210,6 +251,16 @@ public class SemanticAnalyzerVisitor implements Visitor{
         if (method == null)
             throw new MethodNotFoundException(dottedCall.id, exprType);
         this.checkCallArguments(dottedCall, method);
+    }
+
+    @Override
+    public void visit(Constant.IntConst intConst) {
+
+    }
+
+    @Override
+    public void visit(Constant.BoolConst boolConst) {
+
     }
 
     public void checkCallArguments(Call call, Decl.FunctionDecl functionDecl) {

@@ -38,6 +38,7 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
 
         @Override
@@ -193,12 +194,20 @@ public abstract class Expr implements Visitable, Typed {
                 public LessExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static LessEqExpr lessEqExpr(Expr expr1, Expr expr2) {return new LessEqExpr(expr1, expr2);}
             public static class LessEqExpr extends CompExpr {
                 public LessEqExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
 
@@ -207,12 +216,20 @@ public abstract class Expr implements Visitable, Typed {
                 public GreaterExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static GreaterEqExpr greaterEqExpr(Expr expr1, Expr expr2) {return new GreaterEqExpr(expr1, expr2);}
             public static class GreaterEqExpr extends CompExpr {
                 public GreaterEqExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
 
@@ -221,12 +238,21 @@ public abstract class Expr implements Visitable, Typed {
                 public EqExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static NotEqExpr notEqExpr(Expr expr1, Expr expr2) {return new NotEqExpr(expr1, expr2);}
             public static class NotEqExpr extends CompExpr {
                 public NotEqExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
         }

@@ -178,20 +178,20 @@ Prototype
 StmtBlock           ::= CURLY_BRACKETS_LEFT VariableDeclStar:vs StmtStar:ss CURLY_BRACKETS_RIGHT {: RESULT = new StmtBlock(vs, ss); :};
 
 StmtStar
-    ::= Stmt:s StmtStar:ss {: ss.add(s); RESULT = ss; :}
+    ::= Stmt:s StmtStar:ss {: ss.add(0, s); RESULT = ss; :}
     | {: RESULT = new LinkedList<Stmt>(); :}/* epsilon */
     ;
 
 Stmt
-    ::= ExprOptional:e SEMICOLON {: RESULT = Stmt.exprStmt(e); :}
+    ::= PrintStmt:s {: RESULT = s; :}
     | IfStmt:s {: RESULT = s; :}
     | WhileStmt:s {: RESULT = s; :}
     | ForStmt:s {: RESULT = s; :}
     | BreakStmt {: RESULT = Stmt.breakStmt(); :}
     | ContinueStmt {: RESULT = Stmt.continueStmt(); :}
     | ReturnStmt:s {: RESULT = s; :}
-    | PrintStmt:s {: RESULT = s; :}
     | StmtBlock:sb {: RESULT = Stmt.blockStmt(sb); :}
+    | ExprOptional:e SEMICOLON {: RESULT = Stmt.exprStmt(e); :}
     ;
 
 ExprOptional

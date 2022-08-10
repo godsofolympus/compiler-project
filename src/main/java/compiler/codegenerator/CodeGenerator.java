@@ -10,6 +10,7 @@ public class CodeGenerator {
     }
 
     public final StringBuilder generated;
+    private int labelCount = 0;
 
     private CodeGenerator() {
         this.generated = new StringBuilder();
@@ -23,14 +24,20 @@ public class CodeGenerator {
         generated.append("\t").append(opcode).append(" ").append(R1).append(" ").append(offset).append("(").append(R2).append(")").append("\n");
     }
 
+    public String nextLabel() {
+        String label = "L" + labelCount;
+        labelCount++;
+        return label;
+    }
+
     public void genPush(String register) {
         generateIndexed("sw", register, SP, 0);
         generate("subu", SP, SP, "4");
     }
 
     public void genPop(String register) {
-        generateIndexed("lw", register, SP, 0);
-        generate("addi", SP, SP, "4");
+        generateIndexed("lw", register, SP, 4);
+        generate("addu", SP, SP, "4");
     }
 
     public void genLabel(String label) {

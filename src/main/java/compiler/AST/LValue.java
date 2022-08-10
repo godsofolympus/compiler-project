@@ -7,6 +7,7 @@ import compiler.visitors.Visitor;
 
 public abstract class LValue implements Visitable, Typed {
 
+    public abstract int getOffset();
     public static SimpleLVal simpleLVal(String id) {return new SimpleLVal(id);}
     public static class SimpleLVal extends LValue {
         public String id;
@@ -23,6 +24,12 @@ public abstract class LValue implements Visitable, Typed {
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public int getOffset() {
+            Decl.VariableDecl variableDecl = (Decl.VariableDecl) Scope.getInstance().getEntry(id);
+            return variableDecl.offset;
         }
     }
 
@@ -45,6 +52,11 @@ public abstract class LValue implements Visitable, Typed {
         public void accept(Visitor visitor) {
 
         }
+
+        @Override
+        public int getOffset() {
+            return 0;
+        }
     }
 
     public static IndexedLVal indexedLVal(Expr expr, Expr index) {return new IndexedLVal(expr, index);}
@@ -65,6 +77,11 @@ public abstract class LValue implements Visitable, Typed {
         @Override
         public void accept(Visitor visitor) {
 
+        }
+
+        @Override
+        public int getOffset() {
+            return 0;
         }
     }
 }

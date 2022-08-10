@@ -81,6 +81,7 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(VariableDecl variableDecl) {
         FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
         int offsetCounter = functionDecl.getOffsetCounter();
+        variableDecl.offset = offsetCounter;
         Scope.getInstance().setEntry(variableDecl.id, variableDecl);
         offsetCounter -= variableDecl.variable.type.getSize();
         functionDecl.setOffsetCounter(offsetCounter);
@@ -94,13 +95,21 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Stmt.ExprStmt exprStmt) {
-
+        exprStmt.expr.accept(this);
     }
 
     @Override
     public void visit(IfStmt ifStmt) {
-        // TODO Auto-generated method stub
-        
+        ifStmt.cond.accept(this);
+        cgen.genPop(T0);
+        String falseLabel = cgen.nextLabel();
+        String endLabel = cgen.nextLabel();
+        cgen.generate("beq", T0, R0, falseLabel);
+        ifStmt.stmt.accept(this);
+        cgen.generate("j", endLabel);
+        cgen.genLabel(falseLabel);
+        if (ifStmt.elseStmt != null) ifStmt.elseStmt.accept(this);
+        cgen.genLabel(endLabel);
     }
 
     @Override
@@ -128,12 +137,29 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Stmt.ReturnStmt returnStmt) {
-
+        FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
+        if (returnStmt.expr != null) {
+            returnStmt.expr.accept(this);
+            cgen.genPop(V0);
+        }
+        cgen.generate("j", "_" + functionDecl.id + "_Exit");
     }
 
     @Override
     public void visit(Stmt.PrintStmt printStmt) {
-
+        for (Expr expr : printStmt.exprs) {
+            expr.accept(this);
+            cgen.genPop(A0);
+            Type exprType = expr.getType();
+            String v0 = null;
+            if (exprType instanceof Type.PrimitiveType.NumberType.IntegerType || exprType instanceof Type.PrimitiveType.BooleanType)
+                v0 = "1";
+            else if (exprType instanceof Type.PrimitiveType.StringType) {
+                v0 = "4";
+            }
+            cgen.generate("li", V0, v0);
+            cgen.generate("syscall");
+        }
     }
 
     @Override
@@ -155,14 +181,18 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(LValue lValue) {
-        // TODO Auto-generated method stub
-        
+        lValue.accept(this);
     }
 
     @Override
     public void visit(SimpleLVal lValue) {
-        // TODO Auto-generated method stub
-        
+        cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
+        cgen.genPush(A0);
+    }
+
+    @Override
+    public void visit(Expr.ConstExpr constExpr) {
+       constExpr.constant.accept(this);
     }
 
     @Override
@@ -172,15 +202,22 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.CallExpr callExpr) {
-
+        callExpr.call.accept(this);
     }
 
 
     @Override
     public void visit(AssignExpr assignExpr) {
-        // TODO Auto-generated method stub
-        
+        assignExpr.rightHandSide.accept(this);
+        cgen.genPop(A0);
+        cgen.generateIndexed("sw", A0, FP, assignExpr.leftHandSide.getOffset());
     }
+
+    @Override
+    public void visit(Expr.LValExpr lValExpr) {
+        lValExpr.lValue.accept(this);
+    }
+
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr addExpr) {
@@ -192,9 +229,57 @@ public class CodeGeneratorVisitor implements Visitor{
 
     }
 
+    public void generateCompExpr(String opcode) {
+        cgen.genPop(T1);
+        cgen.genPop(T0);
+        String lTrue = cgen.nextLabel();
+        String lEnd = cgen.nextLabel();
+        cgen.generate(opcode, T1, T0, lTrue);
+        cgen.generate("li", A0, "0");
+        cgen.generate("j", lEnd);
+        cgen.genLabel(lTrue);
+        cgen.generate("li", A0, "1");
+        cgen.genLabel(lEnd);
+        cgen.genPush(A0);
+    }
+
     @Override
     public void visit(Expr.BinOpExpr.CompExpr compExpr) {
+        compExpr.expr1.accept(this);
+        compExpr.expr2.accept(this);
+        compExpr.accept(this);
+    }
 
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
+        generateCompExpr("blt");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
+        generateCompExpr("ble");
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
+        generateCompExpr("bgt");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
+        generateCompExpr("bge");
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
+        generateCompExpr("beq");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
+        generateCompExpr("bne");
     }
 
     @Override
@@ -204,12 +289,27 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Call.SimpleCall simpleCall) {
-
+        for (Expr actual : simpleCall.actuals) {
+            actual.accept(this);
+        }
+        cgen.generate("j", "_" + simpleCall.id);
     }
 
     @Override
     public void visit(Call.DottedCall dottedCall) {
 
+    }
+
+    @Override
+    public void visit(Constant.IntConst intConst) {
+        cgen.generate("li", A0, String.valueOf(intConst.value));
+        cgen.genPush(A0);
+    }
+
+    @Override
+    public void visit(Constant.BoolConst boolConst) {
+        cgen.generate("li", A0, boolConst.value ? "1" : "0");
+        cgen.genPush(A0);
     }
 
 }

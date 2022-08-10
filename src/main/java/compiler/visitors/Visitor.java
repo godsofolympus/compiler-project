@@ -18,13 +18,23 @@ public interface Visitor {
     void visit(StmtBlock stmtBlock);
     void visit(LValue lValue);
     void visit(LValue.SimpleLVal lValue);
+    void visit(Expr.ConstExpr constExpr);
     void visit(Expr.ThisExpr thisExpr);
     void visit(Expr.CallExpr callExpr);
     void visit(Expr.AssignExpr assignExpr);
+    void visit(Expr.LValExpr lValExpr);
     void visit(Expr.BinOpExpr.AddExpr addExpr);
     void visit(Expr.BinOpExpr.ArithExpr arithExpr);
     void visit(Expr.BinOpExpr.CompExpr compExpr);
+    void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr);
+    void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr);
+    void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr);
+    void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr);
+    void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr);
+    void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr);
     void visit(Expr.BinOpExpr.LogicalExpr logicalExpr);
     void visit(Call.SimpleCall simpleCall);
     void visit(Call.DottedCall dottedCall);
+    void visit(Constant.IntConst intConst);
+    void visit(Constant.BoolConst boolConst);
 }

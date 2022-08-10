@@ -1,13 +1,15 @@
 package compiler.AST;
 
 import compiler.models.Typed;
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
 
-public abstract class Constant implements Typed {
+public abstract class Constant implements Visitable, Typed {
 
-    public static IntConst intConst(Integer value) {return new IntConst(value);}
+    public static IntConst intConst(int value) {return new IntConst(value);}
     public static class IntConst extends Constant {
-        public Integer value;
-        public IntConst(Integer value) {
+        public int value;
+        public IntConst(int value) {
             this.value = value;
         }
 
@@ -15,13 +17,18 @@ public abstract class Constant implements Typed {
         public Type getType() {
             return Type.PrimitiveType.NumberType.integerType();
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
     }
 
-    public static BoolConst boolConst(Boolean value) {return new BoolConst(value);}
+    public static BoolConst boolConst(boolean value) {return new BoolConst(value);}
     public static class BoolConst extends Constant {
-        public Boolean value;
+        public boolean value;
 
-        public BoolConst(Boolean value) {
+        public BoolConst(boolean value) {
             this.value = value;
         }
 
@@ -29,19 +36,29 @@ public abstract class Constant implements Typed {
         public Type getType() {
             return Type.PrimitiveType.NumberType.booleanType();
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
     }
 
-    public static DoubleConst doubleConst(Double value) {return new DoubleConst(value);}
+    public static DoubleConst doubleConst(double value) {return new DoubleConst(value);}
     public static class DoubleConst extends Constant{
-        public Double value;
+        public double value;
 
-        public DoubleConst(Double value) {
+        public DoubleConst(double value) {
             this.value = value;
         }
 
         @Override
         public Type getType() {
             return Type.PrimitiveType.NumberType.doubleType();
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 
@@ -57,6 +74,11 @@ public abstract class Constant implements Typed {
         public Type getType() {
             return Type.PrimitiveType.stringType(value);
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+
+        }
     }
 
     public static NullConst nullConst() {return new NullConst();}
@@ -64,6 +86,11 @@ public abstract class Constant implements Typed {
         @Override
         public Type getType() {
             return Type.PrimitiveType.nullType();
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+
         }
     }
 }

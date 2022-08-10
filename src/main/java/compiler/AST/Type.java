@@ -56,7 +56,7 @@ public abstract class Type {
         public static class BooleanType extends PrimitiveType {
             @Override
             public int getSize() {
-                return 1;
+                return 4;
             }
         }
 
