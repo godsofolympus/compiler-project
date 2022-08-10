@@ -219,6 +219,26 @@ public class SemanticAnalyzerVisitor implements Visitor{
         typeCheckBinaryExpr(arithExpr, expectedTypes);
     }
 
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.SubExpr subExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.MultExpr multExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.DivExpr divExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr) {
+
+    }
+
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr compExpr) {;
@@ -261,6 +281,32 @@ public class SemanticAnalyzerVisitor implements Visitor{
     @Override
     public void visit(Expr.BinOpExpr.LogicalExpr logicalExpr) {
         typeCheckBinaryExpr(logicalExpr, List.of(Type.PrimitiveType.booleanType()));
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.LogicalExpr.AndExpr andExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.LogicalExpr.OrExpr orExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.UnOpExpr.ArithExpr.MinusExpr minusExpr) {
+        minusExpr.expr.accept(this);
+        if (!minusExpr.expr.getType().isLessThan(Type.PrimitiveType.integerType()) &&
+                !minusExpr.expr.getType().isLessThan(Type.PrimitiveType.doubleType()))
+            throw new IncompatibleTypesException(Arrays.asList(Type.PrimitiveType.integerType(),
+                    Type.PrimitiveType.doubleType()), minusExpr.expr.getType());
+    }
+
+    @Override
+    public void visit(Expr.UnOpExpr.LogicalExpr.NotExpr notExpr) {
+        notExpr.expr.accept(this);
+        if (!notExpr.expr.getType().isLessThan(Type.PrimitiveType.booleanType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.booleanType(), notExpr.expr.getType());
     }
 
 

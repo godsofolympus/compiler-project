@@ -10,7 +10,7 @@ public class IncompatibleTypesException extends RuntimeException{
         super("Expected type of: \"" + expected.toString() + "\" but provided type was of: \"" + provided.toString()+ "\"");
     }
     public IncompatibleTypesException(List<Type> expectedTypes, Type provided) {
-        super("Expected type of: \"" + expectedTypes.stream().map(Object::toString)
-                .collect(Collectors.joining(", ")) + "\" but provided type was of: \"" + provided.toString()+ "\"");
+        super("Expected types of: \"" + expectedTypes.stream().map(Object::toString)
+                .collect(Collectors.joining(" or ")) + "\" but provided type was of: \"" + provided.toString()+ "\"");
     }
 }

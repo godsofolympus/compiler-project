@@ -117,7 +117,7 @@ public abstract class Type {
     public static class VoidType extends Type {
         @Override
         public boolean isLessThan(Type other) {
-            return false;
+            return getClass() == other.getClass();
         }
 
         @Override

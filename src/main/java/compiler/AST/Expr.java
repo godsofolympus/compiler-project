@@ -188,12 +188,22 @@ public abstract class Expr implements Visitable, Typed {
                 public SubExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static MultExpr multExpr(Expr expr1, Expr expr2) {return new MultExpr(expr1, expr2);}
             public static class MultExpr extends ArithExpr {
                 public MultExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
 
@@ -202,12 +212,22 @@ public abstract class Expr implements Visitable, Typed {
                 public DivExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static ModExpr modExpr(Expr expr1, Expr expr2) {return new ModExpr(expr1, expr2);}
             public static class ModExpr extends ArithExpr {
                 public ModExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
         }
@@ -316,12 +336,22 @@ public abstract class Expr implements Visitable, Typed {
                 public AndExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static OrExpr orExpr(Expr expr1, Expr expr2) {return new OrExpr(expr1, expr2);}
             public static class OrExpr extends LogicalExpr {
                 public OrExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
         }
@@ -342,10 +372,10 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return null;
+            return expr.getType();
         }
 
-        public static class ArithExpr extends UnOpExpr {
+        public static abstract class ArithExpr extends UnOpExpr {
             public ArithExpr(Expr expr) {
                 super(expr);
             }
@@ -354,10 +384,15 @@ public abstract class Expr implements Visitable, Typed {
                 public MinusExpr(Expr expr) {
                     super(expr);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
         }
 
-        public static class LogicalExpr extends UnOpExpr {
+        public static abstract class LogicalExpr extends UnOpExpr {
             public LogicalExpr(Expr expr) {
                 super(expr);
             }
@@ -366,6 +401,11 @@ public abstract class Expr implements Visitable, Typed {
             public static class NotExpr extends UnOpExpr {
                 public NotExpr(Expr expr) {
                     super(expr);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
         }

@@ -55,9 +55,10 @@ public class CodeGeneratorVisitor implements Visitor{
         functionDecl.setOffsetCounter(offsetCounter - 8);
         int paramSize = functionDecl.getSizeofParameters();
         int localsSize = functionDecl.stmtBlock.getRequiredSpace();
+        boolean returnsValue = !functionDecl.returnType.isLessThan(Type.voidType());
         this.generateFunctionEntry(paramSize, localsSize);
         functionDecl.stmtBlock.accept(this);
-        this.generateFunctionExit(functionDecl.id, paramSize);
+        this.generateFunctionExit(functionDecl.id, paramSize, returnsValue);
         Scope.popScope();
     }
 
@@ -68,12 +69,13 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generate("subu", SP, SP, String.valueOf(localsSize));
     }
 
-    public void generateFunctionExit(String functionName, int paramSize) {
+    public void generateFunctionExit(String functionName, int paramSize, boolean returnsValue) {
         cgen.genLabel("_" + functionName + "_Exit");
         cgen.generateIndexed("lw", RA, FP, -paramSize);
         cgen.generate("move", T0, FP);
         cgen.generateIndexed("lw", FP, FP, -(paramSize + 4));
         cgen.generate("move", SP, T0);
+        if (returnsValue) cgen.genPush(V0);
         cgen.generate("jr", RA);
     }
 
@@ -236,8 +238,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr) {
-        cgen.generate("add", A0, T0, T1);
-        cgen.genPush(A0);
+        generateArithExpr(intAddExpr, "add");
     }
 
     @Override
@@ -255,11 +256,44 @@ public class CodeGeneratorVisitor implements Visitor{
 
     }
 
+    public void generateArithExpr(Expr.BinOpExpr binOpExpr, String opcode) {
+        this.visit(binOpExpr);
+        cgen.generate(opcode, A0, T0, T1);
+        cgen.genPush(A0);
+    }
+
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr arithExpr) {
     }
 
-    public void generateCompExpr(String opcode) {
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.SubExpr subExpr) {
+        this.generateArithExpr(subExpr, "sub");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.MultExpr multExpr) {
+        generateArithExpr(multExpr, "mul");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.DivExpr divExpr) {
+        this.visit((Expr.BinOpExpr) divExpr);
+        cgen.generate("div", T0, T1);
+        cgen.generate("mflo", A0);
+        cgen.genPush(A0);
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr) {
+        this.visit((Expr.BinOpExpr) modExpr);
+        cgen.generate("div", T0, T1);
+        cgen.generate("mfhi", A0);
+        cgen.genPush(A0);
+    }
+
+    public void generateCompExpr(Expr.BinOpExpr binOpExpr, String opcode) {
+        this.visit(binOpExpr);
         String lTrue = cgen.nextLabel();
         String lEnd = cgen.nextLabel();
         cgen.generate(opcode, T0, T1, lTrue);
@@ -278,45 +312,71 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
-        this.visit((Expr.BinOpExpr) lessExpr);
-        generateCompExpr("blt");
+        generateCompExpr(lessExpr, "blt");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
-        this.visit((Expr.BinOpExpr) lessEqExpr);
-        generateCompExpr("ble");
+        generateCompExpr(lessEqExpr, "ble");
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
-        this.visit((Expr.BinOpExpr) greaterExpr);
-        generateCompExpr("bgt");
+        generateCompExpr(greaterExpr,"bgt");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
-        this.visit((Expr.BinOpExpr) greaterEqExpr);
-        generateCompExpr("bge");
+        generateCompExpr(greaterEqExpr, "bge");
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-        this.visit((Expr.BinOpExpr) eqExpr);
-        generateCompExpr("beq");
+        generateCompExpr(eqExpr, "beq");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
-        this.visit((Expr.BinOpExpr) notEqExpr);
-        generateCompExpr("bne");
+        generateCompExpr(notEqExpr, "bne");
+    }
+
+    public void generateLogicalExpr(Expr.BinOpExpr binOpExpr, String opcode) {
+        this.visit(binOpExpr);
+        cgen.generate(opcode, A0, T0, T1);
+        cgen.genPush(A0);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.LogicalExpr logicalExpr) {
+    }
 
+    @Override
+    public void visit(Expr.BinOpExpr.LogicalExpr.AndExpr andExpr) {
+        generateLogicalExpr(andExpr, "and");
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.LogicalExpr.OrExpr orExpr) {
+        generateLogicalExpr(orExpr, "or");
+    }
+
+    @Override
+    public void visit(Expr.UnOpExpr.ArithExpr.MinusExpr minusExpr) {
+        minusExpr.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generate("nor", T0, A0, A0);
+        cgen.generate("addi", T0, T0, "1");
+        cgen.genPush(T0);
+    }
+
+    @Override
+    public void visit(Expr.UnOpExpr.LogicalExpr.NotExpr notExpr) {
+        notExpr.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generate("nor", T0, A0, A0);
+        cgen.genPush(T0);
     }
 
     @Override
@@ -324,7 +384,7 @@ public class CodeGeneratorVisitor implements Visitor{
         for (Expr actual : simpleCall.actuals) {
             actual.accept(this);
         }
-        cgen.generate("j", "_" + simpleCall.id);
+        cgen.generate("jal", "_" + simpleCall.id);
     }
 
     @Override

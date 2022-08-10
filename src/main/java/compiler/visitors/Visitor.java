@@ -30,6 +30,10 @@ public interface Visitor {
     void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr);
     void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr);
     void visit(Expr.BinOpExpr.ArithExpr arithExpr);
+    void visit(Expr.BinOpExpr.ArithExpr.SubExpr subExpr);
+    void visit(Expr.BinOpExpr.ArithExpr.MultExpr multExpr);
+    void visit(Expr.BinOpExpr.ArithExpr.DivExpr divExpr);
+    void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr);
     void visit(Expr.BinOpExpr.CompExpr compExpr);
     void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr);
     void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr);
@@ -38,6 +42,10 @@ public interface Visitor {
     void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr);
     void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr);
     void visit(Expr.BinOpExpr.LogicalExpr logicalExpr);
+    void visit(Expr.BinOpExpr.LogicalExpr.AndExpr andExpr);
+    void visit(Expr.BinOpExpr.LogicalExpr.OrExpr orExpr);
+    void visit(Expr.UnOpExpr.ArithExpr.MinusExpr minusExpr);
+    void visit(Expr.UnOpExpr.LogicalExpr.NotExpr notExpr);
     void visit(Call.SimpleCall simpleCall);
     void visit(Call.DottedCall dottedCall);
     void visit(Constant.IntConst intConst);
