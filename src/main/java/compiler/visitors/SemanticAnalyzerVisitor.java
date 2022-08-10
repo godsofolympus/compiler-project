@@ -198,32 +198,35 @@ public class SemanticAnalyzerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
-
+        this.visit((Expr.BinOpExpr.CompExpr) lessExpr);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) lessEqExpr);
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) greaterExpr);
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) greaterEqExpr);
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-
+        this.visit((Expr.BinOpExpr.CompExpr) eqExpr);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
-
+        this.visit((Expr.BinOpExpr.CompExpr) notEqExpr);
     }
 
     @Override

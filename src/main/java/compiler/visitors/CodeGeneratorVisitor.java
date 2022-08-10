@@ -234,7 +234,7 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genPop(T0);
         String lTrue = cgen.nextLabel();
         String lEnd = cgen.nextLabel();
-        cgen.generate(opcode, T1, T0, lTrue);
+        cgen.generate(opcode, T0, T1, lTrue);
         cgen.generate("li", A0, "0");
         cgen.generate("j", lEnd);
         cgen.genLabel(lTrue);
@@ -247,38 +247,43 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(Expr.BinOpExpr.CompExpr compExpr) {
         compExpr.expr1.accept(this);
         compExpr.expr2.accept(this);
-        compExpr.accept(this);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) lessExpr);
         generateCompExpr("blt");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) lessEqExpr);
         generateCompExpr("ble");
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) greaterExpr);
         generateCompExpr("bgt");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) greaterEqExpr);
         generateCompExpr("bge");
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) eqExpr);
         generateCompExpr("beq");
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
+        this.visit((Expr.BinOpExpr.CompExpr) notEqExpr);
         generateCompExpr("bne");
     }
 
