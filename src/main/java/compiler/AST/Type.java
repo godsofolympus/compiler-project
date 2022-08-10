@@ -45,18 +45,12 @@ public abstract class Type {
             }
         }
 
-        public static StringType stringType(String string) {return new StringType(string);}
+        public static StringType stringType() {return new StringType();}
         public static class StringType extends PrimitiveType{
-            public String string;
-
-            public StringType(String string) {
-                this.string = string;
-            }
 
             @Override
             public int getSize() {
-                if (this.string == null) return 0;
-                return this.string.length() + 1;
+                return 4;
             }
         }
 
@@ -105,7 +99,7 @@ public abstract class Type {
 
         @Override
         public int getSize() {
-            return 0;
+            return 4;
         }
 
         @Override

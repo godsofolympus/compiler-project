@@ -988,7 +988,7 @@ class CUP$Parser$actions {
           case 18: // PrimitiveType ::= STRING 
             {
               Type RESULT =null;
-		 RESULT = Type.PrimitiveType.stringType(null); 
+		 RESULT = Type.PrimitiveType.stringType(); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("PrimitiveType",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

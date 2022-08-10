@@ -225,6 +225,26 @@ public class CodeGeneratorVisitor implements Visitor{
     }
 
     @Override
+    public void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.DoubleAddExpr doubleAddExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr) {
+
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr) {
+
+    }
+
+    @Override
     public void visit(Expr.BinOpExpr.ArithExpr arithExpr) {
 
     }

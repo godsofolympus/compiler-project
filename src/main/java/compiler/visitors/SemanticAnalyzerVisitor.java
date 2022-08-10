@@ -169,12 +169,26 @@ public class SemanticAnalyzerVisitor implements Visitor{
 
 
     @Override
-    public void visit(Expr.BinOpExpr.AddExpr addExpr) {
-//        addExpr.expr1.accept(this);
-//        Type type1 = addExpr.expr1.getType();
-//        if ((type1 instanceof Type.ArrayType) || (type1 instanceof Type.PrimitiveType.StringType) || (type1 instanceof Type.PrimitiveType.DoubleType) || (dad))
-//            typeCheckBinaryExpr(addExpr, addExpr.expr1.getType());
-//        else throw new InvalidOperationException("+", type1, addExpr.expr2.getType());
+    public void visit(Expr.BinOpExpr.AddExpr addExpr) {}
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr) {
+        typeCheckBinaryExpr(intAddExpr, List.of(Type.PrimitiveType.IntegerType.integerType()));
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.DoubleAddExpr doubleAddExpr) {
+        typeCheckBinaryExpr(doubleAddExpr, List.of(Type.PrimitiveType.IntegerType.doubleType()));
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr) {
+        typeCheckBinaryExpr(stringAddExpr, List.of(Type.PrimitiveType.IntegerType.stringType()));
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr) {
+        typeCheckBinaryExpr(arrayAddExpr, List.of(arrayAddExpr.expr1.getType()));
     }
 
     public void typeCheckBinaryExpr(Expr.BinOpExpr binOpExpr, List<Type> expectedTypes) {

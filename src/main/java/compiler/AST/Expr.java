@@ -109,9 +109,15 @@ public abstract class Expr implements Visitable, Typed {
             this.expr2 = expr2;
         }
 
-        public static AddExpr addExpr(Expr expr1, Expr expr2) {return new AddExpr(expr1, expr2);}
+        public static AddExpr addExpr(Expr expr1, Expr expr2) {
+            Type type1 = expr1.getType();
+            if (type1.isLessThan(Type.PrimitiveType.integerType())) return AddExpr.intAddExpr(expr1, expr2);
+            else if (type1.isLessThan(Type.PrimitiveType.doubleType())) return AddExpr.doubleAddExpr(expr1, expr2);
+            else if (type1.isLessThan(Type.PrimitiveType.stringType())) return AddExpr.stringAddExpr(expr1, expr2);
+            else return AddExpr.arrayAddExpr(expr1, expr2);
+        }
 
-        public static class AddExpr extends BinOpExpr {
+        public static abstract class AddExpr extends BinOpExpr {
             public AddExpr(Expr expr1, Expr expr2) {
                 super(expr1, expr2);
             }
@@ -124,6 +130,34 @@ public abstract class Expr implements Visitable, Typed {
             @Override
             public Type getType() {
                 return expr1.getType();
+            }
+
+            public static IntAddExpr intAddExpr(Expr expr1, Expr expr2) {return new IntAddExpr(expr1, expr2);}
+            public static class IntAddExpr extends AddExpr {
+
+                public IntAddExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+            public static DoubleAddExpr doubleAddExpr(Expr expr1, Expr expr2) {return new DoubleAddExpr(expr1, expr2);}
+            public static class DoubleAddExpr extends AddExpr {
+                public DoubleAddExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
+            }
+
+            public static StringAddExpr stringAddExpr(Expr expr1, Expr expr2) {return new StringAddExpr(expr1, expr2);}
+             public static class StringAddExpr extends AddExpr {
+                 public StringAddExpr(Expr expr1, Expr expr2) {
+                     super(expr1, expr2);
+                 }
+             }
+
+            public static ArrayAddExpr arrayAddExpr(Expr expr1, Expr expr2) {return new ArrayAddExpr(expr1, expr2);}
+            public static class ArrayAddExpr extends AddExpr {
+                public ArrayAddExpr(Expr expr1, Expr expr2) {
+                    super(expr1, expr2);
+                }
             }
         }
 

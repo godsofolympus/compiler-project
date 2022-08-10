@@ -124,7 +124,7 @@ PrimitiveType
     ::= INT {: RESULT = Type.PrimitiveType.integerType(); :}
     | DOUBLE {: RESULT = Type.PrimitiveType.doubleType(); :}
     | BOOL {: RESULT = Type.PrimitiveType.booleanType(); :}
-    | STRING {: RESULT = Type.PrimitiveType.stringType(null); :}
+    | STRING {: RESULT = Type.PrimitiveType.stringType(); :}
     ;
 
 Type

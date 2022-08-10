@@ -24,6 +24,10 @@ public interface Visitor {
     void visit(Expr.AssignExpr assignExpr);
     void visit(Expr.LValExpr lValExpr);
     void visit(Expr.BinOpExpr.AddExpr addExpr);
+    void visit(Expr.BinOpExpr.AddExpr.IntAddExpr intAddExpr);
+    void visit(Expr.BinOpExpr.AddExpr.DoubleAddExpr doubleAddExpr);
+    void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr);
+    void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr);
     void visit(Expr.BinOpExpr.ArithExpr arithExpr);
     void visit(Expr.BinOpExpr.CompExpr compExpr);
     void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr);

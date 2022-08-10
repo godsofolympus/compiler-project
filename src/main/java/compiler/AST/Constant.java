@@ -72,7 +72,7 @@ public abstract class Constant implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return Type.PrimitiveType.stringType(value);
+            return Type.PrimitiveType.stringType();
         }
 
         @Override
