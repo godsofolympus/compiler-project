@@ -123,7 +123,6 @@ public abstract class Expr implements Visitable, Typed {
 
             @Override
             public Type getType() {
-                if (expr1.getType().isLessThan(Type.PrimitiveType.NumberType.integerType())) return expr2.getType();
                 return expr1.getType();
             }
         }
@@ -140,7 +139,6 @@ public abstract class Expr implements Visitable, Typed {
 
             @Override
             public Type getType() {
-                if (expr1.getType().isLessThan(Type.PrimitiveType.NumberType.doubleType())) return Type.PrimitiveType.NumberType.doubleType();
                 return expr2.getType();
             }
 

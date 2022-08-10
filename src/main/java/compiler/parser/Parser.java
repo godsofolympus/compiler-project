@@ -961,7 +961,7 @@ class CUP$Parser$actions {
           case 15: // PrimitiveType ::= INT 
             {
               Type RESULT =null;
-		 RESULT = Type.PrimitiveType.NumberType.integerType(); 
+		 RESULT = Type.PrimitiveType.integerType(); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("PrimitiveType",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -970,7 +970,7 @@ class CUP$Parser$actions {
           case 16: // PrimitiveType ::= DOUBLE 
             {
               Type RESULT =null;
-		 RESULT = Type.PrimitiveType.NumberType.doubleType(); 
+		 RESULT = Type.PrimitiveType.doubleType(); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("PrimitiveType",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

@@ -6,6 +6,9 @@ import compiler.models.Context;
 import compiler.models.ContextualScoped;
 import compiler.models.Scope;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class SemanticAnalyzerVisitor implements Visitor{
 
     @Override
@@ -167,34 +170,38 @@ public class SemanticAnalyzerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr addExpr) {
-        addExpr.expr1.accept(this);
-        Type type1 = addExpr.expr1.getType();
-        if ((type1 instanceof Type.ArrayType) || (type1 instanceof Type.PrimitiveType.StringType) || (type1 instanceof Type.PrimitiveType.NumberType))
-            typeCheckBinaryExpr(addExpr, addExpr.expr1.getType());
-        else throw new InvalidOperationException("+", type1, addExpr.expr2.getType());
+//        addExpr.expr1.accept(this);
+//        Type type1 = addExpr.expr1.getType();
+//        if ((type1 instanceof Type.ArrayType) || (type1 instanceof Type.PrimitiveType.StringType) || (type1 instanceof Type.PrimitiveType.DoubleType) || (dad))
+//            typeCheckBinaryExpr(addExpr, addExpr.expr1.getType());
+//        else throw new InvalidOperationException("+", type1, addExpr.expr2.getType());
     }
 
-    public void typeCheckBinaryExpr(Expr.BinOpExpr binOpExpr, Type expectedType) {
+    public void typeCheckBinaryExpr(Expr.BinOpExpr binOpExpr, List<Type> expectedTypes) {
         binOpExpr.expr1.accept(this);
         binOpExpr.expr2.accept(this);
         Type type1 = binOpExpr.expr1.getType();
         Type type2 = binOpExpr.expr2.getType();
-        if (!(type1.isLessThan(expectedType)))
-            throw new IncompatibleTypesException(expectedType ,type1);
-        if (!(type2.isLessThan(expectedType)))
-            throw new IncompatibleTypesException(expectedType ,type2);
+        for (Type expectedType : expectedTypes) {
+            if (type1.isLessThan(expectedType)) {
+                if (type2.isLessThan(expectedType)) return;
+                else throw new IncompatibleTypesException(expectedType, type2);
+            }
+        }
+        throw new IncompatibleTypesException(expectedTypes, type1);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr arithExpr) {
-        typeCheckBinaryExpr(arithExpr, Type.PrimitiveType.numberType());
+        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType());
+        typeCheckBinaryExpr(arithExpr, expectedTypes);
     }
 
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr compExpr) {;
-        typeCheckBinaryExpr(compExpr, Type.PrimitiveType.numberType());
-    }
+        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType());
+        typeCheckBinaryExpr(compExpr, expectedTypes);    }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
@@ -231,7 +238,7 @@ public class SemanticAnalyzerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.LogicalExpr logicalExpr) {
-        typeCheckBinaryExpr(logicalExpr, Type.PrimitiveType.booleanType());
+        typeCheckBinaryExpr(logicalExpr, List.of(Type.PrimitiveType.booleanType()));
     }
 
 

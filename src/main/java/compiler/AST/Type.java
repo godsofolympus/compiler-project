@@ -21,34 +21,19 @@ public abstract class Type {
             return this.getClass() == other.getClass();
         }
 
-        public static NumberType numberType() {return new NumberType();}
-
-        public static class NumberType extends PrimitiveType {
-            @Override
-            public boolean isLessThan(Type other) {
-                if (other.getClass() == NumberType.class) return true;
-                return super.isLessThan(other);
-            }
-
+        public static IntegerType integerType() {return new IntegerType();}
+        public static class IntegerType extends PrimitiveType{
             @Override
             public int getSize() {
-                throw new RuntimeException();
+                return 4;
             }
+        }
 
-            public static IntegerType integerType() {return new IntegerType();}
-            public static class IntegerType extends NumberType{
-                @Override
-                public int getSize() {
-                    return 4;
-                }
-            }
-
-            public static DoubleType doubleType() {return new DoubleType();}
-            public static class DoubleType extends NumberType{
-                @Override
-                public int getSize() {
-                    return 8;
-                }
+        public static DoubleType doubleType() {return new DoubleType();}
+        public static class DoubleType extends PrimitiveType{
+            @Override
+            public int getSize() {
+                return 8;
             }
         }
 

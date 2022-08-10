@@ -121,8 +121,8 @@ VariableDecl        ::= Variable:v SEMICOLON {: RESULT = Decl.variableDecl(v); :
 Variable            ::= Type:t IDENTIFIER:id {: RESULT = new Variable(t, id); :};
 
 PrimitiveType
-    ::= INT {: RESULT = Type.PrimitiveType.NumberType.integerType(); :}
-    | DOUBLE {: RESULT = Type.PrimitiveType.NumberType.doubleType(); :}
+    ::= INT {: RESULT = Type.PrimitiveType.integerType(); :}
+    | DOUBLE {: RESULT = Type.PrimitiveType.doubleType(); :}
     | BOOL {: RESULT = Type.PrimitiveType.booleanType(); :}
     | STRING {: RESULT = Type.PrimitiveType.stringType(null); :}
     ;

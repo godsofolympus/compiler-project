@@ -15,7 +15,7 @@ public abstract class Constant implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return Type.PrimitiveType.NumberType.integerType();
+            return Type.PrimitiveType.integerType();
         }
 
         @Override
@@ -34,7 +34,7 @@ public abstract class Constant implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return Type.PrimitiveType.NumberType.booleanType();
+            return Type.PrimitiveType.booleanType();
         }
 
         @Override
@@ -53,7 +53,7 @@ public abstract class Constant implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return Type.PrimitiveType.NumberType.doubleType();
+            return Type.PrimitiveType.doubleType();
         }
 
         @Override

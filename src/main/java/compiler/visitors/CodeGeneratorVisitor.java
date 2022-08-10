@@ -152,7 +152,7 @@ public class CodeGeneratorVisitor implements Visitor{
             cgen.genPop(A0);
             Type exprType = expr.getType();
             String v0 = null;
-            if (exprType instanceof Type.PrimitiveType.NumberType.IntegerType || exprType instanceof Type.PrimitiveType.BooleanType)
+            if (exprType instanceof Type.PrimitiveType.IntegerType || exprType instanceof Type.PrimitiveType.BooleanType)
                 v0 = "1";
             else if (exprType instanceof Type.PrimitiveType.StringType) {
                 v0 = "4";
