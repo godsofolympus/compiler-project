@@ -10,7 +10,7 @@ import compiler.parser.Parser;
 import compiler.scanner.Lexer;
 import compiler.scanner.Preprocessor;
 import compiler.visitors.CodeGeneratorVisitor;
-import compiler.visitors.SemanticAnalyzerVisitor;
+import compiler.visitors.TypeCheckerVisitor;
 
 
 public class Main {
@@ -25,7 +25,7 @@ public class Main {
             scanner = new Lexer(new FileReader(inputFile));
             parser = new Parser(scanner);
             Program program = (Program) parser.parse().value;
-            SemanticAnalyzerVisitor visitor = new SemanticAnalyzerVisitor();
+            TypeCheckerVisitor visitor = new TypeCheckerVisitor();
             visitor.visit(program);
             CodeGeneratorVisitor cgenVisitor = new CodeGeneratorVisitor();
             cgenVisitor.visit(program);

@@ -9,7 +9,7 @@ import compiler.models.Scope;
 import java.util.Arrays;
 import java.util.List;
 
-public class SemanticAnalyzerVisitor implements Visitor{
+public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Program program) {
