@@ -1,6 +1,7 @@
 package compiler.visitors;
 
 import compiler.AST.*;
+import compiler.AST.Constant.DoubleConst;
 import compiler.Exceptions.*;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
@@ -353,6 +354,12 @@ public class TypeCheckerVisitor implements Visitor{
             if (!actualType.isLessThan(formalType))
                 throw new IncompatibleTypesException(formalType, actualType);
         }
+    }
+
+    @Override
+    public void visit(DoubleConst doubleConst) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

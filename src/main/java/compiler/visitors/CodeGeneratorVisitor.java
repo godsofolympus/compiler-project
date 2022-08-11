@@ -1,6 +1,7 @@
 package compiler.visitors;
 
 import compiler.AST.*;
+import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
@@ -243,7 +244,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr.DoubleAddExpr doubleAddExpr) {
-
+        generateArithExpr(doubleAddExpr, "add.d");
     }
 
     @Override
@@ -268,26 +269,38 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.SubExpr subExpr) {
-        this.generateArithExpr(subExpr, "sub");
+        String opcode = "sub";
+        if (subExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType )
+            opcode += ".d";
+        this.generateArithExpr(subExpr, opcode);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.MultExpr multExpr) {
-        generateArithExpr(multExpr, "mul");
+        String opcode = "mul";
+        if (multExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType )
+            opcode+= ".d";
+        generateArithExpr(multExpr, opcode);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.DivExpr divExpr) {
+        String opcode = "div";
+        if (divExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            opcode += ".d";
         this.visit((Expr.BinOpExpr) divExpr);
-        cgen.generate("div", T0, T1);
+        cgen.generate(opcode, T0, T1);
         cgen.generate("mflo", A0);
         cgen.genPush(A0);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr) {
+        String opcode = "div";
+        if (modExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            opcode += ".d";
         this.visit((Expr.BinOpExpr) modExpr);
-        cgen.generate("div", T0, T1);
+        cgen.generate(opcode, T0, T1);
         cgen.generate("mfhi", A0);
         cgen.genPush(A0);
     }
@@ -402,6 +415,12 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(Constant.BoolConst boolConst) {
         cgen.generate("li", A0, boolConst.value ? "1" : "0");
         cgen.genPush(A0);
+    }
+
+    @Override
+    public void visit(Constant.DoubleConst doubleConst) {
+        cgen.generate("ldc1", DA0, String.valueOf(doubleConst.value));
+        cgen.genPush(DA0);
     }
 
 }
