@@ -571,7 +571,11 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(ItodExpr itodExpr) {
-        
+        itodExpr.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generate("mtc1", A0, FA0);
+        cgen.generate("cvt.s.w", FA0, FA0);
+        cgen.genPush(FA0);
     }
 
     @Override
