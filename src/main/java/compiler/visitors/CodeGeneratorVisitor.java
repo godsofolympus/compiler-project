@@ -26,16 +26,16 @@ public class CodeGeneratorVisitor implements Visitor{
 
     private final CodeGenerator cgen = CodeGenerator.getInstance();
 
-    public static final int CHAR_SIZE = 1; // in bytes
-    public static final int BUFFER_SIZE = 256 * CHAR_SIZE;
+    public static final int CHAR_SIZE = CodeGenerator.CHAR_SIZE; // in bytes
+    public static final int BUFFER_SIZE = CodeGenerator.BUFFER_SIZE;
 
     @Override
     public void visit(Program program) {
         generateGlobalVars(program.getGlobalVars());
         for (FunctionDecl functionDecl : program.getFunctionDecls()) {
             if (functionDecl.id.equals("main")) {
-                cgen.text.append("\t.text\n")
-                        .append("\t.globl main\n");
+                cgen.text.append(".text\n")
+                        .append(".globl main\n");
                 cgen.genLabel("main");
                 generateFunction(functionDecl);
             }
@@ -518,10 +518,15 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(ReadLineExpr readLineExpr) {
         String ptrLabel = cgen.malloc(BUFFER_SIZE);
-        cgen.generate("lw", A0, ptrLabel);
-        cgen.generate("lw", A1, String.valueOf(BUFFER_SIZE));
+        cgen.generateWithComment("la", "read string" ,A0, ptrLabel);
+        cgen.generate("li", A1, String.valueOf(BUFFER_SIZE));
         cgen.generate("li", V0, "8");
+        cgen.genEmptyLine();
+        cgen.generateWithComment("move", "save buffer pointer" , S0, A0);
         cgen.generate("syscall");
+        cgen.generate("la", A0, ptrLabel);
+        cgen.genEmptyLine();
+        cgen.genPush(A0);
     }
 
 }

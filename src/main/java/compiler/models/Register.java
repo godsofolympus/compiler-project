@@ -7,6 +7,7 @@ public interface Register {
     public static final String V0 = "$v0";
     public static final String A0 = "$a0";
     public static final String A1 = "$a1";
+    public static final String S0 = "$s0";
     public static final String T0 = "$t0";
     public static final String T1 = "$t1";
     public static final String T2 = "$t2";

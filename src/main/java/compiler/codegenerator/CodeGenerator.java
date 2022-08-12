@@ -5,6 +5,10 @@ import static compiler.models.Register.*;
 public class CodeGenerator {
     private static final CodeGenerator instance = new CodeGenerator();
 
+
+    public static final int CHAR_SIZE = 1; // in bytes
+    public static final int BUFFER_SIZE = 16 * CHAR_SIZE;
+
     public static CodeGenerator getInstance() {
         return instance;
     }
@@ -17,7 +21,8 @@ public class CodeGenerator {
     private CodeGenerator() {
         this.text = new StringBuilder();
         this.data = new StringBuilder();
-        data.append("\t.data\n");
+        data.append(".data\n");
+        data.append("\tbuffer:\t.space\t").append(String.valueOf(BUFFER_SIZE)).append("\t# buffer used for reading string").append("\n");
     }
 
     public String getResult(){
@@ -32,13 +37,23 @@ public class CodeGenerator {
         text.append("\t").append(opcode).append(" ").append(R1).append(" ").append(offset).append("(").append(R2).append(")").append("\n");
     }
 
+    public void generateWithComment(String opcode, String comment, String ...args) {
+        text.append("\t").append(opcode).append(" ").append(String.join(" ", args))
+            .append("\t# ").append(comment).append("\n");
+    }
+
+    public void genEmptyLine() {
+        text.append("\n");
+    }
+
     public String malloc(int sizeInBytes) {
         String ptrLabel = nextPtr();
         data.append("\t").append(ptrLabel).append(":").append("\t.word").append("\t0").append("\n");
-        text.append("\t").append("li").append(" ").append(V0).append(" ").append("9").append("\n");
+        generateWithComment("li", " allocate memory", V0, "9");
         text.append("\t").append("li").append(" ").append(A0).append(" ").append(String.valueOf(sizeInBytes)).append("\n");
         text.append("\t").append("syscall").append("\n");
         text.append("\t").append("sw").append(" ").append(V0).append(" ").append(ptrLabel).append("\n");
+        text.append("\n");
         return ptrLabel;
     }
 
