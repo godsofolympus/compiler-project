@@ -143,7 +143,10 @@ public class CodeGeneratorVisitor implements Visitor{
         FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
         if (returnStmt.expr != null) {
             returnStmt.expr.accept(this);
-            cgen.genPop(V0);
+            if (returnStmt.expr.getType() instanceof Type.PrimitiveType.DoubleType)
+                cgen.genPop(FV0);
+            else
+                cgen.genPop(V0);
         }
         cgen.generate("j", "_" + functionDecl.id + "_Exit");
     }
@@ -326,9 +329,25 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr) {
+        // TODO : FOR FP
         this.visit((Expr.BinOpExpr) modExpr);
         cgen.generate("div", T0, T1);
         cgen.generate("mfhi", A0);
+        cgen.genPush(A0);
+    }
+
+    public void generateFloatingPointCompExpr(Expr.BinOpExpr binOpExpr, String opcode, boolean reversed) {
+        this.visit(binOpExpr);
+        String lCond = cgen.nextLabel();
+        String lEnd = cgen.nextLabel();
+        cgen.generate(opcode, FT0, FT1);
+        String conditionalBranchOpcode = reversed ? "bc1f" : "bc1t";
+        cgen.generate(conditionalBranchOpcode, lCond);
+        cgen.generate("li", A0, "0");
+        cgen.generate("j", lEnd);
+        cgen.genLabel(lCond);
+        cgen.generate("li", A0, "1");
+        cgen.genLabel(lEnd);
         cgen.genPush(A0);
     }
 
@@ -352,34 +371,51 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessExpr lessExpr) {
-        generateCompExpr(lessExpr, "blt");
+        if (lessExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(lessExpr, "blt");
+        else if (lessExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(lessExpr, "c.lt.s", false);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.LessEqExpr lessEqExpr) {
-        generateCompExpr(lessEqExpr, "ble");
+        if (lessEqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(lessEqExpr, "ble");
+        else if (lessEqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(lessEqExpr, "c.le.s", false);
 
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterExpr greaterExpr) {
-        generateCompExpr(greaterExpr,"bgt");
+        if (greaterExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(greaterExpr, "bgt");
+        else if (greaterExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(greaterExpr, "c.le.s", true);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.GreaterEqExpr greaterEqExpr) {
-        generateCompExpr(greaterEqExpr, "bge");
-
+        if (greaterEqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(greaterEqExpr, "bge");
+        else if (greaterEqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(greaterEqExpr, "c.lt.s", true);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-        generateCompExpr(eqExpr, "beq");
+        if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(eqExpr, "beq");
+        else if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(eqExpr, "c.eq.s", false);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
-        generateCompExpr(notEqExpr, "bne");
+        if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+            generateCompExpr(notEqExpr, "bne");
+        else if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
+            generateFloatingPointCompExpr(notEqExpr, "c.eq.s", true);
     }
 
     public void generateLogicalExpr(Expr.BinOpExpr binOpExpr, String opcode) {
