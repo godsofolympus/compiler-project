@@ -31,13 +31,13 @@ public class CodeGenerator {
     }
 
     public void genPush(String register) {
-        String opcode = isFloatingPointRegister(register) ? "sdc1" : "sw";
+        String opcode = isFloatingPointRegister(register) ? "swc1" : "sw";
         generateIndexed(opcode, register, SP, 0);
         generate("subu", SP, SP, "4");
     }
 
     public void genPop(String register) {
-        String opcode = isFloatingPointRegister(register) ? "ldc1" : "lw";
+        String opcode = isFloatingPointRegister(register) ? "lwc1" : "lw";
         generateIndexed(opcode, register, SP, 4);
         generate("addu", SP, SP, "4");
     }

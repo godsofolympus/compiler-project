@@ -12,29 +12,45 @@ public interface Register {
 
     // Floating-Point Registers
     // Arguments
-    public static final String DA0 = "$f12";
-    public static final String DA1 = "$f14";
-    public static final String DA2 = "$f16";
-    public static final String DA3 = "$f18";
+    public static final String FA0 = "$f12";
+    public static final String FA1 = "$f13";
+    public static final String FA2 = "$f14";
+    public static final String FA3 = "$f15";
+    public static final String FA5 = "$f16";
+    public static final String FA6 = "$f17";
+    public static final String FA7 = "$f18";
+    public static final String FA8 = "$f19";
 
     // Temps
-    public static final String DT0 = "$f4";
-    public static final String DT1 = "$f6";
-    public static final String DT2 = "$f8";
-    public static final String DT3 = "$f10";
-    public static final String DT4 = "$f20";
-    public static final String DT5 = "$f22";
+    public static final String FT0 = "$f1";
+    public static final String FT1 = "$f3";
+    public static final String FT2 = "$f4";
+    public static final String FT3 = "$f5";
+    public static final String FT4 = "$f6";
+    public static final String FT5 = "$f7";
+    public static final String FT6 = "$f8";
+    public static final String FT7 = "$f9";
+    public static final String FT8 = "$f10";
+    public static final String FT9 = "$f11";
+    public static final String FT10 = "$f20";
+    public static final String FT11 = "$f21";
+    public static final String FT12 = "$f22";
+    public static final String FT13 = "$f23";
 
     // Function Returns
-    public static final String DV0 = "$f0";
-    public static final String DV1 = "$f2";
+    public static final String FV0 = "$f0";
+    public static final String FV1 = "$f2";
 
     // Saved
-    public static final String DS0 = "$f24";
-    public static final String DS1 = "$f26";
-    public static final String DS2 = "$f28";
-    public static final String DS3 = "$f30";
+    public static final String FS0 = "$f24";
+    public static final String FS1 = "$f25";
+    public static final String FS2 = "$f26";
+    public static final String FS3 = "$f27";
+    public static final String FS4 = "$f28";
+    public static final String FS5 = "$f29";
+    public static final String FS6 = "$f30";
+    public static final String FS7 = "$f31";
 
     // Status
-    public static final String DSTATUS = "$fcsr";
+    public static final String FSTATUS = "$fcsr";
 }
