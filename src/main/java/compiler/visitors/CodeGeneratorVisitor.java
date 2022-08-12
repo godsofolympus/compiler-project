@@ -21,6 +21,7 @@ import compiler.AST.Stmt.IfStmt;
 import compiler.AST.Stmt.WhileStmt;
 import compiler.codegenerator.CodeGenerator;
 import compiler.models.Context;
+import compiler.models.Loop;
 import compiler.models.Scope;
 
 import java.util.List;
@@ -128,25 +129,50 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(WhileStmt whileStmt) {
-        // TODO Auto-generated method stub
-        
+        Scope.pushScope(whileStmt);
+        String startLabel = "cont_" + whileStmt.getLabel();
+        cgen.genLabel(startLabel);
+        whileStmt.cond.accept(this);
+        cgen.genPop(A0);
+        String endLabel = "end_" + whileStmt.getLabel();
+        cgen.generate("beq", A0, R0, endLabel);
+        whileStmt.stmt.accept(this);
+        cgen.generate("j", startLabel);
+        cgen.genLabel(endLabel);
+        Scope.popScope();
     }
 
     @Override
     public void visit(ForStmt forStmt) {
-        // TODO Auto-generated method stub
-        
+        Scope.pushScope(forStmt);
+        forStmt.init.accept(this);
+        String startLabel = cgen.nextLabel();
+        cgen.genLabel(startLabel);
+        forStmt.cond.accept(this);
+        cgen.genPop(A0);
+        String endLabel = "end_" + forStmt.getLabel();
+        cgen.generate("beq", A0, R0, endLabel);
+        forStmt.stmt.accept(this);
+        String contLabel = "cont_" + forStmt.getLabel();
+        cgen.genLabel(contLabel);
+        forStmt.update.accept(this);
+        cgen.generate("j", startLabel);
+        cgen.genLabel(endLabel);
+        Scope.popScope();
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
-        // TODO Auto-generated method stub
-        
+        Loop loop = (Loop) Scope.getInstance().getContext(Context.LOOP);
+        String endLabel = "end_" + loop.getLabel();
+        cgen.generate("j", endLabel);
     }
 
     @Override
     public void visit(Stmt.ContinueStmt continueStmt) {
-
+        Loop loop = (Loop) Scope.getInstance().getContext(Context.LOOP);
+        String contLabel = "cont_" + loop.getLabel();
+        cgen.generate("j", contLabel);
     }
 
     @Override
@@ -183,7 +209,15 @@ public class CodeGeneratorVisitor implements Visitor{
             }
             cgen.generate("li", V0, v0);
             cgen.generate("syscall");
+            if (printStmt.exprs.indexOf(expr) != printStmt.exprs.size() - 1) {
+                cgen.generate("li", V0, "11");
+                cgen.generate("li", A0, "32");
+                cgen.generate("syscall");
+            }
         }
+        cgen.generate("li", V0, "4");
+        cgen.generate("la", A0, "newline");
+        cgen.generate("syscall");
     }
 
     @Override

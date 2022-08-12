@@ -2,6 +2,7 @@ package compiler.AST;
 
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
+import compiler.models.Loop;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
@@ -43,10 +44,11 @@ public abstract class Stmt implements Visitable {
         public void accept(Visitor visitor) {
             visitor.visit(this);
         }
+
     }
 
     public static WhileStmt whileStmt(Expr cond, Stmt stmt) {return new WhileStmt(cond, stmt);}
-    public static class WhileStmt extends Stmt implements ContextualScoped {
+    public static class WhileStmt extends Stmt implements Loop {
         public Expr cond;
         public Stmt stmt;
 
@@ -64,10 +66,15 @@ public abstract class Stmt implements Visitable {
         public Context getContext() {
             return Context.LOOP;
         }
+
+
+        public String getLabel() {
+            return "for_" + this.hashCode();
+        }
     }
 
     public static ForStmt forStmt(Expr init, Expr cond, Expr update, Stmt stmt) {return new ForStmt(init, cond, update, stmt);}
-    public static class ForStmt extends Stmt implements ContextualScoped {
+    public static class ForStmt extends Stmt implements Loop {
         public Expr init;
         public Expr cond;
         public Expr update;
@@ -88,6 +95,11 @@ public abstract class Stmt implements Visitable {
         @Override
         public Context getContext() {
             return Context.LOOP;
+        }
+
+        @Override
+        public String getLabel() {
+            return "while_" + this.hashCode();
         }
     }
 
