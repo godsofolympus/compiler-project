@@ -412,7 +412,7 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(ArrInit arrInit) {
-        if (!(arrInit.expr.getType().isLessThan(Type.PrimitiveType.integerType()))
+        if (!(arrInit.expr.getType().isLessThan(Type.PrimitiveType.integerType())))
             throw new IncompatibleTypesException(Type.PrimitiveType.integerType() ,arrInit.expr.getType());
         if (arrInit.type.isLessThan(Type.voidType()))
             throw new IncompatibleTypesException(Type.voidType(), Type.voidType());
