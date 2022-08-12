@@ -71,7 +71,7 @@ public abstract class LValue implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return expr.getType();
+            return ((Type.ArrayType) expr.getType()).baseType;
         }
 
         @Override

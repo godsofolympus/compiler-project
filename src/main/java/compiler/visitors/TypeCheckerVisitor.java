@@ -163,6 +163,8 @@ public class TypeCheckerVisitor implements Visitor{
         assignExpr.rightHandSide.accept(this);
         Type leftType = assignExpr.leftHandSide.getType();
         Type rightType = assignExpr.rightHandSide.getType();
+        System.out.println(leftType);
+        System.out.println(rightType);
         if (!rightType.isLessThan(leftType))
             throw new IncompatibleTypesException(leftType, rightType);
     }
@@ -410,13 +412,20 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(ArrInit arrInit) {
-        // TODO Auto-generated method stub
-        
+        if (!(arrInit.expr.getType().isLessThan(Type.PrimitiveType.integerType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.integerType() ,arrInit.expr.getType());
+        if (arrInit.type.isLessThan(Type.voidType()))
+            throw new IncompatibleTypesException(Type.voidType(), Type.voidType());
     }
 
     @Override
     public void visit(IndexedLVal lValue) {
-        // TODO Auto-generated method stub
+
+        if (!(lValue.expr.getType() instanceof Type.ArrayType))
+            throw new IncompatibleTypesException(Type.arrayType(null), lValue.expr.getType());
+
+        if (!lValue.index.getType().isLessThan(Type.PrimitiveType.integerType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.integerType() ,lValue.index.getType());
         
     }
 

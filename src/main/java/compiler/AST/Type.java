@@ -93,8 +93,7 @@ public abstract class Type {
 
         @Override
         public boolean isLessThan(Type other) {
-            if (getClass() != other.getClass()) return false;
-            return baseType.isLessThan(((ArrayType) other).baseType);
+            return other instanceof ArrayType && baseType.isLessThan(((ArrayType) other).baseType);
         }
 
         @Override
