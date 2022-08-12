@@ -47,7 +47,7 @@ public class CodeGenerator {
     }
 
     private static boolean isFloatingPointRegister(String register) { 
-        return register.startsWith("$f"); 
+        return register.startsWith("$f") && !register.equals("$fp"); 
     }
 
 }

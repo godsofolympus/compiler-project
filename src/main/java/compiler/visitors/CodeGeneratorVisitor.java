@@ -152,13 +152,20 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(Stmt.PrintStmt printStmt) {
         for (Expr expr : printStmt.exprs) {
             expr.accept(this);
-            cgen.genPop(A0);
             Type exprType = expr.getType();
             String v0 = null;
-            if (exprType instanceof Type.PrimitiveType.IntegerType || exprType instanceof Type.PrimitiveType.BooleanType)
+            if (exprType instanceof Type.PrimitiveType.IntegerType || 
+                exprType instanceof Type.PrimitiveType.BooleanType) {
+                cgen.genPop(A0);
                 v0 = "1";
+                }
             else if (exprType instanceof Type.PrimitiveType.StringType) {
+                cgen.genPop(A0);
                 v0 = "4";
+            }
+            else if (exprType instanceof Type.PrimitiveType.DoubleType){
+                cgen.genPop(DA0);
+                v0 = "3";
             }
             cgen.generate("li", V0, v0);
             cgen.generate("syscall");
@@ -212,8 +219,14 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(AssignExpr assignExpr) {
         assignExpr.rightHandSide.accept(this);
-        cgen.genPop(A0);
-        cgen.generateIndexed("sw", A0, FP, assignExpr.leftHandSide.getOffset());
+
+        if (assignExpr.rightHandSide.getType() instanceof Type.PrimitiveType.DoubleType) {
+            cgen.genPop(DA0);
+            cgen.generateIndexed("sdc1", DA0, FP, assignExpr.leftHandSide.getOffset());
+        } else {
+            cgen.genPop(A0);
+            cgen.generateIndexed("sw", A0, FP, assignExpr.leftHandSide.getOffset());
+        }
     }
 
     @Override
@@ -225,8 +238,13 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(Expr.BinOpExpr binOpExpr) {
         binOpExpr.expr1.accept(this);
         binOpExpr.expr2.accept(this);
-        cgen.genPop(T1);
-        cgen.genPop(T0);
+        if (binOpExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType) {
+            cgen.genPop(DT1);
+            cgen.genPop(DT0);
+        } else {
+            cgen.genPop(T1);
+            cgen.genPop(T0);
+        }
     }
 
 
@@ -259,8 +277,13 @@ public class CodeGeneratorVisitor implements Visitor{
 
     public void generateArithExpr(Expr.BinOpExpr binOpExpr, String opcode) {
         this.visit(binOpExpr);
-        cgen.generate(opcode, A0, T0, T1);
-        cgen.genPush(A0);
+        if (binOpExpr.getType() instanceof Type.PrimitiveType.DoubleType) {
+            cgen.generate(opcode, DA0, DT0, DT1);
+            cgen.genPush(DA0);
+        } else {
+            cgen.generate(opcode, A0, T0, T1);
+            cgen.genPush(A0);
+        }
     }
 
     @Override
@@ -285,24 +308,30 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.DivExpr divExpr) {
-        String opcode = "div";
-        if (divExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
-            opcode += ".d";
         this.visit((Expr.BinOpExpr) divExpr);
-        cgen.generate(opcode, T0, T1);
-        cgen.generate("mflo", A0);
-        cgen.genPush(A0);
+        if (divExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType){
+            cgen.generate("div.d", DT0, DT1);
+            cgen.generate("mflo", DA0);
+            cgen.genPush(DA0);
+        } else {
+            cgen.generate("div", T0, T1);
+            cgen.generate("mflo", A0);
+            cgen.genPush(A0);
+        }
     }
 
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.ModExpr modExpr) {
-        String opcode = "div";
-        if (modExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
-            opcode += ".d";
         this.visit((Expr.BinOpExpr) modExpr);
-        cgen.generate(opcode, T0, T1);
-        cgen.generate("mfhi", A0);
-        cgen.genPush(A0);
+        if (modExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType){
+            cgen.generate("div.d", DT0, DT1);
+            cgen.generate("mfhi", DA0);
+            cgen.genPush(DA0);
+        } else {
+            cgen.generate("div", T0, T1);
+            cgen.generate("mfhi", A0);
+            cgen.genPush(A0);
+        }
     }
 
     public void generateCompExpr(Expr.BinOpExpr binOpExpr, String opcode) {
