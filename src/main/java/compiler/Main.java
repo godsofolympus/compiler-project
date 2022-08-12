@@ -30,7 +30,7 @@ public class Main {
             CodeGeneratorVisitor cgenVisitor = new CodeGeneratorVisitor();
             cgenVisitor.visit(program);
             FileWriter fileWriter = new FileWriter("res.s");
-            fileWriter.write(CodeGenerator.getInstance().text.toString());
+            fileWriter.write(CodeGenerator.getInstance().getResult());
             fileWriter.close();
         } catch (Exception e) {
             e.printStackTrace();

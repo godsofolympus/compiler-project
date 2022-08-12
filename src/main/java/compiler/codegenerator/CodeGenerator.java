@@ -20,6 +20,10 @@ public class CodeGenerator {
         data.append("\t.data\n");
     }
 
+    public String getResult(){
+        return this.data.append(this.text).toString();
+    }
+
     public void generate(String opcode, String... args) {
         text.append("\t").append(opcode).append(" ").append(String.join(" ", args)).append("\n");
     }

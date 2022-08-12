@@ -24,7 +24,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     private final CodeGenerator cgen = CodeGenerator.getInstance();
 
-    public static final int CHAR_SIZE = 4; // in bytes
+    public static final int CHAR_SIZE = 1; // in bytes
 
     @Override
     public void visit(Program program) {
@@ -495,11 +495,12 @@ public class CodeGeneratorVisitor implements Visitor{
         String ptrLabel = cgen.malloc((stringLength + 1) * CHAR_SIZE);
         cgen.generate("lw", T0, ptrLabel);
         for (char c : stringValue.toCharArray()) {
-            cgen.generate("li", T1, String.valueOf(Character.getNumericValue(c)));
-            cgen.generate("sw", T1, "(" + T0 + ")");
+            System.out.println(String.valueOf(Character.getNumericValue(c)));
+            cgen.generate("li", T1, String.valueOf((int) c));
+            cgen.generate("sb", T1, "(" + T0 + ")");
             cgen.generate("addi", T0, String.valueOf(CHAR_SIZE));
         }
-        cgen.generate("sw", R0, "(" + T0 + ")");
+        cgen.generate("sb", R0, "(" + T0 + ")");
         cgen.generate("lw", A0, ptrLabel);
         cgen.genPush(A0);
     }
