@@ -5,6 +5,8 @@ import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
+import compiler.AST.Expr.FunctionExpr.ReadIntExpr;
+import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 import compiler.AST.LValue.SimpleLVal;
 import compiler.AST.Stmt.BlockStmt;
 import compiler.AST.Stmt.BreakStmt;
@@ -25,6 +27,7 @@ public class CodeGeneratorVisitor implements Visitor{
     private final CodeGenerator cgen = CodeGenerator.getInstance();
 
     public static final int CHAR_SIZE = 1; // in bytes
+    public static final int BUFFER_SIZE = 256 * CHAR_SIZE;
 
     @Override
     public void visit(Program program) {
@@ -505,6 +508,20 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genPush(A0);
     }
 
-    
+    @Override
+    public void visit(ReadIntExpr readIntExpr) {
+        cgen.generate("li", V0, "5");
+        cgen.generate("syscall");
+        cgen.genPush(V0);
+    }
+
+    @Override
+    public void visit(ReadLineExpr readLineExpr) {
+        String ptrLabel = cgen.malloc(BUFFER_SIZE);
+        cgen.generate("lw", A0, ptrLabel);
+        cgen.generate("lw", A1, String.valueOf(BUFFER_SIZE));
+        cgen.generate("li", V0, "8");
+        cgen.generate("syscall");
+    }
 
 }

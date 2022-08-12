@@ -34,11 +34,11 @@ public class CodeGenerator {
 
     public String malloc(int sizeInBytes) {
         String ptrLabel = nextPtr();
-        data.append(ptrLabel).append(":").append("\t.word").append("\t0").append("\n");
-        text.append("li").append(" ").append(V0).append(" ").append("9").append("\n");
-        text.append("li").append(" ").append(A0).append(" ").append(String.valueOf(sizeInBytes)).append("\n");
-        text.append("syscall").append("\n");
-        text.append("sw").append(" ").append(V0).append(" ").append(ptrLabel).append("\n");
+        data.append("\t").append(ptrLabel).append(":").append("\t.word").append("\t0").append("\n");
+        text.append("\t").append("li").append(" ").append(V0).append(" ").append("9").append("\n");
+        text.append("\t").append("li").append(" ").append(A0).append(" ").append(String.valueOf(sizeInBytes)).append("\n");
+        text.append("\t").append("syscall").append("\n");
+        text.append("\t").append("sw").append(" ").append(V0).append(" ").append(ptrLabel).append("\n");
         return ptrLabel;
     }
 

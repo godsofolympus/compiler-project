@@ -3,6 +3,8 @@ package compiler.visitors;
 import compiler.AST.*;
 import compiler.AST.Constant.DoubleConst;
 import compiler.AST.Constant.StringConst;
+import compiler.AST.Expr.FunctionExpr.ReadIntExpr;
+import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 import compiler.Exceptions.*;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
@@ -369,4 +371,17 @@ public class TypeCheckerVisitor implements Visitor{
         
     }
 
+    @Override
+    public void visit(ReadIntExpr readIntExpr) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(ReadLineExpr readLineExpr) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    
 }

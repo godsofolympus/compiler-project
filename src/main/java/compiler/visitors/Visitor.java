@@ -1,6 +1,7 @@
 package compiler.visitors;
 
 import compiler.AST.*;
+import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 
 public interface Visitor {
     void visit(Program program);
@@ -52,4 +53,6 @@ public interface Visitor {
     void visit(Constant.BoolConst boolConst);
     void visit(Constant.DoubleConst doubleConst);
     void visit(Constant.StringConst stringConst);
+    void visit(Expr.FunctionExpr.ReadIntExpr readIntExpr);
+    void visit(ReadLineExpr readLineExpr);
 }

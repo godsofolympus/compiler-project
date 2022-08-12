@@ -425,10 +425,30 @@ public abstract class Expr implements Visitable, Typed {
         }
 
         public static ReadIntExpr readIntExpr() {return new ReadIntExpr();}
-        public static class ReadIntExpr extends FunctionExpr {}
+        public static class ReadIntExpr extends FunctionExpr {
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.integerType();
+            }
+        }
 
         public static ReadLineExpr readLineExpr() {return new ReadLineExpr();}
-        public static class ReadLineExpr extends FunctionExpr {}
+        public static class ReadLineExpr extends FunctionExpr {
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.stringType();
+            }
+        }
 
         public static ItodExpr itodExpr(Expr expr) {return new ItodExpr(expr);}
         public static class ItodExpr extends FunctionExpr {
