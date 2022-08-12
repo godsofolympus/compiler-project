@@ -22,7 +22,7 @@ public class CodeGenerator {
         this.text = new StringBuilder();
         this.data = new StringBuilder();
         data.append(".data\n");
-        data.append("\tbuffer:\t.space\t").append(String.valueOf(BUFFER_SIZE)).append("\t# buffer used for reading string").append("\n");
+        data.append("\tnewline: .asciiz \"\\n\"\n");
     }
 
     public String getResult(){
