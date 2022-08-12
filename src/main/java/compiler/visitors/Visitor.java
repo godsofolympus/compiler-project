@@ -1,7 +1,12 @@
 package compiler.visitors;
 
 import compiler.AST.*;
+import compiler.AST.Expr.FunctionExpr.BtoiExpr;
+import compiler.AST.Expr.FunctionExpr.DtoiExpr;
+import compiler.AST.Expr.FunctionExpr.ItobExpr;
+import compiler.AST.Expr.FunctionExpr.ItodExpr;
 import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
+import compiler.AST.Expr.InitExpr.ArrInit;
 
 public interface Visitor {
     void visit(Program program);
@@ -55,4 +60,9 @@ public interface Visitor {
     void visit(Constant.StringConst stringConst);
     void visit(Expr.FunctionExpr.ReadIntExpr readIntExpr);
     void visit(ReadLineExpr readLineExpr);
+    void visit(ItodExpr itodExpr);
+    void visit(DtoiExpr dtoiExpr);
+    void visit(ItobExpr itobExpr);
+    void visit(BtoiExpr btoiExpr);
+    void visit(ArrInit arrInit);
 }

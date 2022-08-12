@@ -57,6 +57,17 @@ public class CodeGenerator {
         return ptrLabel;
     }
 
+    // input is stored in A0 instead
+    public String malloc() {
+        String ptrLabel = nextPtr();
+        data.append("\t").append(ptrLabel).append(":").append("\t.word").append("\t0").append("\n");
+        generateWithComment("li", " allocate memory", V0, "9");
+        text.append("\t").append("syscall").append("\n");
+        text.append("\t").append("sw").append(" ").append(V0).append(" ").append(ptrLabel).append("\n");
+        text.append("\n");
+        return ptrLabel;
+    }
+
     public String nextPtr() {
         String label = "_T" + ptrCount;
         ptrCount++;

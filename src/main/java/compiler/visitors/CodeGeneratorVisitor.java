@@ -5,8 +5,13 @@ import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
+import compiler.AST.Expr.FunctionExpr.BtoiExpr;
+import compiler.AST.Expr.FunctionExpr.DtoiExpr;
+import compiler.AST.Expr.FunctionExpr.ItobExpr;
+import compiler.AST.Expr.FunctionExpr.ItodExpr;
 import compiler.AST.Expr.FunctionExpr.ReadIntExpr;
 import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
+import compiler.AST.Expr.InitExpr.ArrInit;
 import compiler.AST.LValue.SimpleLVal;
 import compiler.AST.Stmt.BlockStmt;
 import compiler.AST.Stmt.BreakStmt;
@@ -528,5 +533,42 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genEmptyLine();
         cgen.genPush(A0);
     }
+
+    
+
+    @Override
+    public void visit(ItodExpr itodExpr) {
+        
+    }
+
+    @Override
+    public void visit(DtoiExpr dtoiExpr) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(ItobExpr itobExpr) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(BtoiExpr btoiExpr) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(ArrInit arrInit) {
+        arrInit.expr.accept(this);
+        cgen.genPop(T0);
+        cgen.generate("li", T1, "4");
+        cgen.generate("mul", A0, T0, T1);
+        String ptrLabel = cgen.malloc();
+        cgen.generate("lw", A0, ptrLabel);
+        cgen.genPush(A0);
+    }
+
 
 }

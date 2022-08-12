@@ -457,6 +457,16 @@ public abstract class Expr implements Visitable, Typed {
             public ItodExpr(Expr expr) {
                 this.expr = expr;
             }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.doubleType();
+            }
         }
 
         public static DtoiExpr dtoiExpr(Expr expr) {return new DtoiExpr(expr);}
@@ -465,6 +475,16 @@ public abstract class Expr implements Visitable, Typed {
 
             public DtoiExpr(Expr expr) {
                 this.expr = expr;
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.integerType();
             }
         }
 
@@ -475,6 +495,16 @@ public abstract class Expr implements Visitable, Typed {
             public ItobExpr(Expr expr) {
                 this.expr = expr;
             }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.booleanType();
+            }
         }
 
         public static BtoiExpr btoiExpr(Expr expr) {return new BtoiExpr(expr);}
@@ -483,6 +513,16 @@ public abstract class Expr implements Visitable, Typed {
 
             public BtoiExpr(Expr expr) {
                 this.expr = expr;
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.PrimitiveType.integerType();
             }
         }
     }
@@ -516,6 +556,16 @@ public abstract class Expr implements Visitable, Typed {
             public ArrInit(Expr expr, Type type) {
                 this.expr = expr;
                 this.type = type;
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
+            }
+
+            @Override
+            public Type getType() {
+                return Type.arrayType(type);
             }
         }
     }
