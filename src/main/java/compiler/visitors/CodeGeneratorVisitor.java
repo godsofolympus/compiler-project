@@ -293,7 +293,7 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.SubExpr subExpr) {
         String opcode = "sub";
-        if (subExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType )
+        if (subExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType )
             opcode += ".d";
         this.generateArithExpr(subExpr, opcode);
     }
@@ -301,7 +301,7 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Expr.BinOpExpr.ArithExpr.MultExpr multExpr) {
         String opcode = "mul";
-        if (multExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType )
+        if (multExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType )
             opcode+= ".d";
         generateArithExpr(multExpr, opcode);
     }
@@ -448,7 +448,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Constant.DoubleConst doubleConst) {
-        cgen.generate("ldc1", DA0, String.valueOf(doubleConst.value));
+        cgen.generate("li.d", DA0, String.valueOf(doubleConst.value));
         cgen.genPush(DA0);
     }
 
