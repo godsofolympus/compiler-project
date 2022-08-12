@@ -10,6 +10,7 @@ import compiler.AST.Expr.FunctionExpr.ItodExpr;
 import compiler.AST.Expr.FunctionExpr.ReadIntExpr;
 import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 import compiler.AST.Expr.InitExpr.ArrInit;
+import compiler.AST.LValue.IndexedLVal;
 import compiler.Exceptions.*;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
@@ -134,11 +135,6 @@ public class TypeCheckerVisitor implements Visitor{
             stmt.accept(this);
         }
         Scope.popScope();
-    }
-
-    @Override
-    public void visit(LValue lValue) {
-        lValue.accept(this);
     }
 
     @Override
@@ -414,6 +410,12 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(ArrInit arrInit) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(IndexedLVal lValue) {
         // TODO Auto-generated method stub
         
     }

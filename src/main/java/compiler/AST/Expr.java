@@ -57,7 +57,7 @@ public abstract class Expr implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
-            visitor.visit(lValue);
+            visitor.visit(this);
         }
 
         @Override

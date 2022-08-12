@@ -71,12 +71,12 @@ public abstract class LValue implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return null;
+            return expr.getType();
         }
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override

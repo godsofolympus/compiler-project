@@ -12,6 +12,7 @@ import compiler.AST.Expr.FunctionExpr.ItodExpr;
 import compiler.AST.Expr.FunctionExpr.ReadIntExpr;
 import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 import compiler.AST.Expr.InitExpr.ArrInit;
+import compiler.AST.LValue.IndexedLVal;
 import compiler.AST.LValue.SimpleLVal;
 import compiler.AST.Stmt.BlockStmt;
 import compiler.AST.Stmt.BreakStmt;
@@ -200,11 +201,6 @@ public class CodeGeneratorVisitor implements Visitor{
         for (Stmt stmt : stmtBlock.stmts) {
             stmt.accept(this);
         }
-    }
-
-    @Override
-    public void visit(LValue lValue) {
-        lValue.accept(this);
     }
 
     @Override
@@ -567,6 +563,18 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generate("mul", A0, T0, T1);
         String ptrLabel = cgen.malloc();
         cgen.generate("lw", A0, ptrLabel);
+        cgen.genPush(A0);
+    }
+
+    @Override
+    public void visit(IndexedLVal indexedLVal) {
+        indexedLVal.expr.accept(this);
+        indexedLVal.index.accept(this);
+        cgen.genPop(T1);
+        cgen.genPop(T0);
+        cgen.generate("li", T2, String.valueOf(indexedLVal.expr.getType().getSize()));
+        cgen.generate("mult", T1, T2, T3);
+        cgen.generate("add", A0, T0, T3);
         cgen.genPush(A0);
     }
 

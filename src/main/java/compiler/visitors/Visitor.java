@@ -22,8 +22,8 @@ public interface Visitor {
     void visit(Stmt.PrintStmt printStmt);
     void visit(Stmt.BlockStmt blockStmt);
     void visit(StmtBlock stmtBlock);
-    void visit(LValue lValue);
     void visit(LValue.SimpleLVal lValue);
+    void visit(LValue.IndexedLVal lValue);
     void visit(Expr.ConstExpr constExpr);
     void visit(Expr.ThisExpr thisExpr);
     void visit(Expr.CallExpr callExpr);
