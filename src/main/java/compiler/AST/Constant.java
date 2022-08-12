@@ -77,6 +77,7 @@ public abstract class Constant implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
     }
 

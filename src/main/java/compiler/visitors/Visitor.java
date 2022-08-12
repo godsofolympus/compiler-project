@@ -51,4 +51,5 @@ public interface Visitor {
     void visit(Constant.IntConst intConst);
     void visit(Constant.BoolConst boolConst);
     void visit(Constant.DoubleConst doubleConst);
+    void visit(Constant.StringConst stringConst);
 }

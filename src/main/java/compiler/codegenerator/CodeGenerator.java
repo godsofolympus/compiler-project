@@ -9,19 +9,39 @@ public class CodeGenerator {
         return instance;
     }
 
-    public final StringBuilder generated;
+    public final StringBuilder text;
+    public final StringBuilder data;
     private int labelCount = 0;
+    private int ptrCount = 0;
 
     private CodeGenerator() {
-        this.generated = new StringBuilder();
+        this.text = new StringBuilder();
+        this.data = new StringBuilder();
+        data.append("\t.data\n");
     }
 
     public void generate(String opcode, String... args) {
-        generated.append("\t").append(opcode).append(" ").append(String.join(" ", args)).append("\n");
+        text.append("\t").append(opcode).append(" ").append(String.join(" ", args)).append("\n");
     }
 
     public void generateIndexed(String opcode, String R1, String R2, int offset) {
-        generated.append("\t").append(opcode).append(" ").append(R1).append(" ").append(offset).append("(").append(R2).append(")").append("\n");
+        text.append("\t").append(opcode).append(" ").append(R1).append(" ").append(offset).append("(").append(R2).append(")").append("\n");
+    }
+
+    public String malloc(int sizeInBytes) {
+        String ptrLabel = nextPtr();
+        data.append(ptrLabel).append(":").append("\t.word").append("\t0").append("\n");
+        text.append("li").append(" ").append(V0).append(" ").append("9").append("\n");
+        text.append("li").append(" ").append(A0).append(" ").append(String.valueOf(sizeInBytes)).append("\n");
+        text.append("syscall").append("\n");
+        text.append("sw").append(" ").append(V0).append(" ").append(ptrLabel).append("\n");
+        return ptrLabel;
+    }
+
+    public String nextPtr() {
+        String label = "_T" + ptrCount;
+        ptrCount++;
+        return label;
     }
 
     public String nextLabel() {
@@ -43,7 +63,7 @@ public class CodeGenerator {
     }
 
     public void genLabel(String label) {
-        generated.append(label).append(": ").append("\n");
+        text.append(label).append(": ").append("\n");
     }
 
     private static boolean isFloatingPointRegister(String register) { 

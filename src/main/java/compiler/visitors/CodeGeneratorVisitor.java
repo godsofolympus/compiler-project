@@ -24,12 +24,14 @@ public class CodeGeneratorVisitor implements Visitor{
 
     private final CodeGenerator cgen = CodeGenerator.getInstance();
 
+    public static final int CHAR_SIZE = 4; // in bytes
+
     @Override
     public void visit(Program program) {
         generateGlobalVars(program.getGlobalVars());
         for (FunctionDecl functionDecl : program.getFunctionDecls()) {
             if (functionDecl.id.equals("main")) {
-                cgen.generated.append("\t.text\n")
+                cgen.text.append("\t.text\n")
                         .append("\t.globl main\n");
                 cgen.genLabel("main");
                 generateFunction(functionDecl);
@@ -40,7 +42,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     public void generateGlobalVars(List<Variable> globalVars) {
         for (Variable globalVar : globalVars) {
-            cgen.generated.append("\t.data\n")
+            cgen.text.append("\t.data\n")
                     .append("\t.align 2\n")
                     .append("_").append(globalVar.id).append(": ").append(".space ").append(globalVar.type.getSize()).append("\n");
         }
@@ -485,5 +487,21 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generate("li.s", FA0, String.valueOf(doubleConst.value));
         cgen.genPush(FA0);
     }
+
+    @Override
+    public void visit(StringConst stringConst) {
+        String stringValue = stringConst.value;
+        int stringLength = stringValue.length();
+        String ptrLabel = cgen.malloc((stringLength + 1) * CHAR_SIZE);
+        cgen.generate("lw", T0, ptrLabel);
+        for (char c : stringValue.toCharArray()) {
+            cgen.generate("li", T1, String.valueOf(Character.getNumericValue(c)));
+            cgen.generate("sw", T1, "(" + T0 + ")");
+            cgen.generate("addi", T0, String.valueOf(CHAR_SIZE));
+        }
+        cgen.generate("sw", R0, "(" + T0 + ")");
+    }
+
+    
 
 }
