@@ -500,6 +500,8 @@ public class CodeGeneratorVisitor implements Visitor{
             cgen.generate("addi", T0, String.valueOf(CHAR_SIZE));
         }
         cgen.generate("sw", R0, "(" + T0 + ")");
+        cgen.generate("lw", A0, ptrLabel);
+        cgen.genPush(A0);
     }
 
     
