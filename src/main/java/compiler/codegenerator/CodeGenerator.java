@@ -42,7 +42,11 @@ public class CodeGenerator {
             .append("\t# ").append(comment).append("\n");
     }
 
-    public void genEmptyLine() {
+    public void generateOneLineComment(String comment) {
+        text.append("\t").append("# ").append(comment).append("\n");
+    }
+
+    public void generateEmptyLine() {
         text.append("\n");
     }
 

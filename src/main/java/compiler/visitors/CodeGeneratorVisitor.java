@@ -5,6 +5,7 @@ import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
+import compiler.AST.Expr.LValExpr;
 import compiler.AST.Expr.FunctionExpr.BtoiExpr;
 import compiler.AST.Expr.FunctionExpr.DtoiExpr;
 import compiler.AST.Expr.FunctionExpr.ItobExpr;
@@ -239,13 +240,15 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(SimpleLVal lValue) {
-        if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
-            cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
-            cgen.genPush(FA0);
-        } else {
+        cgen.generateOneLineComment("Calculate indexedVal");
+        if (lValue.getType() instanceof Type.PrimitiveType.IntegerType) {
             cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
             cgen.genPush(A0);
+        } else if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
+            cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
+            cgen.genPush(FA0);
         }
+        cgen.generateEmptyLine();
     }
 
     @Override
@@ -263,17 +266,43 @@ public class CodeGeneratorVisitor implements Visitor{
         callExpr.call.accept(this);
     }
 
+    public void setLhsOffset(LValue lhs) {
+        cgen.generateOneLineComment("setting lvalue offset");
+        if (lhs instanceof IndexedLVal) {
+            IndexedLVal indexedLVal = (IndexedLVal) lhs;
+            setLhsOffset(((LValExpr)indexedLVal.expr).lValue);
+            cgen.genPop(A0);
+            indexedLVal.index.accept(this);
+            cgen.genPop(A1);
+            cgen.generate("lw", T0, "(" + A0 + ")");
+            cgen.generate("li", T1, "4");
+            cgen.generate("mul", A1, T1, T2);
+            cgen.generate("add", T0, T2, A2);
+            cgen.genPush(A2);
+        } else if (lhs instanceof SimpleLVal) {
+            cgen.generate("li", T0, String.valueOf(lhs.getOffset()));
+            cgen.generate("li", T1, "4");
+            cgen.generate("mul", T0, T1, T2);
+            cgen.generate("add", FP, T2, T3);
+            cgen.genPush(T3);
+        }
+        cgen.generateEmptyLine();
+    }
+
 
     @Override
     public void visit(AssignExpr assignExpr) {
+        setLhsOffset(assignExpr.leftHandSide);
+        cgen.genPop(A1);
+
         assignExpr.rightHandSide.accept(this);
 
         if (assignExpr.rightHandSide.getType() instanceof Type.PrimitiveType.DoubleType) {
             cgen.genPop(FA0);
-            cgen.generateIndexed("swc1", FA0, FP, assignExpr.leftHandSide.getOffset());
+            cgen.generateIndexed("swc1", FA0, A1, 0);
         } else {
             cgen.genPop(A0);
-            cgen.generateIndexed("sw", A0, FP, assignExpr.leftHandSide.getOffset());
+            cgen.generateIndexed("sw", A0, A1, 0);
         }
     }
 
@@ -556,11 +585,11 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generateWithComment("la", "read string" ,A0, ptrLabel);
         cgen.generate("li", A1, String.valueOf(BUFFER_SIZE));
         cgen.generate("li", V0, "8");
-        cgen.genEmptyLine();
+        cgen.generateEmptyLine();
         cgen.generateWithComment("move", "save buffer pointer" , S0, A0);
         cgen.generate("syscall");
         cgen.generate("la", A0, ptrLabel);
-        cgen.genEmptyLine();
+        cgen.generateEmptyLine();
         cgen.genPush(A0);
     }
 
@@ -606,14 +635,12 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(IndexedLVal indexedLVal) {
-        indexedLVal.expr.accept(this);
-        indexedLVal.index.accept(this);
-        cgen.genPop(T1);
+        setLhsOffset(indexedLVal);
         cgen.genPop(T0);
-        cgen.generate("li", T2, String.valueOf(indexedLVal.expr.getType().getSize()));
-        cgen.generate("mult", T1, T2, T3);
-        cgen.generate("add", A0, T0, T3);
-        cgen.genPush(A0);
+        cgen.generateOneLineComment("Calculate indexedVal");
+        cgen.generateIndexed("lw", T1, T0, 0);
+        cgen.generateEmptyLine();
+        cgen.genPush(T1);
     }
 
 
