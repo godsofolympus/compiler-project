@@ -12,6 +12,7 @@ import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
 import compiler.AST.Expr.InitExpr.ArrInit;
 import compiler.AST.LValue.IndexedLVal;
 import compiler.Exceptions.*;
+import compiler.Exceptions.ClassNotFoundException;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
 import compiler.models.Scope;
@@ -26,12 +27,7 @@ public class TypeCheckerVisitor implements Visitor{
         for (Decl decl : program.decls) {
             Scope.getInstance().setEntry(decl.id, decl);
         }
-        try {
-            Scope.getInstance().getEntry("main");
-        }
-        catch (SymbolNotFoundException e) {
-            throw new MainMethodNotFoundException();
-        }
+        if (Scope.getInstance().getEntry("main") == null) throw new MainMethodNotFoundException();
         for (Decl decl : program.decls) {
             decl.accept(this);
         }
@@ -50,6 +46,27 @@ public class TypeCheckerVisitor implements Visitor{
         }
         functionDecl.stmtBlock.accept(this);
         Scope.popScope();
+    }
+
+    @Override
+    public void visit(Decl.ClassDecl classDecl) {
+        if (Scope.getInstance().getEntry(classDecl.superClass) == null) throw new ClassNotFoundException(classDecl.superClass);
+        //TODO check interfaces
+        Scope.pushScope(classDecl);
+        for (ClassField classField : classDecl.classFields) {
+            classField.accept(this);
+        }
+        Scope.popScope();
+    }
+
+    @Override
+    public void visit(ClassField.VarField varField) {
+        varField.varDecl.accept(this);
+    }
+
+    @Override
+    public void visit(ClassField.MethodField methodField) {
+        methodField.functionDecl.accept(this);
     }
 
     @Override

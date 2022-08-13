@@ -1,8 +1,10 @@
 package compiler.AST;
 
 import compiler.models.AccessMode;
+import compiler.visitors.Visitable;
+import compiler.visitors.Visitor;
 
-public abstract class ClassField {
+public abstract class ClassField implements Visitable {
     public AccessMode accessMode;
     public String id;
 
@@ -19,6 +21,11 @@ public abstract class ClassField {
             super(accessMode, varDecl.id);
             this.varDecl = varDecl;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     public static MethodField methodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {return new MethodField(accessMode, functionDecl);}
@@ -28,6 +35,11 @@ public abstract class ClassField {
         public MethodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {
             super(accessMode, functionDecl.id);
             this.functionDecl = functionDecl;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
         }
     }
 }

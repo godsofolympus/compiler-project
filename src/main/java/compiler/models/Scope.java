@@ -1,7 +1,7 @@
 package compiler.models;
 
 import compiler.AST.Decl;
-import compiler.Exceptions.SymbolNotFoundException;
+import compiler.Exceptions.SymbolAlreadyDefinedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,11 +41,12 @@ public class Scope {
             if (entry != null) return entry;
             currentScope = currentScope.parent;
         }
-        throw new SymbolNotFoundException(id);
+        throw null;
     }
 
     public void setEntry(String id, Decl decl) {
-        instance.symbolTable.put(id, decl);
+        if (this.symbolTable.containsKey(id)) throw new SymbolAlreadyDefinedException(id);
+        this.symbolTable.put(id, decl);
     }
 
     public ContextualScoped getContext(Context context) {
