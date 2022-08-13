@@ -72,6 +72,52 @@ public class CodeGenerator {
         return ptrLabel;
     }
 
+    // A0 = destPtr, A1 = srcPtr, A2 = #words to be copied
+    public void memCpyWords() {
+        this.generate("move", T0, A0); // current dest ptr
+        this.generate("move", T1, A1); // current src ptr
+        this.generate("li", T2, "0"); // counter
+        String loopLabel = this.nextLabel();
+        String endLabel = this.nextLabel();
+        this.genLabel(loopLabel);
+        this.generate("beq", T2, A2, endLabel); // counter ?= #bytes
+        this.generateIndexed("lw", T3, T1, 0); // set mem[currentPtr] = A1 (content)
+        this.generateIndexed("sw", T3, T0, 0); // set mem[currentPtr] = A1 (content)
+        this.generate("addi", T0, "4"); // current dest ptr ++
+        this.generate("addi", T1, "4"); // current src ptr ++
+        this.generate("addi", T2, "1"); // counter ++
+        this.generate("j", loopLabel); // jump to loopLabel
+        this.genLabel(endLabel);
+    }
+
+    private void memCpy(boolean isByte) {
+        this.generate("move", T0, A0); // current dest ptr
+        this.generate("move", T1, A1); // current src ptr
+        this.generate("li", T2, "0"); // counter
+        String loopLabel = this.nextLabel();
+        String endLabel = this.nextLabel();
+        this.genLabel(loopLabel);
+        this.generate("beq", T2, A2, endLabel); // counter ?= #bytes
+        this.generate("move", T3, R0); // reset T0
+        this.generateIndexed(isByte ? "lb" : "lw", T3, T1, 0); // set mem[currentPtr] = A1 (content)
+        this.generateIndexed(isByte ? "sb" : "sw", T3, T0, 0); // set mem[currentPtr] = A1 (content)
+        this.generate("addi", T0, isByte ? "1" : "4"); // current dest ptr ++
+        this.generate("addi", T1, isByte ? "1" : "4"); // current src ptr ++
+        this.generate("addi", T2, "1"); // counter ++
+        this.generate("j", loopLabel); // jump to loopLabel
+        this.genLabel(endLabel);
+    }
+
+    // A0 = destPtr, A1 = srcPtr, A2 = #bytes to be copied
+    public void memCpyBytes() {
+        this.memCpy(true);
+    }
+
+    // A0 == destPtr, A1 = content, A2 = #bytes
+    public void memSetBytes() {
+        this.memCpy(false);
+    }
+
     public String nextPtr() {
         String label = "_T" + ptrCount;
         ptrCount++;

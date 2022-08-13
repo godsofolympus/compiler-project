@@ -5,6 +5,7 @@ import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
+import compiler.AST.Expr.BinOpExpr;
 import compiler.AST.Expr.LValExpr;
 import compiler.AST.Expr.FunctionExpr.BtoiExpr;
 import compiler.AST.Expr.FunctionExpr.DtoiExpr;
@@ -351,16 +352,6 @@ public class CodeGeneratorVisitor implements Visitor{
         generateArithExpr(doubleAddExpr, "add.s");
     }
 
-    @Override
-    public void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr) {
-
-    }
-
-    @Override
-    public void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr) {
-
-    }
-
     public void generateArithExpr(Expr.BinOpExpr binOpExpr, String opcode) {
         this.visit(binOpExpr);
         if (binOpExpr.getType() instanceof Type.PrimitiveType.DoubleType) {
@@ -631,15 +622,141 @@ public class CodeGeneratorVisitor implements Visitor{
         
     }
 
+    public void createArray() {
+        cgen.genPop(A0);
+        cgen.generate("move", T0, A0);
+        cgen.generate("addi", T1, T0, "1");
+        cgen.generate("li", T2, "4");
+        cgen.generate("mul", T3, T1, T2);
+        cgen.generate("move", A0, T3);
+        String ptr = cgen.malloc();
+        cgen.generate("lw", T4, ptr);
+        cgen.generateIndexed("sw", T0, T4, 0);
+        cgen.generate("addi", V0, T4, "4");
+        cgen.genPush(V0);
+    }
+
     @Override
     public void visit(ArrInit arrInit) {
         arrInit.expr.accept(this);
-        cgen.genPop(T0);
-        cgen.generate("li", T1, "4");
-        cgen.generate("mul", A0, T0, T1);
+        createArray();
+    }
+
+    // subroutine, doesnt use saved regs
+    public void calcStringLen() {
+        cgen.genPop(A0); // get string ptr
+        cgen.generate("move", T0, A0); // ptr to current char
+        cgen.generate("li", T1, "0"); // counter
+        String loopLabel = cgen.nextLabel();
+        String endLabel = cgen.nextLabel();
+        cgen.genLabel(loopLabel);
+        cgen.generate("move", T2, R0); // set T2 to 0
+        cgen.generateIndexed("lb", T2, T0, 0); // load current char to T2
+        cgen.generate("beq", T2, R0, endLabel);
+        cgen.generate("addi", T0, "1");
+        cgen.generate("addi", T1, "1");
+        cgen.generate("j", loopLabel);
+        cgen.genLabel(endLabel);
+        cgen.generate("move", V0, T1);
+        cgen.genPush(V0);
+    }
+
+    public void createString() {
+        cgen.genPop(A0);
+        cgen.generate("addi", A0, A0, "1");
         String ptr = cgen.malloc();
-        cgen.generate("lw", S0, ptr);
+        cgen.generate("lw", V0, ptr);
+        cgen.genPush(V0);
+    }
+    
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr) {
+        this.visit((BinOpExpr) stringAddExpr);
+
+        cgen.genPop(A1); // ptr y
+        cgen.genPop(A0); // ptr x
+        cgen.generate("move", S1, A1); // ptr y
+        cgen.generate("move", S0, A0); // ptr x
         cgen.genPush(S0);
+        calcStringLen();
+        cgen.genPop(S3); // len x
+        cgen.genPush(S1);
+        calcStringLen();
+        cgen.genPop(S4); // len y
+        cgen.generate("add", S5, S2, S3); // len z
+        cgen.genPush(S5);
+        createString();
+        cgen.genPop(S2); // ptr z
+        cgen.generate("move", A0, S2);
+        cgen.generate("move", A1, R0);
+        cgen.generate("addi", T0, S5, "1");
+        cgen.generate("move", A2, T0);
+        cgen.memSetBytes(); // set string z to 0
+        // ptr x y z len x y z : S0 S1 S2 S3 S4 S5
+
+        // move ptr z to A0 (dest), ptr x to A1 (src), len x to A2 (#words)
+        cgen.generate("move", A0, S2);
+        cgen.generate("move", A1, S0);
+        cgen.generate("move", A2, S3);
+        cgen.memCpyBytes();
+
+        // move ptr z + len x to A0 (dest), ptr y to A1 (src), len y to A2 (#words)
+        cgen.generate("add", T2, S2, S3 );
+        cgen.generate("move", A0, T2);
+        cgen.generate("move", A1, S1);
+        cgen.generate("move", A2, S4);
+        cgen.memCpyBytes();
+
+        // return ptr z
+        cgen.genPush(S2);
+    }
+
+    // subroutines dont use $s registers
+    public void calcArrayLen() {
+        cgen.genPop(A0); // get array ptr
+        cgen.generate("addi", A0, A0, "-4");
+        cgen.generateIndexed("lw", T0, A0, 0);
+        cgen.genPush(T0);
+    }
+
+    @Override
+    public void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr) {
+
+        this.visit((BinOpExpr) arrayAddExpr);
+        cgen.genPop(A1); // ptr y
+        cgen.genPop(A0); // ptr x
+        cgen.generate("move", S1, A1); // ptr y
+        cgen.generate("move", S0, A0); // ptr x
+        cgen.genPush(S0);
+        calcArrayLen();
+        cgen.genPop(S3); // len x
+        cgen.genPush(S1);
+        calcArrayLen();
+        cgen.genPop(S4); // len y
+        cgen.generate("add", S5, S2, S3); // len z
+        cgen.genPush(S5);
+        createArray();
+        cgen.genPop(S2); // ptr z
+        // ptr x y z len x y z : S0 S1 S2 S3 S4 S5
+
+        // move ptr z to A0 (dest), ptr x to A1 (src), len x to A2 (#words)
+        cgen.generate("move", A0, S2);
+        cgen.generate("move", A1, S0);
+        cgen.generate("move", A2, S3);
+        cgen.memCpyWords();
+
+        // move ptr z + len x * 4 to A0 (dest), ptr y to A1 (src), len y to A2 (#words)
+        cgen.generate("li", T0, "4" );
+        cgen.generate("mul", T1, S3, "4" );
+        cgen.generate("add", T2, S2, T1 );
+        cgen.generate("move", A0, T2);
+        cgen.generate("move", A1, S1);
+        cgen.generate("move", A2, S4);
+        cgen.memCpyWords();
+
+        // return ptr z
+        cgen.genPush(S2);
     }
 
 
