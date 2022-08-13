@@ -239,19 +239,6 @@ public class CodeGeneratorVisitor implements Visitor{
     }
 
     @Override
-    public void visit(SimpleLVal lValue) {
-        cgen.generateOneLineComment("Calculate indexedVal");
-        if (lValue.getType() instanceof Type.PrimitiveType.IntegerType) {
-            cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
-            cgen.genPush(A0);
-        } else if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
-            cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
-            cgen.genPush(FA0);
-        }
-        cgen.generateEmptyLine();
-    }
-
-    @Override
     public void visit(Expr.ConstExpr constExpr) {
        constExpr.constant.accept(this);
     }
@@ -270,21 +257,19 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generateOneLineComment("setting lvalue offset");
         if (lhs instanceof IndexedLVal) {
             IndexedLVal indexedLVal = (IndexedLVal) lhs;
+            indexedLVal.index.accept(this);
             setLhsOffset(((LValExpr)indexedLVal.expr).lValue);
             cgen.genPop(A0);
-            indexedLVal.index.accept(this);
             cgen.genPop(A1);
-            cgen.generate("lw", T0, "(" + A0 + ")");
+            cgen.generateIndexed("lw", T0, A0, 0);
             cgen.generate("li", T1, "4");
-            cgen.generate("mul", A1, T1, T2);
-            cgen.generate("add", T0, T2, A2);
+            cgen.generate("mul", T2, T1, A1);
+            cgen.generate("add", A2, T2, T0);
             cgen.genPush(A2);
         } else if (lhs instanceof SimpleLVal) {
-            cgen.generate("li", T0, String.valueOf(lhs.getOffset()));
-            cgen.generate("li", T1, "4");
-            cgen.generate("mul", T0, T1, T2);
-            cgen.generate("add", FP, T2, T3);
-            cgen.genPush(T3);
+            cgen.generate("li", T2, String.valueOf(lhs.getOffset()));
+            cgen.generate("add", S0, T2, FP);
+            cgen.genPush(S0);
         }
         cgen.generateEmptyLine();
     }
@@ -292,6 +277,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(AssignExpr assignExpr) {
+        cgen.generateOneLineComment("Assign expr");
         setLhsOffset(assignExpr.leftHandSide);
         cgen.genPop(A1);
 
@@ -309,6 +295,29 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Expr.LValExpr lValExpr) {
         lValExpr.lValue.accept(this);
+    }
+
+    @Override
+    public void visit(SimpleLVal lValue) {
+        cgen.generateOneLineComment("Calculate indexedVal");
+        if (lValue.getType() instanceof Type.PrimitiveType.IntegerType) {
+            cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
+            cgen.genPush(A0);
+        } else if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
+            cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
+            cgen.genPush(FA0);
+        }
+        cgen.generateEmptyLine();
+    }
+
+    @Override
+    public void visit(IndexedLVal indexedLVal) {
+        setLhsOffset(indexedLVal);
+        cgen.genPop(T0);
+        cgen.generateOneLineComment("Calculate indexedVal");
+        cgen.generateIndexed("lw", T1, T0, 0);
+        cgen.generateEmptyLine();
+        cgen.genPush(T1);
     }
 
     @Override
@@ -628,19 +637,9 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genPop(T0);
         cgen.generate("li", T1, "4");
         cgen.generate("mul", A0, T0, T1);
-        String ptrLabel = cgen.malloc();
-        cgen.generate("lw", A0, ptrLabel);
-        cgen.genPush(A0);
-    }
-
-    @Override
-    public void visit(IndexedLVal indexedLVal) {
-        setLhsOffset(indexedLVal);
-        cgen.genPop(T0);
-        cgen.generateOneLineComment("Calculate indexedVal");
-        cgen.generateIndexed("lw", T1, T0, 0);
-        cgen.generateEmptyLine();
-        cgen.genPush(T1);
+        String ptr = cgen.malloc();
+        cgen.generate("lw", S0, ptr);
+        cgen.genPush(S0);
     }
 
 
