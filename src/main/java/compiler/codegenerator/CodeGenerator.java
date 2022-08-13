@@ -23,6 +23,8 @@ public class CodeGenerator {
         this.data = new StringBuilder();
         data.append(".data\n");
         data.append("\tnewline: .asciiz \"\\n\"\n");
+        data.append("\ttrue: .asciiz \"true\"\n");
+        data.append("\tfalse: .asciiz \"false\"\n");
     }
 
     public String getResult(){
