@@ -23,6 +23,7 @@ import compiler.AST.Stmt.WhileStmt;
 import compiler.codegenerator.CodeGenerator;
 import compiler.models.Context;
 import compiler.models.Loop;
+import compiler.models.Register;
 import compiler.models.Scope;
 
 import java.util.List;
@@ -195,12 +196,21 @@ public class CodeGeneratorVisitor implements Visitor{
             expr.accept(this);
             Type exprType = expr.getType();
             String v0 = null;
-            if (exprType instanceof Type.PrimitiveType.IntegerType || 
-                exprType instanceof Type.PrimitiveType.BooleanType) {
+            if (exprType instanceof Type.PrimitiveType.IntegerType) {
                 cgen.genPop(A0);
                 v0 = "1";
-                }
-            else if (exprType instanceof Type.PrimitiveType.StringType) {
+            } else if (exprType instanceof Type.PrimitiveType.BooleanType) {
+                cgen.genPop(T0);
+                String falseLabel = cgen.nextLabel();
+                String endLabel = cgen.nextLabel();
+                cgen.generate("beq", T0, R0, falseLabel);
+                cgen.generate("la", A0, "true");
+                cgen.generate("j", endLabel);
+                cgen.genLabel(falseLabel);
+                cgen.generate("la", A0, "false");
+                cgen.genLabel(endLabel);
+                v0 = "4";
+            } else if (exprType instanceof Type.PrimitiveType.StringType) {
                 cgen.genPop(A0);
                 v0 = "4";
             }
@@ -615,20 +625,24 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(DtoiExpr dtoiExpr) {
-        // TODO Auto-generated method stub
-        
+        dtoiExpr.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generate("mtc1", A0, FA0);
+        cgen.generate("cvt.w.s", FA0, FA0);
+        cgen.genPush(FA0);
     }
 
     @Override
     public void visit(ItobExpr itobExpr) {
-        // TODO Auto-generated method stub
-        
+        itobExpr.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generate("slt", T0, R0, A0);
+        cgen.genPush(T0);
     }
 
     @Override
     public void visit(BtoiExpr btoiExpr) {
-        // TODO Auto-generated method stub
-        
+        btoiExpr.expr.accept(this);
     }
 
     @Override
