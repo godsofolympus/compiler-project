@@ -678,8 +678,6 @@ public class CodeGeneratorVisitor implements Visitor{
     public void createString() {
         cgen.genPop(A0);
         cgen.generate("addi", A0, A0, "1");
-        cgen.generate("li", V0, "1");
-        cgen.generate("syscall");
         String ptr = cgen.malloc();
         cgen.generate("lw", V0, ptr);
         cgen.genPush(V0);
@@ -706,7 +704,7 @@ public class CodeGeneratorVisitor implements Visitor{
         createString();
         cgen.genPop(S2); // ptr z
         cgen.generate("move", A0, S2);
-        cgen.generate("move", A1, R0);
+        cgen.generate("li", A1, "0");
         cgen.generate("addi", T0, S5, "1");
         cgen.generate("move", A2, T0);
         cgen.memSetBytes(); // set string z to 0
@@ -744,8 +742,6 @@ public class CodeGeneratorVisitor implements Visitor{
 
         cgen.genPop(A1); // ptr y
         cgen.genPop(A0); // ptr x
-        cgen.generate("li", V0, "4");
-        cgen.generate("syscall");
         cgen.generate("move", S1, A1); // ptr y
         cgen.generate("move", S0, A0); // ptr x
         cgen.genPush(S0);
@@ -754,7 +750,7 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genPush(S1);
         calcArrayLen();
         cgen.genPop(S4); // len y
-        cgen.generate("add", S5, S2, S3); // len z
+        cgen.generate("add", S5, S3, S4); // len z
         cgen.genPush(S5);
         createArray();
         cgen.genPop(S2); // ptr z

@@ -74,24 +74,6 @@ public class CodeGenerator {
         return ptrLabel;
     }
 
-    // A0 = destPtr, A1 = srcPtr, A2 = #words to be copied
-    public void memCpyWords() {
-        this.generate("move", T0, A0); // current dest ptr
-        this.generate("move", T1, A1); // current src ptr
-        this.generate("li", T2, "0"); // counter
-        String loopLabel = this.nextLabel();
-        String endLabel = this.nextLabel();
-        this.genLabel(loopLabel);
-        this.generate("beq", T2, A2, endLabel); // counter ?= #bytes
-        this.generateIndexed("lw", T3, T1, 0); // set mem[currentPtr] = A1 (content)
-        this.generateIndexed("sw", T3, T0, 0); // set mem[currentPtr] = A1 (content)
-        this.generate("addi", T0, "4"); // current dest ptr ++
-        this.generate("addi", T1, "4"); // current src ptr ++
-        this.generate("addi", T2, "1"); // counter ++
-        this.generate("j", loopLabel); // jump to loopLabel
-        this.genLabel(endLabel);
-    }
-
     private void memCpy(boolean isByte) {
         this.generate("move", T0, A0); // current dest ptr
         this.generate("move", T1, A1); // current src ptr
@@ -115,9 +97,23 @@ public class CodeGenerator {
         this.memCpy(true);
     }
 
+    // A0 = destPtr, A1 = srcPtr, A2 = #words to be copied
+    public void memCpyWords() {
+    }
+
     // A0 == destPtr, A1 = content, A2 = #bytes
     public void memSetBytes() {
-        this.memCpy(false);
+        this.generate("move", T0, A0); // current dest ptr
+        this.generate("li", T1, "0"); // counter
+        String loopLabel = this.nextLabel();
+        String endLabel = this.nextLabel();
+        this.genLabel(loopLabel);
+        this.generate("beq", T1, A2, endLabel); // counter ?= #bytes
+        this.generateIndexed("sb", A1, T0, 0); // set mem[currentPtr] = A1 (content)
+        this.generate("addi", T0, "1"); // current dest ptr ++
+        this.generate("addi", T1, "1"); // coutner ++
+        this.generate("j", loopLabel); // jump to loopLabel
+        this.genLabel(endLabel);
     }
 
     public String nextPtr() {
