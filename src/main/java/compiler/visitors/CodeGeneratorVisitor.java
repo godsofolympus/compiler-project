@@ -112,6 +112,21 @@ public class CodeGeneratorVisitor implements Visitor{
     }
 
     @Override
+    public void visit(Decl.ClassDecl classDecl) {
+
+    }
+
+    @Override
+    public void visit(ClassField.VarField varField) {
+
+    }
+
+    @Override
+    public void visit(ClassField.MethodField methodField) {
+
+    }
+
+    @Override
     public void visit(Stmt.ExprStmt exprStmt) {
         exprStmt.expr.accept(this);
     }
@@ -221,11 +236,6 @@ public class CodeGeneratorVisitor implements Visitor{
             }
             cgen.generate("li", V0, v0);
             cgen.generate("syscall");
-            if (printStmt.exprs.indexOf(expr) != printStmt.exprs.size() - 1) {
-                cgen.generate("li", V0, "11");
-                cgen.generate("li", A0, "32");
-                cgen.generate("syscall");
-            }
         }
         cgen.generate("li", V0, "4");
         cgen.generate("la", A0, "newline");

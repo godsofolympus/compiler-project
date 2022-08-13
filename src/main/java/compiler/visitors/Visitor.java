@@ -12,6 +12,9 @@ public interface Visitor {
     void visit(Program program);
     void visit(Decl.VariableDecl variableDecl);
     void visit(Decl.FunctionDecl functionDecl);
+    void visit(Decl.ClassDecl classDecl);
+    void visit(ClassField.VarField varField);
+    void visit(ClassField.MethodField methodField);
     void visit(Stmt.ExprStmt exprStmt);
     void visit(Stmt.IfStmt ifStmt);
     void visit(Stmt.WhileStmt whileStmt);

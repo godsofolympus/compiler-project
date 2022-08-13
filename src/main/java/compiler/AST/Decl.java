@@ -107,7 +107,7 @@ public abstract class Decl implements Visitable, Typed {
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         public boolean isSubClassOf(String otherClassId) {
@@ -140,7 +140,7 @@ public abstract class Decl implements Visitable, Typed {
     }
 
     public static InterfaceDecl interfaceDecl(String id, List<Prototype> prototypes) {return new InterfaceDecl(id, prototypes);}
-    public static class InterfaceDecl extends Decl {
+    public static class InterfaceDecl extends Decl implements ContextualScoped {
         public List<Prototype> prototypes;
 
         public InterfaceDecl(String id, List<Prototype> prototypes) {
@@ -156,6 +156,11 @@ public abstract class Decl implements Visitable, Typed {
         @Override
         public Type getType() {
             return Type.nonPrimitiveType(id);
+        }
+
+        @Override
+        public Context getContext() {
+            return Context.INTERFACE;
         }
     }
 }
