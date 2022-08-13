@@ -310,13 +310,13 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(SimpleLVal lValue) {
-        cgen.generateOneLineComment("Calculate indexedVal");
-        if (lValue.getType() instanceof Type.PrimitiveType.IntegerType) {
-            cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
-            cgen.genPush(A0);
-        } else if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
+        cgen.generateOneLineComment("Calculate SimpleLVal");
+        if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
             cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
             cgen.genPush(FA0);
+        } else {
+            cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
+            cgen.genPush(A0);
         }
         cgen.generateEmptyLine();
     }
@@ -678,6 +678,8 @@ public class CodeGeneratorVisitor implements Visitor{
     public void createString() {
         cgen.genPop(A0);
         cgen.generate("addi", A0, A0, "1");
+        cgen.generate("li", V0, "1");
+        cgen.generate("syscall");
         String ptr = cgen.malloc();
         cgen.generate("lw", V0, ptr);
         cgen.genPush(V0);
@@ -686,7 +688,8 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr.StringAddExpr stringAddExpr) {
-        this.visit((BinOpExpr) stringAddExpr);
+        stringAddExpr.expr1.accept(this);
+        stringAddExpr.expr2.accept(this);
 
         cgen.genPop(A1); // ptr y
         cgen.genPop(A0); // ptr x
@@ -698,7 +701,7 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.genPush(S1);
         calcStringLen();
         cgen.genPop(S4); // len y
-        cgen.generate("add", S5, S2, S3); // len z
+        cgen.generate("add", S5, S3, S4); // len z
         cgen.genPush(S5);
         createString();
         cgen.genPop(S2); // ptr z
@@ -736,10 +739,13 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr.ArrayAddExpr arrayAddExpr) {
+        arrayAddExpr.expr1.accept(this);
+        arrayAddExpr.expr2.accept(this);
 
-        this.visit((BinOpExpr) arrayAddExpr);
         cgen.genPop(A1); // ptr y
         cgen.genPop(A0); // ptr x
+        cgen.generate("li", V0, "4");
+        cgen.generate("syscall");
         cgen.generate("move", S1, A1); // ptr y
         cgen.generate("move", S0, A0); // ptr x
         cgen.genPush(S0);
