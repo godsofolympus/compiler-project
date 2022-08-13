@@ -1,5 +1,6 @@
 package compiler.AST;
 
+import compiler.AST.Expr.LValExpr;
 import compiler.models.Scope;
 import compiler.models.Typed;
 import compiler.visitors.Visitable;
@@ -81,6 +82,12 @@ public abstract class LValue implements Visitable, Typed {
 
         @Override
         public int getOffset() {
+            if (expr instanceof Expr.LValExpr) {
+                LValExpr lValExpr = (LValExpr) expr;
+                LValue lValue = (LValue) lValExpr.lValue;
+                if (lValue instanceof SimpleLVal)
+                    
+            }
             return 0;
         }
     }

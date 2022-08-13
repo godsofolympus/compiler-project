@@ -268,9 +268,6 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(AssignExpr assignExpr) {
         assignExpr.rightHandSide.accept(this);
 
-        System.out.println(assignExpr.rightHandSide.getType());
-        System.out.println(assignExpr.leftHandSide.getType());
-
         if (assignExpr.rightHandSide.getType() instanceof Type.PrimitiveType.DoubleType) {
             cgen.genPop(FA0);
             cgen.generateIndexed("swc1", FA0, FP, assignExpr.leftHandSide.getOffset());
