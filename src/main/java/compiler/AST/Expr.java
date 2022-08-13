@@ -150,6 +150,11 @@ public abstract class Expr implements Visitable, Typed {
                 public DoubleAddExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
                 }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
+                }
             }
 
             public static StringAddExpr stringAddExpr(Expr expr1, Expr expr2) {return new StringAddExpr(expr1, expr2);}
@@ -157,12 +162,22 @@ public abstract class Expr implements Visitable, Typed {
                  public StringAddExpr(Expr expr1, Expr expr2) {
                      super(expr1, expr2);
                  }
+
+                 @Override
+                 public void accept(Visitor visitor) {
+                     visitor.visit(this);
+                 }
              }
 
             public static ArrayAddExpr arrayAddExpr(Expr expr1, Expr expr2) {return new ArrayAddExpr(expr1, expr2);}
             public static class ArrayAddExpr extends AddExpr {
                 public ArrayAddExpr(Expr expr1, Expr expr2) {
                     super(expr1, expr2);
+                }
+
+                @Override
+                public void accept(Visitor visitor) {
+                    visitor.visit(this);
                 }
             }
         }

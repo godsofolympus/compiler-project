@@ -292,12 +292,12 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.LogicalExpr.AndExpr andExpr) {
-
+        this.visit((Expr.BinOpExpr.LogicalExpr) andExpr);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.LogicalExpr.OrExpr orExpr) {
-
+        this.visit((Expr.BinOpExpr.LogicalExpr) orExpr);
     }
 
     @Override
@@ -388,26 +388,30 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(ItodExpr itodExpr) {
-        // TODO Auto-generated method stub
-        
+        itodExpr.expr.accept(this);
+        if (!itodExpr.expr.getType().isLessThan(Type.PrimitiveType.integerType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.integerType(), itodExpr.expr.getType());
     }
 
     @Override
     public void visit(DtoiExpr dtoiExpr) {
-        // TODO Auto-generated method stub
-        
+        dtoiExpr.expr.accept(this);
+        if (!dtoiExpr.expr.getType().isLessThan(Type.PrimitiveType.doubleType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.doubleType(), dtoiExpr.expr.getType());
     }
 
     @Override
     public void visit(ItobExpr itobExpr) {
-        // TODO Auto-generated method stub
-        
+        itobExpr.expr.accept(this);
+        if (!itobExpr.expr.getType().isLessThan(Type.PrimitiveType.integerType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.integerType(), itobExpr.expr.getType());
     }
 
     @Override
     public void visit(BtoiExpr btoiExpr) {
-        // TODO Auto-generated method stub
-        
+        btoiExpr.expr.accept(this);
+        if (!btoiExpr.expr.getType().isLessThan(Type.PrimitiveType.booleanType()))
+            throw new IncompatibleTypesException(Type.PrimitiveType.booleanType(), btoiExpr.expr.getType());
     }
 
     @Override
