@@ -549,17 +549,22 @@ public abstract class Expr implements Visitable, Typed {
 
         }
 
-        @Override
-        public Type getType() {
-            return null;
-        }
-
         public static ObjInit objInit(String id) {return new ObjInit(id);}
         public static class ObjInit extends InitExpr {
             public String id;
 
             public ObjInit(String id) {
                 this.id = id;
+            }
+
+            @Override
+            public Type getType() {
+                return Type.nonPrimitiveType(id);
+            }
+
+            @Override
+            public void accept(Visitor visitor) {
+                visitor.visit(this);
             }
         }
 

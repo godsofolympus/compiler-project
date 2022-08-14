@@ -17,9 +17,23 @@ public abstract class ClassField implements Visitable {
     public static VarField varField(AccessMode accessMode, Decl.VariableDecl variableDecl) {return new VarField(accessMode, variableDecl); }
 
     public static class VarField extends ClassField {
+
+        private int offset;
         public VarField(AccessMode accessMode, Decl.VariableDecl varDecl) {
             super(accessMode, varDecl.id);
             this.decl = varDecl;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public int getSize() {
+            return  decl.getType().getSize();
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
         }
 
         @Override

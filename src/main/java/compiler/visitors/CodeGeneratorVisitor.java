@@ -109,7 +109,10 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Decl.ClassDecl classDecl) {
-
+        for (ClassField.MethodField methodField : classDecl.getMethodFields()) {
+            cgen.genLabel("_" + classDecl.id + "_" + methodField.id);
+            generateFunction((FunctionDecl) methodField.decl);
+        }
     }
 
     @Override
@@ -293,6 +296,14 @@ public class CodeGeneratorVisitor implements Visitor{
                 cgen.generate("add", S0, T2, FP);
                 cgen.genPush(S0);
             }
+        } else if (lhs instanceof LValue.DottedLVal) {
+            LValue.DottedLVal dottedLVal = (LValue.DottedLVal) lhs;
+            dottedLVal.expr.accept(this);
+            cgen.genPop(A0);
+            int offset = dottedLVal.getOffset();
+            cgen.generate("li", T0, String.valueOf(offset));
+            cgen.generate("add", A0, A0, T0);
+            cgen.genPush(A0);
         }
         cgen.generateEmptyLine();
     }
@@ -323,7 +334,7 @@ public class CodeGeneratorVisitor implements Visitor{
         VariableDecl variableDecl = (VariableDecl) Scope.getInstance().getEntry(lValue.id);
         cgen.generateOneLineComment("Calculate SimpleLVal");
         if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
-            if (variableDecl.isGlobal)cgen.generate("lwc1", FA0, "_" + variableDecl.id);
+            if (variableDecl.isGlobal) cgen.generate("lwc1", FA0, "_" + variableDecl.id);
             else cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
             cgen.genPush(FA0);
         } else {
@@ -343,6 +354,14 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generateIndexed("lw", T1, T0, 0);
         cgen.generateEmptyLine();
         cgen.genPush(T1);
+    }
+
+    @Override
+    public void visit(LValue.DottedLVal dottedLVal) {
+        dottedLVal.expr.accept(this);
+        cgen.genPop(A0);
+        cgen.generateIndexed("lw", T0, A0, dottedLVal.getOffset());
+        cgen.genPush(T0);
     }
 
     @Override
@@ -668,6 +687,14 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(ArrInit arrInit) {
         arrInit.expr.accept(this);
         createArray();
+    }
+
+    @Override
+    public void visit(Expr.InitExpr.ObjInit objInit) {
+        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(objInit.id);
+        String ptrLabel = cgen.malloc(classDecl.getRequiredSpace());
+        cgen.generate("la", A0, ptrLabel);
+        cgen.genPush(A0);
     }
 
     // subroutine, doesnt use saved regs

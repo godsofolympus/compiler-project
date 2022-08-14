@@ -13,6 +13,7 @@ import compiler.AST.Expr.InitExpr.ArrInit;
 import compiler.AST.LValue.IndexedLVal;
 import compiler.Exceptions.*;
 import compiler.Exceptions.ClassNotFoundException;
+import compiler.models.AccessMode;
 import compiler.models.Context;
 import compiler.models.ContextualScoped;
 import compiler.models.Scope;
@@ -35,7 +36,11 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Decl.VariableDecl variableDecl) {
-
+        if (variableDecl.getType() instanceof Type.NonPrimitiveType) {
+            String classId = ((Type.NonPrimitiveType) variableDecl.getType()).id;
+            if (Scope.getInstance().getEntry(classId) == null)
+                throw new ClassNotFoundException(classId);
+        }
     }
 
     @Override
@@ -50,7 +55,8 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Decl.ClassDecl classDecl) {
-        if (Scope.getInstance().getEntry(classDecl.superClass) == null) throw new ClassNotFoundException(classDecl.superClass);
+        if (classDecl.superClass != null && Scope.getInstance().getEntry(classDecl.superClass) == null)
+         throw new ClassNotFoundException(classDecl.superClass);
         //TODO check interfaces
         Scope.pushScope(classDecl);
         for (ClassField classField : classDecl.classFields) {
@@ -150,6 +156,7 @@ public class TypeCheckerVisitor implements Visitor{
         Scope scope = Scope.pushScope(null);
         for (Decl.VariableDecl variableDecl : stmtBlock.variableDecls) {
             scope.setEntry(variableDecl.id, variableDecl);
+            variableDecl.accept(this);
         }
         for (Stmt stmt : stmtBlock.stmts) {
             stmt.accept(this);
@@ -158,7 +165,10 @@ public class TypeCheckerVisitor implements Visitor{
     }
 
     @Override
-    public void visit(LValue.SimpleLVal lValue) {}
+    public void visit(LValue.SimpleLVal lValue) {
+        if (Scope.getInstance().getEntry(lValue.id) == null)
+            throw new SymbolNotFoundException(lValue.id);
+    }
 
     @Override
     public void visit(Expr.ConstExpr constExpr) {
@@ -183,8 +193,6 @@ public class TypeCheckerVisitor implements Visitor{
         assignExpr.rightHandSide.accept(this);
         Type leftType = assignExpr.leftHandSide.getType();
         Type rightType = assignExpr.rightHandSide.getType();
-        System.out.println(leftType);
-        System.out.println(rightType);
         if (!rightType.isLessThan(leftType))
             throw new IncompatibleTypesException(leftType, rightType);
     }
@@ -443,6 +451,12 @@ public class TypeCheckerVisitor implements Visitor{
     }
 
     @Override
+    public void visit(Expr.InitExpr.ObjInit objInit) {
+        if (Scope.getInstance().getEntry(objInit.id) == null)
+            throw new ClassNotFoundException(objInit.id);
+    }
+
+    @Override
     public void visit(IndexedLVal lValue) {
 
         if (!(lValue.expr.getType() instanceof Type.ArrayType))
@@ -453,6 +467,25 @@ public class TypeCheckerVisitor implements Visitor{
         
     }
 
-    
-    
+    private void checkAccessMode(String accessedClass, ClassField classField) {
+        Decl.ClassDecl currentClass = (Decl.ClassDecl) Scope.getInstance().getContext(Context.CLASS);
+        if ((classField.accessMode == AccessMode.PRIVATE && (currentClass == null || !currentClass.id.equals(accessedClass)))
+                || (classField.accessMode == AccessMode.PROTECTED && (currentClass == null || !currentClass.isSubClassOf(accessedClass))))
+            throw new ClassFieldNotAccessibleException(classField, accessedClass);
+    }
+
+    @Override
+    public void visit(LValue.DottedLVal dottedLVal) {
+        dottedLVal.expr.accept(this);
+        Type exprType = dottedLVal.expr.getType();
+        if (!(exprType instanceof Type.NonPrimitiveType))
+            throw new FieldNotFoundException(dottedLVal.id);
+        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
+        ClassField.VarField varField = classDecl.getVarFieldMap().get(dottedLVal.id);
+        if (varField == null)
+            throw new FieldNotFoundException(dottedLVal.id,exprType);
+        checkAccessMode(classDecl.id, varField);
+    }
+
+
 }

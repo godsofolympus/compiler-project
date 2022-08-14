@@ -46,17 +46,21 @@ public abstract class LValue implements Visitable, Typed {
 
         @Override
         public Type getType() {
-            return null;
+            String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
+            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
+            return classDecl.getVarFieldMap().get(this.id).decl.getType();
         }
 
         @Override
         public void accept(Visitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
         public int getOffset() {
-            return 0;
+            String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
+            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
+            return classDecl.getVarFieldMap().get(this.id).getOffset();
         }
     }
 

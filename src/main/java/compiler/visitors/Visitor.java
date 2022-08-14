@@ -6,7 +6,6 @@ import compiler.AST.Expr.FunctionExpr.DtoiExpr;
 import compiler.AST.Expr.FunctionExpr.ItobExpr;
 import compiler.AST.Expr.FunctionExpr.ItodExpr;
 import compiler.AST.Expr.FunctionExpr.ReadLineExpr;
-import compiler.AST.Expr.InitExpr.ArrInit;
 
 public interface Visitor {
     void visit(Program program);
@@ -27,6 +26,7 @@ public interface Visitor {
     void visit(StmtBlock stmtBlock);
     void visit(LValue.SimpleLVal lValue);
     void visit(LValue.IndexedLVal lValue);
+    void visit(LValue.DottedLVal dottedLVal);
     void visit(Expr.ConstExpr constExpr);
     void visit(Expr.ThisExpr thisExpr);
     void visit(Expr.CallExpr callExpr);
@@ -55,6 +55,8 @@ public interface Visitor {
     void visit(Expr.BinOpExpr.LogicalExpr.OrExpr orExpr);
     void visit(Expr.UnOpExpr.ArithExpr.MinusExpr minusExpr);
     void visit(Expr.UnOpExpr.LogicalExpr.NotExpr notExpr);
+    void visit(Expr.InitExpr.ArrInit arrInit);
+    void visit(Expr.InitExpr.ObjInit objInit);
     void visit(Call.SimpleCall simpleCall);
     void visit(Call.DottedCall dottedCall);
     void visit(Constant.IntConst intConst);
@@ -67,5 +69,4 @@ public interface Visitor {
     void visit(DtoiExpr dtoiExpr);
     void visit(ItobExpr itobExpr);
     void visit(BtoiExpr btoiExpr);
-    void visit(ArrInit arrInit);
 }

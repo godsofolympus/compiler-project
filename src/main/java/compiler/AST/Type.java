@@ -73,7 +73,7 @@ public abstract class Type {
 
         @Override
         public int getSize() {
-            return 0;
+            return 4;
         }
 
         @Override

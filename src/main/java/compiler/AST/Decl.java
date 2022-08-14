@@ -7,6 +7,8 @@ import compiler.models.Typed;
 import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,11 +103,19 @@ public abstract class Decl implements Visitable, Typed {
         public List<String> interfaces;
         public List<ClassField> classFields;
 
+        private final List<ClassField.VarField> varFields;
+        private final List<ClassField.MethodField> methodFields;
+        private Map<String, ClassField.VarField> varFieldMap;
+
         public ClassDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields) {
             super(id);
             this.superClass = superClass;
             this.interfaces = interfaces;
             this.classFields = classFields;
+            this.varFields = new ArrayList<>();
+            this.methodFields = new ArrayList<>();
+            this.setVarFields();
+            this.setMethodFields();
         }
 
         @Override
@@ -113,22 +123,75 @@ public abstract class Decl implements Visitable, Typed {
             visitor.visit(this);
         }
 
+        private void setVarFields() {
+            for (ClassField classField : classFields) {
+                if (classField instanceof ClassField.VarField)
+                    this.varFields.add((ClassField.VarField) classField);
+            }
+        }
+
+        public List<ClassField.VarField> getVarFields() {
+            return varFields;
+        }
+
+        private void setMethodFields() {
+            for (ClassField classField : classFields) {
+                if (classField instanceof ClassField.MethodField)
+                    this.methodFields.add((ClassField.MethodField) classField);
+            }
+        }
+
+        public List<ClassField.MethodField> getMethodFields() {
+            return methodFields;
+        }
+
+        public Map<String, ClassField.VarField> getVarFieldMap() {
+            if (this.varFieldMap != null) return varFieldMap;
+            int initOffset = 0;
+            if (superClass == null) this.varFieldMap = new HashMap<>();
+            else {
+                this.varFieldMap = new HashMap<>(getSuperClass().getVarFieldMap());
+                initOffset += getSuperClass().getRequiredSpace();
+            }
+            for (ClassField.VarField varField : varFields) {
+                varField.setOffset(initOffset);
+                varFieldMap.put(varField.id, varField);
+                initOffset += varField.getSize();
+            }
+            return varFieldMap;
+        }
+
+        public ClassDecl getSuperClass() {
+            if (this.superClass == null) return null;
+            return (ClassDecl) Scope.getInstance().getEntry(this.superClass);
+        }
+
         public boolean isSubClassOf(String otherClassId) {
+            if (this.id.equals(otherClassId)) return true;
             if (this.superClass == null) return false;
-            if (this.superClass.equals(otherClassId)) return true;
-            ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
+            ClassDecl parentClass = this.getSuperClass();
             return parentClass.isSubClassOf(otherClassId);
         }
 
         public FunctionDecl getMethod(String id) {
             //TODO check access
-            for (ClassField classField : this.classFields) {
-                if (classField.id.equals(id) && classField instanceof ClassField.MethodField)
-                    return (FunctionDecl) classField.decl;
+            for (ClassField.MethodField methodField : this.methodFields) {
+                if (methodField.id.equals(id))
+                    return (FunctionDecl) methodField.decl;
             }
             if (superClass == null) return null;
             ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
             return parentClass.getMethod(id);
+        }
+
+        public int getRequiredSpace() {
+            int sum = 0;
+            if (this.superClass != null)
+                sum += this.getSuperClass().getRequiredSpace();
+            for (ClassField.VarField varField : varFields) {
+                sum += varField.decl.getType().getSize();
+            }
+            return sum;
         }
 
         @Override

@@ -41,7 +41,7 @@ public class Scope {
             if (entry != null) return entry;
             currentScope = currentScope.parent;
         }
-        throw null;
+        return null;
     }
 
     public void setEntry(String id, Decl decl) {
