@@ -8,6 +8,7 @@ import compiler.visitors.Visitable;
 import compiler.visitors.Visitor;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class Decl implements Visitable, Typed {
     public String id;
@@ -25,6 +26,8 @@ public abstract class Decl implements Visitable, Typed {
     public static class VariableDecl extends Decl {
         public Variable variable;
         public int offset;
+
+        public boolean isGlobal;
 
         public VariableDecl(Variable variable) {
             super(variable.id);
@@ -121,7 +124,7 @@ public abstract class Decl implements Visitable, Typed {
             //TODO check access
             for (ClassField classField : this.classFields) {
                 if (classField.id.equals(id) && classField instanceof ClassField.MethodField)
-                    return ((ClassField.MethodField) classField).functionDecl;
+                    return (FunctionDecl) classField.decl;
             }
             if (superClass == null) return null;
             ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);

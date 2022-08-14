@@ -35,7 +35,7 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Decl.VariableDecl variableDecl) {
-        Scope.getInstance().setEntry(variableDecl.id, variableDecl);
+
     }
 
     @Override
@@ -54,6 +54,9 @@ public class TypeCheckerVisitor implements Visitor{
         //TODO check interfaces
         Scope.pushScope(classDecl);
         for (ClassField classField : classDecl.classFields) {
+            Scope.getInstance().setEntry(classField.id, classField.decl);
+        }
+        for (ClassField classField : classDecl.classFields) {
             classField.accept(this);
         }
         Scope.popScope();
@@ -61,12 +64,12 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(ClassField.VarField varField) {
-        varField.varDecl.accept(this);
+        varField.decl.accept(this);
     }
 
     @Override
     public void visit(ClassField.MethodField methodField) {
-        methodField.functionDecl.accept(this);
+        methodField.decl.accept(this);
     }
 
     @Override

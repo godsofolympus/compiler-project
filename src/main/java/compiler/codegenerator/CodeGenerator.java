@@ -25,6 +25,7 @@ public class CodeGenerator {
         data.append("\tnewline: .asciiz \"\\n\"\n");
         data.append("\ttrue: .asciiz \"true\"\n");
         data.append("\tfalse: .asciiz \"false\"\n");
+        text.append(".text\n");
     }
 
     public String getResult(){

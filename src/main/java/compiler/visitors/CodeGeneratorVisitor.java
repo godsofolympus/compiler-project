@@ -5,7 +5,6 @@ import compiler.AST.Constant.StringConst;
 import compiler.AST.Decl.FunctionDecl;
 import compiler.AST.Decl.VariableDecl;
 import compiler.AST.Expr.AssignExpr;
-import compiler.AST.Expr.BinOpExpr;
 import compiler.AST.Expr.LValExpr;
 import compiler.AST.Expr.FunctionExpr.BtoiExpr;
 import compiler.AST.Expr.FunctionExpr.DtoiExpr;
@@ -24,7 +23,6 @@ import compiler.AST.Stmt.WhileStmt;
 import compiler.codegenerator.CodeGenerator;
 import compiler.models.Context;
 import compiler.models.Loop;
-import compiler.models.Register;
 import compiler.models.Scope;
 
 import java.util.List;
@@ -44,8 +42,7 @@ public class CodeGeneratorVisitor implements Visitor{
         generateGlobalVars(program.getGlobalVars());
         for (FunctionDecl functionDecl : program.getFunctionDecls()) {
             if (functionDecl.id.equals("main")) {
-                cgen.text.append(".text\n")
-                        .append(".globl main\n");
+                cgen.text.append(".globl main\n");
                 cgen.genLabel("main");
                 generateFunction(functionDecl);
             }
@@ -53,11 +50,10 @@ public class CodeGeneratorVisitor implements Visitor{
         }
     }
 
-    public void generateGlobalVars(List<Variable> globalVars) {
-        for (Variable globalVar : globalVars) {
-            cgen.text.append("\t.data\n")
-                    .append("\t.align 2\n")
-                    .append("_").append(globalVar.id).append(": ").append(".space ").append(globalVar.type.getSize()).append("\n");
+    public void generateGlobalVars(List<VariableDecl> globalVars) {
+        for (VariableDecl globalVar : globalVars) {
+            cgen.data.append("\t.align 2\n")
+                    .append("_").append(globalVar.id).append(": ").append(".space ").append(globalVar.variable.type.getSize()).append("\n");
         }
     }
 
@@ -274,12 +270,12 @@ public class CodeGeneratorVisitor implements Visitor{
         callExpr.call.accept(this);
     }
 
-    public void setLhsOffset(LValue lhs) {
+    public void setLhsAddress(LValue lhs) {
         cgen.generateOneLineComment("setting lvalue offset");
         if (lhs instanceof IndexedLVal) {
             IndexedLVal indexedLVal = (IndexedLVal) lhs;
             indexedLVal.index.accept(this);
-            setLhsOffset(((LValExpr)indexedLVal.expr).lValue);
+            setLhsAddress(((LValExpr)indexedLVal.expr).lValue);
             cgen.genPop(A0);
             cgen.genPop(A1);
             cgen.generateIndexed("lw", T0, A0, 0);
@@ -288,9 +284,15 @@ public class CodeGeneratorVisitor implements Visitor{
             cgen.generate("add", A2, T2, T0);
             cgen.genPush(A2);
         } else if (lhs instanceof SimpleLVal) {
-            cgen.generate("li", T2, String.valueOf(lhs.getOffset()));
-            cgen.generate("add", S0, T2, FP);
-            cgen.genPush(S0);
+            VariableDecl variableDecl = (VariableDecl) Scope.getInstance().getEntry(((SimpleLVal) lhs).id);
+            if (variableDecl.isGlobal) {
+                cgen.generate("la", A0, "_"  + variableDecl.id);
+                cgen.genPush(A0);
+            } else {
+                cgen.generate("li", T2, String.valueOf(lhs.getOffset()));
+                cgen.generate("add", S0, T2, FP);
+                cgen.genPush(S0);
+            }
         }
         cgen.generateEmptyLine();
     }
@@ -299,17 +301,15 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(AssignExpr assignExpr) {
         cgen.generateOneLineComment("Assign expr");
-        setLhsOffset(assignExpr.leftHandSide);
-        cgen.genPop(A1);
-
+        setLhsAddress(assignExpr.leftHandSide);
         assignExpr.rightHandSide.accept(this);
-
+        cgen.genPop(T1);
+        cgen.genPop(T0);
         if (assignExpr.rightHandSide.getType() instanceof Type.PrimitiveType.DoubleType) {
-            cgen.genPop(FA0);
-            cgen.generateIndexed("swc1", FA0, A1, 0);
+            cgen.generate("mtc1", T1, FA0);
+            cgen.generateIndexed("swc1", FA0, T0, 0);
         } else {
-            cgen.genPop(A0);
-            cgen.generateIndexed("sw", A0, A1, 0);
+            cgen.generateIndexed("sw", T1, T0, 0);
         }
     }
 
@@ -320,12 +320,16 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(SimpleLVal lValue) {
+        VariableDecl variableDecl = (VariableDecl) Scope.getInstance().getEntry(lValue.id);
         cgen.generateOneLineComment("Calculate SimpleLVal");
         if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
-            cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
+            if (variableDecl.isGlobal)cgen.generate("lwc1", FA0, "_" + variableDecl.id);
+            else cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
             cgen.genPush(FA0);
         } else {
-            cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
+            if (variableDecl.isGlobal)
+                cgen.generate("lw", A0, "_" + variableDecl.id);
+            else cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
             cgen.genPush(A0);
         }
         cgen.generateEmptyLine();
@@ -333,7 +337,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(IndexedLVal indexedLVal) {
-        setLhsOffset(indexedLVal);
+        setLhsAddress(indexedLVal);
         cgen.genPop(T0);
         cgen.generateOneLineComment("Calculate indexedVal");
         cgen.generateIndexed("lw", T1, T0, 0);
