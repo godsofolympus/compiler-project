@@ -134,8 +134,8 @@ Type
     ;
 
 FunctionDecl
-    ::= Type:t IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, t, f, sb); :}
-    |   VOID IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, Type.voidType(), f, sb); :}
+    ::= Type:t IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, t, f, sb, 0); :}
+    |   VOID IDENTIFIER:id PARANTHESIS_LEFT Formals:f PARANTHESIS_RIGHT StmtBlock:sb {: RESULT = Decl.functionDecl(id, Type.voidType(), f, sb, 0); :}
     ;
 
 Formals

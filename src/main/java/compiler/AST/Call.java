@@ -53,9 +53,12 @@ public abstract class Call implements Visitable, Typed {
 
         @Override
         public Type getType() {
+            return getClassDecl().getFieldMap().get(this.id).decl.getType();
+        }
+
+        public Decl.ClassDecl getClassDecl() {
             Type exprType = this.expr.getType();
-            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
-            return classDecl.getMethod(this.id).returnType;
+            return (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
         }
     }
 }

@@ -20,14 +20,9 @@ public abstract class Decl implements Visitable, Typed {
     }
 
     public static VariableDecl variableDecl(Variable variable) {return new VariableDecl(variable);}
-    public static VariableDecl variableDecl(Variable variable, int offset) {
-        VariableDecl variableDecl = new VariableDecl(variable);
-        variableDecl.offset = offset;
-        return variableDecl;
-    }
     public static class VariableDecl extends Decl {
         public Variable variable;
-        public int offset;
+        private int offset;
 
         public boolean isGlobal;
 
@@ -45,23 +40,44 @@ public abstract class Decl implements Visitable, Typed {
         public Type getType() {
             return variable.type;
         }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
     }
 
-    public static FunctionDecl functionDecl(String id, Type type, List<Variable> formals, StmtBlock stmtBlock) {
-        return new FunctionDecl(id, type, formals, stmtBlock);
+    public static FunctionDecl functionDecl(String id, Type type, List<Variable> formals, StmtBlock stmtBlock, int initOffset) {
+        return new FunctionDecl(id, type, formals, stmtBlock, initOffset);
     }
     public static class FunctionDecl extends Decl implements ContextualScoped {
         public Type returnType;
         public List<Variable> formals;
         public StmtBlock stmtBlock;
 
+        public boolean isMain;
         private int offsetCounter;
 
-        public FunctionDecl(String id, Type returnType, List<Variable> formals, StmtBlock stmtBlock) {
+        private String label;
+
+
+        public FunctionDecl(String id, Type returnType, List<Variable> formals, StmtBlock stmtBlock, int initOffset) {
             super(id);
             this.returnType = returnType;
             this.formals = formals;
             this.stmtBlock = stmtBlock;
+            this.offsetCounter = initOffset;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
         }
 
         @Override
@@ -79,8 +95,8 @@ public abstract class Decl implements Visitable, Typed {
             return Context.FUNCTION;
         }
 
-        public int getSizeofParameters() {
-            int sum = 0;
+        public int getSizeofParameters(boolean isMethodField) {
+            int sum = isMethodField ? 4 : 0;
             for (Variable formal : this.formals) {
                 sum += formal.type.getSize();
             }
@@ -105,7 +121,9 @@ public abstract class Decl implements Visitable, Typed {
 
         private final List<ClassField.VarField> varFields;
         private final List<ClassField.MethodField> methodFields;
-        private Map<String, ClassField.VarField> varFieldMap;
+        private Map<String, ClassField> fieldMap;
+
+        private String vTablePtr;
 
         public ClassDecl(String id, String superClass, List<String> interfaces, List<ClassField> classFields) {
             super(id);
@@ -121,6 +139,14 @@ public abstract class Decl implements Visitable, Typed {
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
+        }
+
+        public String getvTablePtr() {
+            return vTablePtr;
+        }
+
+        public void setvTablePtr(String vTablePtr) {
+            this.vTablePtr = vTablePtr;
         }
 
         private void setVarFields() {
@@ -145,20 +171,27 @@ public abstract class Decl implements Visitable, Typed {
             return methodFields;
         }
 
-        public Map<String, ClassField.VarField> getVarFieldMap() {
-            if (this.varFieldMap != null) return varFieldMap;
-            int initOffset = 0;
-            if (superClass == null) this.varFieldMap = new HashMap<>();
+        public Map<String, ClassField> getFieldMap() {
+            if (this.fieldMap != null) return fieldMap;
+            int initFieldOffset = 0;
+            int initMethodOffset = 0;
+            if (superClass == null) this.fieldMap = new HashMap<>();
             else {
-                this.varFieldMap = new HashMap<>(getSuperClass().getVarFieldMap());
-                initOffset += getSuperClass().getRequiredSpace();
+                this.fieldMap = new HashMap<>(getSuperClass().getFieldMap());
+                initFieldOffset += getSuperClass().getRequiredSpaceForVars();
+                initMethodOffset += getSuperClass().getRequiredSpaceForMethods();
             }
             for (ClassField.VarField varField : varFields) {
-                varField.setOffset(initOffset);
-                varFieldMap.put(varField.id, varField);
-                initOffset += varField.getSize();
+                varField.setOffset(initFieldOffset);
+                fieldMap.put(varField.id, varField);
+                initFieldOffset += varField.getSize();
             }
-            return varFieldMap;
+            for (ClassField.MethodField methodField : methodFields) {
+                methodField.setOffset(initMethodOffset);
+                fieldMap.put(methodField.id, methodField);
+                initMethodOffset += methodField.getSize();
+            }
+            return fieldMap;
         }
 
         public ClassDecl getSuperClass() {
@@ -173,25 +206,33 @@ public abstract class Decl implements Visitable, Typed {
             return parentClass.isSubClassOf(otherClassId);
         }
 
-        public FunctionDecl getMethod(String id) {
-            //TODO check access
-            for (ClassField.MethodField methodField : this.methodFields) {
-                if (methodField.id.equals(id))
-                    return (FunctionDecl) methodField.decl;
-            }
-            if (superClass == null) return null;
-            ClassDecl parentClass = (ClassDecl) Scope.getInstance().getEntry(this.superClass);
-            return parentClass.getMethod(id);
-        }
-
-        public int getRequiredSpace() {
+        public int getRequiredSpaceForVars() {
             int sum = 0;
             if (this.superClass != null)
-                sum += this.getSuperClass().getRequiredSpace();
+                sum += this.getSuperClass().getRequiredSpaceForVars();
             for (ClassField.VarField varField : varFields) {
-                sum += varField.decl.getType().getSize();
+                sum += varField.getSize();
             }
             return sum;
+        }
+
+        public int getRequiredSpaceForMethods() {
+            int sum = 0;
+            if (this.superClass != null)
+                sum += this.getSuperClass().getRequiredSpaceForMethods();
+            for (ClassField.MethodField methodField : methodFields) {
+                sum += methodField.getSize();
+            }
+            return sum;
+        }
+
+        public List<ClassField.MethodField> getInheritedMethods() {
+            List<ClassField.MethodField> inheritedMethods = new ArrayList<>();
+            for (ClassField field : getFieldMap().values()) {
+                if (field instanceof ClassField.MethodField)
+                    inheritedMethods.add((ClassField.MethodField) field);
+            }
+            return inheritedMethods;
         }
 
         @Override

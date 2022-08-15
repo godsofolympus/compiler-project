@@ -40,13 +40,57 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Program program) {
         generateGlobalVars(program.getGlobalVars());
-        for (FunctionDecl functionDecl : program.getFunctionDecls()) {
-            if (functionDecl.id.equals("main")) {
+        generateClasses(program.getClassDecls());
+        generateGlobalFunctions(program.getFunctionDecls());
+    }
+
+    public void generateGlobalFunctions(List<FunctionDecl> functionDecls) {
+        for (FunctionDecl functionDecl : functionDecls) {
+            if (functionDecl.isMain) {
                 cgen.text.append(".globl main\n");
-                cgen.genLabel("main");
-                generateFunction(functionDecl);
+                functionDecl.setLabel("main");
+                generateFunction(functionDecl, 0);
             }
             else functionDecl.accept(this);
+        }
+    }
+
+    public void generateFunction(FunctionDecl funcDecl, int paramSize) {
+        Scope.pushScope(funcDecl);
+        cgen.genLabel(funcDecl.getLabel());
+        for (Variable formal : funcDecl.formals) {
+            Decl.variableDecl(formal).accept(this);
+        }
+        funcDecl.setOffsetCounter(funcDecl.getOffsetCounter() - 8);
+        generateFunctionEntry(paramSize, funcDecl.stmtBlock.getRequiredSpace());
+        generateFunctionBody(funcDecl);
+        generateFunctionExit(funcDecl, paramSize);
+        Scope.popScope();
+    }
+
+    public void generateClasses(List<Decl.ClassDecl> classDecls) {
+        for (Decl.ClassDecl classDecl : classDecls) {
+            Scope.pushScope(classDecl);
+            classDecl.accept(this);
+            Scope.popScope();
+        }
+
+        cgen.text.append("InitClasses:\n");
+        for (Decl.ClassDecl classDecl : classDecls) {
+            initVTable(classDecl);
+        }
+        cgen.generate("jr", RA);
+        cgen.generateEmptyLine();
+    }
+
+    public void initVTable(Decl.ClassDecl classDecl) {
+        String vTablePtr = cgen.malloc(classDecl.getRequiredSpaceForMethods());
+        cgen.generate("la", A0, vTablePtr);
+        classDecl.setvTablePtr(vTablePtr);
+        List<ClassField.MethodField> inheritedMethods = classDecl.getInheritedMethods();
+        for (ClassField.MethodField inheritedMethod : inheritedMethods) {
+            cgen.generate("la", T0, ((FunctionDecl) inheritedMethod.decl).getLabel());
+            cgen.generateIndexed("sw", T0, A0, inheritedMethod.getOffset());
         }
     }
 
@@ -57,23 +101,6 @@ public class CodeGeneratorVisitor implements Visitor{
         }
     }
 
-    public void generateFunction(FunctionDecl functionDecl) {
-        Scope.pushScope(functionDecl);
-        int offsetCounter = 0;
-        for (Variable formal : functionDecl.formals) {
-            Scope.getInstance().setEntry(formal.id, Decl.variableDecl(formal, offsetCounter));
-            offsetCounter -= formal.type.getSize();
-        }
-        functionDecl.setOffsetCounter(offsetCounter - 8);
-        int paramSize = functionDecl.getSizeofParameters();
-        int localsSize = functionDecl.stmtBlock.getRequiredSpace();
-        boolean returnsValue = !functionDecl.returnType.isLessThan(Type.voidType());
-        this.generateFunctionEntry(paramSize, localsSize);
-        functionDecl.stmtBlock.accept(this);
-        this.generateFunctionExit(functionDecl.id, paramSize, returnsValue);
-        Scope.popScope();
-    }
-
     public void generateFunctionEntry(int paramSize, int localsSize) {
         cgen.genPush(RA);
         cgen.genPush(FP);
@@ -81,37 +108,46 @@ public class CodeGeneratorVisitor implements Visitor{
         cgen.generate("subu", SP, SP, String.valueOf(localsSize));
     }
 
-    public void generateFunctionExit(String functionName, int paramSize, boolean returnsValue) {
-        cgen.genLabel("_" + functionName + "_Exit");
+    public void generateFunctionBody(FunctionDecl funcDecl) {
+        if (funcDecl.isMain) cgen.generate("jal", "InitClasses");
+        funcDecl.stmtBlock.accept(this);
+        cgen.generateEmptyLine();
+    }
+
+    public void generateFunctionExit(FunctionDecl funcDecl, int paramSize) {
+        cgen.genLabel(funcDecl.getLabel() + "_Exit");
         cgen.generateIndexed("lw", RA, FP, -paramSize);
         cgen.generate("move", T0, FP);
         cgen.generateIndexed("lw", FP, FP, -(paramSize + 4));
         cgen.generate("move", SP, T0);
-        if (returnsValue) cgen.genPush(V0);
+        if (!funcDecl.returnType.isLessThan(Type.voidType())) cgen.genPush(V0);
         cgen.generate("jr", RA);
+        cgen.generateEmptyLine();
     }
 
     @Override
     public void visit(VariableDecl variableDecl) {
         FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
         int offsetCounter = functionDecl.getOffsetCounter();
-        variableDecl.offset = offsetCounter;
+        variableDecl.setOffset(offsetCounter);
         Scope.getInstance().setEntry(variableDecl.id, variableDecl);
-        offsetCounter -= variableDecl.variable.type.getSize();
+        offsetCounter -= variableDecl.getType().getSize();
         functionDecl.setOffsetCounter(offsetCounter);
     }
 
     @Override
     public void visit(FunctionDecl functionDecl) {
-        cgen.genLabel("_" + functionDecl.id);
-        generateFunction(functionDecl);
+        functionDecl.setLabel("_" + functionDecl.id);
+        generateFunction(functionDecl, functionDecl.getSizeofParameters(false));
     }
 
     @Override
     public void visit(Decl.ClassDecl classDecl) {
         for (ClassField.MethodField methodField : classDecl.getMethodFields()) {
-            cgen.genLabel("_" + classDecl.id + "_" + methodField.id);
-            generateFunction((FunctionDecl) methodField.decl);
+            String methodLabel = "_" + classDecl.id + "_" + methodField.id;
+            FunctionDecl functionDecl = (FunctionDecl) methodField.decl;
+            functionDecl.setLabel(methodLabel);
+            generateFunction(functionDecl, functionDecl.getSizeofParameters( true));
         }
     }
 
@@ -195,6 +231,7 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Stmt.ReturnStmt returnStmt) {
         FunctionDecl functionDecl = (FunctionDecl) Scope.getInstance().getContext(Context.FUNCTION);
+        String exitLabel = functionDecl.getLabel() + "_" + "Exit";
         if (returnStmt.expr != null) {
             returnStmt.expr.accept(this);
             if (returnStmt.expr.getType() instanceof Type.PrimitiveType.DoubleType)
@@ -202,7 +239,7 @@ public class CodeGeneratorVisitor implements Visitor{
             else
                 cgen.genPop(V0);
         }
-        cgen.generate("j", "_" + functionDecl.id + "_Exit");
+        cgen.generate("j", exitLabel);
     }
 
     @Override
@@ -265,7 +302,8 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.ThisExpr thisExpr) {
-
+        cgen.generateIndexed("lw", A0, FP, 0);
+        cgen.genPush(A0);
     }
 
     @Override
@@ -577,7 +615,15 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Call.DottedCall dottedCall) {
-
+        dottedCall.expr.accept(this); // "this" is on top of stack
+        for (Expr actual : dottedCall.actuals) {
+            actual.accept(this);
+        }
+        Decl.ClassDecl classDecl = dottedCall.getClassDecl();
+        cgen.generate("la", A0, classDecl.getvTablePtr());
+        int offset = classDecl.getFieldMap().get(dottedCall.id).getOffset();
+        cgen.generateIndexed("lw", T0, A0, offset);
+        cgen.generate("jalr", T0);
     }
 
     @Override
@@ -692,7 +738,7 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(Expr.InitExpr.ObjInit objInit) {
         Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(objInit.id);
-        String ptrLabel = cgen.malloc(classDecl.getRequiredSpace());
+        String ptrLabel = cgen.malloc(classDecl.getRequiredSpaceForVars());
         cgen.generate("la", A0, ptrLabel);
         cgen.genPush(A0);
     }

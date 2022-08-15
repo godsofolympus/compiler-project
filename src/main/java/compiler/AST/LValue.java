@@ -1,6 +1,5 @@
 package compiler.AST;
 
-import compiler.AST.Expr.LValExpr;
 import compiler.models.Scope;
 import compiler.models.Typed;
 import compiler.visitors.Visitable;
@@ -30,7 +29,7 @@ public abstract class LValue implements Visitable, Typed {
         @Override
         public int getOffset() {
             Decl.VariableDecl variableDecl = (Decl.VariableDecl) Scope.getInstance().getEntry(id);
-            return variableDecl.offset;
+            return variableDecl.getOffset();
         }
     }
 
@@ -48,7 +47,7 @@ public abstract class LValue implements Visitable, Typed {
         public Type getType() {
             String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
             Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
-            return classDecl.getVarFieldMap().get(this.id).decl.getType();
+            return classDecl.getFieldMap().get(this.id).decl.getType();
         }
 
         @Override
@@ -60,7 +59,7 @@ public abstract class LValue implements Visitable, Typed {
         public int getOffset() {
             String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
             Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
-            return classDecl.getVarFieldMap().get(this.id).getOffset();
+            return ((ClassField.VarField) classDecl.getFieldMap().get(this.id)).getOffset();
         }
     }
 

@@ -28,10 +28,10 @@ public class TypeCheckerVisitor implements Visitor{
         for (Decl decl : program.decls) {
             Scope.getInstance().setEntry(decl.id, decl);
         }
-        if (Scope.getInstance().getEntry("main") == null) throw new MainMethodNotFoundException();
         for (Decl decl : program.decls) {
             decl.accept(this);
         }
+        if (Scope.getInstance().getEntry("main") == null) throw new MainMethodNotFoundException();
     }
 
     @Override
@@ -350,7 +350,7 @@ public class TypeCheckerVisitor implements Visitor{
         Decl decl = Scope.getInstance().getEntry(simpleCall.id);
         if (!(decl instanceof Decl.FunctionDecl))
             throw new NotCallableIdentifierException(simpleCall.id);
-        this.checkCallArguments(simpleCall, (Decl.FunctionDecl) decl);
+        checkCallArguments(simpleCall, (Decl.FunctionDecl) decl);
     }
 
     @Override
@@ -360,10 +360,11 @@ public class TypeCheckerVisitor implements Visitor{
         if (!(exprType instanceof Type.NonPrimitiveType))
             throw new MethodNotFoundException(dottedCall.id);
         Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
-        Decl.FunctionDecl method = classDecl.getMethod(dottedCall.id);
-        if (method == null)
+        ClassField.MethodField methodField = (ClassField.MethodField) classDecl.getFieldMap().get(dottedCall.id);
+        if (methodField == null)
             throw new MethodNotFoundException(dottedCall.id, exprType);
-        this.checkCallArguments(dottedCall, method);
+        checkCallArguments(dottedCall, (Decl.FunctionDecl) methodField.decl);
+        checkAccessMode(classDecl.id, methodField);
     }
 
     @Override
@@ -481,7 +482,7 @@ public class TypeCheckerVisitor implements Visitor{
         if (!(exprType instanceof Type.NonPrimitiveType))
             throw new FieldNotFoundException(dottedLVal.id);
         Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
-        ClassField.VarField varField = classDecl.getVarFieldMap().get(dottedLVal.id);
+        ClassField varField = classDecl.getFieldMap().get(dottedLVal.id);
         if (varField == null)
             throw new FieldNotFoundException(dottedLVal.id,exprType);
         checkAccessMode(classDecl.id, varField);

@@ -1045,7 +1045,7 @@ class CUP$Parser$actions {
 		int sbleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int sbright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		StmtBlock sb = (StmtBlock)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Decl.functionDecl(id, t, f, sb); 
+		 RESULT = Decl.functionDecl(id, t, f, sb, 0); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("FunctionDecl",12, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1063,7 +1063,7 @@ class CUP$Parser$actions {
 		int sbleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int sbright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		StmtBlock sb = (StmtBlock)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = Decl.functionDecl(id, Type.voidType(), f, sb); 
+		 RESULT = Decl.functionDecl(id, Type.voidType(), f, sb, 0); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("FunctionDecl",12, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

@@ -9,6 +9,19 @@ public abstract class ClassField implements Visitable {
     public String id;
     public Decl decl;
 
+    private int offset;
+
+    public abstract int getSize();
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+
     public ClassField(AccessMode accessMode, String id) {
         this.accessMode = accessMode;
         this.id = id;
@@ -18,41 +31,40 @@ public abstract class ClassField implements Visitable {
 
     public static class VarField extends ClassField {
 
-        private int offset;
         public VarField(AccessMode accessMode, Decl.VariableDecl varDecl) {
             super(accessMode, varDecl.id);
             this.decl = varDecl;
         }
 
-        public int getOffset() {
-            return offset;
-        }
-
-        public int getSize() {
-            return  decl.getType().getSize();
-        }
-
-        public void setOffset(int offset) {
-            this.offset = offset;
-        }
 
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public int getSize() {
+            return  decl.getType().getSize();
         }
     }
 
     public static MethodField methodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {return new MethodField(accessMode, functionDecl);}
 
     public static class MethodField extends ClassField {
+        private String methodLabel;
         public MethodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {
             super(accessMode, functionDecl.id);
-            this.decl = functionDecl;
+            this.decl = Decl.functionDecl(functionDecl.id, functionDecl.returnType, functionDecl.formals, functionDecl.stmtBlock, -4);
         }
 
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public int getSize() {
+            return 4;
         }
     }
 }
