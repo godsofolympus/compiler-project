@@ -25,6 +25,7 @@ import compiler.models.Context;
 import compiler.models.Loop;
 import compiler.models.Scope;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import static compiler.models.Register.*;
@@ -71,6 +72,9 @@ public class CodeGeneratorVisitor implements Visitor{
     public void generateClasses(List<Decl.ClassDecl> classDecls) {
         for (Decl.ClassDecl classDecl : classDecls) {
             Scope.pushScope(classDecl);
+            for (ClassField.VarField inheritedField : classDecl.getInheritedFields()) {
+                Scope.getInstance().setEntry(inheritedField.id, inheritedField.decl);
+            }
             classDecl.accept(this);
             Scope.popScope();
         }
@@ -85,7 +89,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     public void initVTable(Decl.ClassDecl classDecl) {
         String vTablePtr = cgen.malloc(classDecl.getRequiredSpaceForMethods());
-        cgen.generate("la", A0, vTablePtr);
+        cgen.generate("lw", A0, vTablePtr);
         classDecl.setvTablePtr(vTablePtr);
         List<ClassField.MethodField> inheritedMethods = classDecl.getInheritedMethods();
         for (ClassField.MethodField inheritedMethod : inheritedMethods) {
@@ -163,8 +167,8 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Stmt.ExprStmt exprStmt) {
-        exprStmt.expr.accept(this);
-    }
+        if (exprStmt.expr != null)
+            exprStmt.expr.accept(this);    }
 
     @Override
     public void visit(IfStmt ifStmt) {
@@ -234,10 +238,7 @@ public class CodeGeneratorVisitor implements Visitor{
         String exitLabel = functionDecl.getLabel() + "_" + "Exit";
         if (returnStmt.expr != null) {
             returnStmt.expr.accept(this);
-            if (returnStmt.expr.getType() instanceof Type.PrimitiveType.DoubleType)
-                cgen.genPop(FV0);
-            else
-                cgen.genPop(V0);
+            cgen.genPop(V0);
         }
         cgen.generate("j", exitLabel);
     }
@@ -329,6 +330,9 @@ public class CodeGeneratorVisitor implements Visitor{
             if (variableDecl.isGlobal) {
                 cgen.generate("la", A0, "_"  + variableDecl.id);
                 cgen.genPush(A0);
+            } else if (variableDecl.isInstanceVar) {
+                LValue.DottedLVal dottedLVal = LValue.dottedLVal(Expr.thisExpr(), ((SimpleLVal) lhs).id);
+                this.setLhsAddress(dottedLVal);
             } else {
                 cgen.generate("li", T2, String.valueOf(lhs.getOffset()));
                 cgen.generate("add", S0, T2, FP);
@@ -372,16 +376,20 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(SimpleLVal lValue) {
         VariableDecl variableDecl = (VariableDecl) Scope.getInstance().getEntry(lValue.id);
-        cgen.generateOneLineComment("Calculate SimpleLVal");
-        if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
-            if (variableDecl.isGlobal) cgen.generate("lwc1", FA0, "_" + variableDecl.id);
-            else cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
-            cgen.genPush(FA0);
+        if (variableDecl.isInstanceVar) {
+            LValue.DottedLVal dottedLVal = LValue.dottedLVal(Expr.thisExpr(), lValue.id);
+            this.visit(dottedLVal);
         } else {
-            if (variableDecl.isGlobal)
-                cgen.generate("lw", A0, "_" + variableDecl.id);
-            else cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
-            cgen.genPush(A0);
+            if (lValue.getType() instanceof Type.PrimitiveType.DoubleType) {
+                if (variableDecl.isGlobal) cgen.generate("lwc1", FA0, "_" + variableDecl.id);
+                else cgen.generateIndexed("lwc1", FA0, FP, lValue.getOffset());
+                cgen.genPush(FA0);
+            } else {
+                if (variableDecl.isGlobal)
+                    cgen.generate("lw", A0, "_" + variableDecl.id);
+                else cgen.generateIndexed("lw", A0, FP, lValue.getOffset());
+                cgen.genPush(A0);
+            }
         }
         cgen.generateEmptyLine();
     }
@@ -553,6 +561,21 @@ public class CodeGeneratorVisitor implements Visitor{
             generateFloatingPointCompExpr(greaterEqExpr, "c.lt.s", true);
     }
 
+    public void generateStringCompExpr(Expr.BinOpExpr binOpExpr, String opcode) {
+        this.visit(binOpExpr);
+        cgen.generateIndexed("lw", T0, T0, 0);
+        cgen.generateIndexed("lw", T1, T1, 0);
+        String lTrue = cgen.nextLabel();
+        String lEnd = cgen.nextLabel();
+        cgen.generate(opcode, T0, T1, lTrue);
+        cgen.generate("li", A0, "0");
+        cgen.generate("j", lEnd);
+        cgen.genLabel(lTrue);
+        cgen.generate("li", A0, "1");
+        cgen.genLabel(lEnd);
+        cgen.genPush(A0);
+    }
+
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
         if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType ||
@@ -560,14 +583,20 @@ public class CodeGeneratorVisitor implements Visitor{
             generateCompExpr(eqExpr, "beq");
         else if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
             generateFloatingPointCompExpr(eqExpr, "c.eq.s", false);
+        else if(eqExpr.expr1.getType() instanceof Type.PrimitiveType.StringType)
+            generateStringCompExpr(eqExpr, "beq");
+
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
-        if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+        if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType ||
+                notEqExpr.expr1.getType() instanceof Type.PrimitiveType.BooleanType)
             generateCompExpr(notEqExpr, "bne");
         else if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
             generateFloatingPointCompExpr(notEqExpr, "c.eq.s", true);
+        else if(notEqExpr.expr1.getType() instanceof Type.PrimitiveType.StringType)
+            generateStringCompExpr(notEqExpr, "bne");
     }
 
     public void generateLogicalExpr(Expr.BinOpExpr binOpExpr, String opcode) {
@@ -629,7 +658,7 @@ public class CodeGeneratorVisitor implements Visitor{
             actual.accept(this);
         }
         Decl.ClassDecl classDecl = dottedCall.getClassDecl();
-        cgen.generate("la", A0, classDecl.getvTablePtr());
+        cgen.generate("lw", A0, classDecl.getvTablePtr());
         int offset = classDecl.getFieldMap().get(dottedCall.id).getOffset();
         cgen.generateIndexed("lw", T0, A0, offset);
         cgen.generate("jalr", T0);
@@ -649,7 +678,9 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Constant.DoubleConst doubleConst) {
-        cgen.generate("li.s", FA0, String.valueOf(doubleConst.value));
+        DecimalFormat df = new DecimalFormat("0.0");
+        df.setMaximumFractionDigits(8);
+        cgen.generate("li.s", FA0, "" + df.format(doubleConst.value));
         cgen.genPush(FA0);
     }
 

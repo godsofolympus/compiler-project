@@ -25,6 +25,7 @@ public abstract class Decl implements Visitable, Typed {
         private int offset;
 
         public boolean isGlobal;
+        public boolean isInstanceVar;
 
         public VariableDecl(Variable variable) {
             super(variable.id);
@@ -234,6 +235,16 @@ public abstract class Decl implements Visitable, Typed {
             }
             return inheritedMethods;
         }
+
+        public List<ClassField.VarField> getInheritedFields() {
+            List<ClassField.VarField> inheritedFields = new ArrayList<>();
+            for (ClassField field : getFieldMap().values()) {
+                if (field instanceof ClassField.VarField)
+                    inheritedFields.add((ClassField.VarField) field);
+            }
+            return inheritedFields;
+        }
+
 
         @Override
         public Type getType() {

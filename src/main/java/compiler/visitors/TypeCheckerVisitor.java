@@ -80,7 +80,8 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Stmt.ExprStmt exprStmt) {
-        exprStmt.expr.accept(this);
+        if (exprStmt.expr != null)
+            exprStmt.expr.accept(this);
     }
 
     @Override
@@ -305,13 +306,16 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType(), Type.PrimitiveType.booleanType());
+        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType(),
+                Type.PrimitiveType.booleanType(), Type.PrimitiveType.stringType());
         typeCheckBinaryExpr(eqExpr, expectedTypes);
     }
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.NotEqExpr notEqExpr) {
-        this.visit((Expr.BinOpExpr.CompExpr) notEqExpr);
+        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType(),
+                Type.PrimitiveType.booleanType(), Type.PrimitiveType.stringType());
+        typeCheckBinaryExpr(notEqExpr, expectedTypes);
     }
 
     @Override

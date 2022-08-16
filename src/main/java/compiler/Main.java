@@ -16,7 +16,7 @@ import compiler.visitors.TypeCheckerVisitor;
 
 public class Main {
 
-    public static void run(File inputFile, File outputFile) throws IOException {
+    public static void run(File inputFile, File outputFile) {
         Preprocessor preprocessor = new Preprocessor(inputFile, ".pp_tmp");
         preprocessor.preprocess();
         inputFile = new File(".pp_tmp");
@@ -35,11 +35,17 @@ public class Main {
         } catch (SemanticError e) {
             result = "Semantic Error";
         } catch (Exception e) {
+            e.printStackTrace();
             result = "Syntax Error";
         }
-        FileWriter fileWriter = new FileWriter(outputFile);
-        fileWriter.write(result);
-        fileWriter.close();
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(outputFile);
+            fileWriter.write(result);
+            fileWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws IOException {

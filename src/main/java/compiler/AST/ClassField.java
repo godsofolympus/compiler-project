@@ -33,6 +33,7 @@ public abstract class ClassField implements Visitable {
 
         public VarField(AccessMode accessMode, Decl.VariableDecl varDecl) {
             super(accessMode, varDecl.id);
+            varDecl.isInstanceVar = true;
             this.decl = varDecl;
         }
 
