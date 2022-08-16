@@ -129,6 +129,7 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Stmt.ReturnStmt returnStmt) {
+        if (returnStmt.expr == null) return;
         returnStmt.expr.accept(this);
         ContextualScoped context = Scope.getInstance().getContext(Context.FUNCTION);
         if (context == null)
@@ -362,6 +363,8 @@ public class TypeCheckerVisitor implements Visitor{
     public void visit(Call.DottedCall dottedCall) {
         dottedCall.expr.accept(this);
         Type exprType = dottedCall.expr.getType();
+        if (exprType instanceof Type.ArrayType && dottedCall.id.equals("length"))
+            return;
         if (!(exprType instanceof Type.NonPrimitiveType))
             throw new MethodNotFoundException(dottedCall.id);
         Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);

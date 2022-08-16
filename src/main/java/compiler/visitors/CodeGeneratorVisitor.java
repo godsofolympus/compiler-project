@@ -202,7 +202,7 @@ public class CodeGeneratorVisitor implements Visitor{
     @Override
     public void visit(ForStmt forStmt) {
         Scope.pushScope(forStmt);
-        forStmt.init.accept(this);
+        if (forStmt.init != null) forStmt.init.accept(this);
         String startLabel = cgen.nextLabel();
         cgen.genLabel(startLabel);
         forStmt.cond.accept(this);
@@ -212,7 +212,7 @@ public class CodeGeneratorVisitor implements Visitor{
         forStmt.stmt.accept(this);
         String contLabel = "cont_" + forStmt.getLabel();
         cgen.genLabel(contLabel);
-        forStmt.update.accept(this);
+        if (forStmt.update != null) forStmt.update.accept(this);
         cgen.generate("j", startLabel);
         cgen.genLabel(endLabel);
         Scope.popScope();
@@ -561,19 +561,16 @@ public class CodeGeneratorVisitor implements Visitor{
             generateFloatingPointCompExpr(greaterEqExpr, "c.lt.s", true);
     }
 
-    public void generateStringCompExpr(Expr.BinOpExpr binOpExpr, String opcode) {
+    public void generateStringCompExpr(Expr.BinOpExpr binOpExpr, boolean equal) {
         this.visit(binOpExpr);
-        cgen.generateIndexed("lw", T0, T0, 0);
-        cgen.generateIndexed("lw", T1, T1, 0);
-        String lTrue = cgen.nextLabel();
-        String lEnd = cgen.nextLabel();
-        cgen.generate(opcode, T0, T1, lTrue);
-        cgen.generate("li", A0, "0");
-        cgen.generate("j", lEnd);
-        cgen.genLabel(lTrue);
-        cgen.generate("li", A0, "1");
-        cgen.genLabel(lEnd);
-        cgen.genPush(A0);
+        cgen.generate("move", S0, T0);
+        cgen.generate("move", S1, T1);
+        cgen.generate("jal", "strcmp");
+        if (!equal) {
+            cgen.genPop(A0);
+            cgen.generate("slti", A0,A0, "1");
+            cgen.genPush(A0);
+        }
     }
 
     @Override
@@ -584,7 +581,7 @@ public class CodeGeneratorVisitor implements Visitor{
         else if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
             generateFloatingPointCompExpr(eqExpr, "c.eq.s", false);
         else if(eqExpr.expr1.getType() instanceof Type.PrimitiveType.StringType)
-            generateStringCompExpr(eqExpr, "beq");
+            generateStringCompExpr(eqExpr, true);
 
     }
 
@@ -596,7 +593,7 @@ public class CodeGeneratorVisitor implements Visitor{
         else if (notEqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
             generateFloatingPointCompExpr(notEqExpr, "c.eq.s", true);
         else if(notEqExpr.expr1.getType() instanceof Type.PrimitiveType.StringType)
-            generateStringCompExpr(notEqExpr, "bne");
+            generateStringCompExpr(notEqExpr, false);
     }
 
     public void generateLogicalExpr(Expr.BinOpExpr binOpExpr, String opcode) {
@@ -653,15 +650,20 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Call.DottedCall dottedCall) {
-        dottedCall.expr.accept(this); // "this" is on top of stack
-        for (Expr actual : dottedCall.actuals) {
-            actual.accept(this);
+        dottedCall.expr.accept(this);
+        if (dottedCall.expr.getType() instanceof Type.ArrayType && dottedCall.id.equals("length")) {
+            cgen.generateIndexed("lw", T0, A0, -4);
+            cgen.genPush(T0);
+        } else {
+            for (Expr actual : dottedCall.actuals) {
+                actual.accept(this);
+            }
+            Decl.ClassDecl classDecl = dottedCall.getClassDecl();
+            cgen.generate("lw", A0, classDecl.getvTablePtr());
+            int offset = classDecl.getFieldMap().get(dottedCall.id).getOffset();
+            cgen.generateIndexed("lw", T0, A0, offset);
+            cgen.generate("jalr", T0);
         }
-        Decl.ClassDecl classDecl = dottedCall.getClassDecl();
-        cgen.generate("lw", A0, classDecl.getvTablePtr());
-        int offset = classDecl.getFieldMap().get(dottedCall.id).getOffset();
-        cgen.generateIndexed("lw", T0, A0, offset);
-        cgen.generate("jalr", T0);
     }
 
     @Override
@@ -690,9 +692,12 @@ public class CodeGeneratorVisitor implements Visitor{
         int stringLength = stringValue.length();
         String ptrLabel = cgen.malloc((stringLength + 1) * CHAR_SIZE);
         cgen.generate("lw", T0, ptrLabel);
-        for (char c : stringValue.toCharArray()) {
-            System.out.println(String.valueOf(Character.getNumericValue(c)));
-            cgen.generate("li", T1, String.valueOf((int) c));
+        for (int i = 0; i < stringValue.toCharArray().length; i++) {
+            if (stringValue.charAt(i) == '\\' && stringValue.charAt(i+1) =='n') {
+                cgen.generate("lw", T1, "newline");
+                i ++;
+            }
+            else cgen.generate("li", T1, String.valueOf((int) stringValue.charAt(i)));
             cgen.generate("sb", T1, "(" + T0 + ")");
             cgen.generate("addi", T0, String.valueOf(CHAR_SIZE));
         }

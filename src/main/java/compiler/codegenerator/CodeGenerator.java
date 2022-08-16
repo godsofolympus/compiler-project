@@ -1,13 +1,13 @@
 package compiler.codegenerator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import static compiler.models.Register.*;
 
 public class CodeGenerator {
     private static final CodeGenerator instance = new CodeGenerator();
-
-
-    public static final int CHAR_SIZE = 1; // in bytes
-    public static final int BUFFER_SIZE = 16 * CHAR_SIZE;
 
     public static CodeGenerator getInstance() {
         return instance;
@@ -19,13 +19,10 @@ public class CodeGenerator {
     private int ptrCount = 0;
 
     private CodeGenerator() {
-        this.text = new StringBuilder();
-        this.data = new StringBuilder();
-        data.append(".data\n");
-        data.append("\tnewline: .asciiz \"\\n\"\n");
-        data.append("\ttrue: .asciiz \"true\"\n");
-        data.append("\tfalse: .asciiz \"false\"\n");
-        text.append(".text\n");
+        this.text = new StringBuilder(".text\n");
+        this.data = new StringBuilder(".data\n");
+        this.data.append(STRINGS);
+        this.text.append(SUBROUTINES);
     }
 
     public String getResult(){
@@ -149,4 +146,34 @@ public class CodeGenerator {
         return register.startsWith("$f") && !register.equals("$fp"); 
     }
 
+    public static final int CHAR_SIZE = 1; // in bytes
+    public static final int BUFFER_SIZE = 16 * CHAR_SIZE;
+
+    public static final String STRINGS =
+            "\tnewline: .asciiz \"\\n\"\n" +
+                    "\ttrue: .asciiz \"true\"\n" +
+                    "\tfalse: .asciiz \"false\"\n";
+    public static final String SUBROUTINES =
+            "strcmp:\n" +
+                    "    lb      $t2,($s0)                   # get next char from str1\n" +
+                    "    lb      $t3,($s1)                   # get next char from str2\n" +
+                    "    bne     $t2,$t3,cmpne               # are they different? if yes, fly\n" +
+                    "\n" +
+                    "    beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)\n" +
+                    "\n" +
+                    "    addi    $s0,$s0,1                   # point to next char\n" +
+                    "    addi    $s1,$s1,1                   # point to next char\n" +
+                    "    j       strcmp\n" +
+                    "\n" +
+                    "cmpne:\n" +
+                    "    li     $a0,0\n" +
+                    "    sw     $a0, 0($sp)\n" +
+                    "    subu   $sp, $sp, 4\n" +
+                    "    jr     $ra\n" +
+                    "\n" +
+                    "cmpeq:\n" +
+                    "    li     $a0,1\n" +
+                    "    sw     $a0, 0($sp)\n" +
+                    "    subu   $sp, $sp, 4\n" +
+                    "    jr     $ra\n";
 }

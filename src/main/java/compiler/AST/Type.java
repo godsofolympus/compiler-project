@@ -33,7 +33,7 @@ public abstract class Type {
         public static class DoubleType extends PrimitiveType{
             @Override
             public int getSize() {
-                return 8;
+                return 4;
             }
         }
 

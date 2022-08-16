@@ -33,6 +33,7 @@ public class Main {
             cgenVisitor.visit(program);
             result = CodeGenerator.getInstance().getResult();
         } catch (SemanticError e) {
+            e.printStackTrace();
             result = "Semantic Error";
         } catch (Exception e) {
             e.printStackTrace();

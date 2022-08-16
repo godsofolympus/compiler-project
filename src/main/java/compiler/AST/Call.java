@@ -53,6 +53,7 @@ public abstract class Call implements Visitable, Typed {
 
         @Override
         public Type getType() {
+            if (expr.getType() instanceof Type.ArrayType && id.equals("length")) return Type.PrimitiveType.integerType();
             return getClassDecl().getFieldMap().get(this.id).decl.getType();
         }
 
