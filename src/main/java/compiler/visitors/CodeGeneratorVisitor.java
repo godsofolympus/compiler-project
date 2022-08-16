@@ -357,8 +357,10 @@ public class CodeGeneratorVisitor implements Visitor{
         if (assignExpr.rightHandSide.getType() instanceof Type.PrimitiveType.DoubleType) {
             cgen.generate("mtc1", T1, FA0);
             cgen.generateIndexed("swc1", FA0, T0, 0);
+            cgen.genPush(FA0);
         } else {
             cgen.generateIndexed("sw", T1, T0, 0);
+            cgen.genPush(T1);
         }
     }
 
@@ -418,7 +420,6 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.AddExpr addExpr) {
-        this.visit((Expr.BinOpExpr) addExpr);
         Expr.BinOpExpr.AddExpr castedExpr = addExpr.downcast();
         castedExpr.accept(this);
     }
@@ -554,7 +555,8 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-        if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType)
+        if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.IntegerType ||
+                eqExpr.expr1.getType() instanceof Type.PrimitiveType.BooleanType)
             generateCompExpr(eqExpr, "beq");
         else if (eqExpr.expr1.getType() instanceof Type.PrimitiveType.DoubleType)
             generateFloatingPointCompExpr(eqExpr, "c.eq.s", false);
@@ -592,9 +594,15 @@ public class CodeGeneratorVisitor implements Visitor{
     public void visit(Expr.UnOpExpr.ArithExpr.MinusExpr minusExpr) {
         minusExpr.expr.accept(this);
         cgen.genPop(A0);
-        cgen.generate("nor", T0, A0, A0);
-        cgen.generate("addi", T0, T0, "1");
-        cgen.genPush(T0);
+        if (minusExpr.expr.getType() instanceof Type.PrimitiveType.IntegerType) {
+            cgen.generate("nor", T0, A0, A0);
+            cgen.generate("addi", T0, T0, "1");
+            cgen.genPush(T0);
+        } else  {
+            cgen.generate("mtc1", A0, FA0);
+            cgen.generate("neg.s", FA0, FA0);
+            cgen.genPush(FA0);
+        }
     }
 
     @Override
@@ -602,6 +610,7 @@ public class CodeGeneratorVisitor implements Visitor{
         notExpr.expr.accept(this);
         cgen.genPop(A0);
         cgen.generate("nor", T0, A0, A0);
+        cgen.generate("andi", T0, T0, "1");
         cgen.genPush(T0);
     }
 

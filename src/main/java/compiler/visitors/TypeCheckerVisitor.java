@@ -305,7 +305,8 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Expr.BinOpExpr.CompExpr.EqExpr eqExpr) {
-        this.visit((Expr.BinOpExpr.CompExpr) eqExpr);
+        List<Type> expectedTypes = Arrays.asList(Type.PrimitiveType.integerType(), Type.PrimitiveType.doubleType(), Type.PrimitiveType.booleanType());
+        typeCheckBinaryExpr(eqExpr, expectedTypes);
     }
 
     @Override

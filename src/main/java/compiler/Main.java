@@ -5,6 +5,7 @@ import java.io.*;
 
 
 import compiler.AST.Program;
+import compiler.Exceptions.SemanticError;
 import compiler.codegenerator.CodeGenerator;
 import compiler.parser.Parser;
 import compiler.scanner.Lexer;
@@ -15,12 +16,13 @@ import compiler.visitors.TypeCheckerVisitor;
 
 public class Main {
 
-    public static boolean run(java.io.File inputFile) {
+    public static void run(File inputFile, File outputFile) throws IOException {
         Preprocessor preprocessor = new Preprocessor(inputFile, ".pp_tmp");
         preprocessor.preprocess();
         inputFile = new File(".pp_tmp");
         Lexer scanner;
         Parser parser;
+        String result;
         try {
             scanner = new Lexer(new FileReader(inputFile));
             parser = new Parser(scanner);
@@ -29,35 +31,18 @@ public class Main {
             visitor.visit(program);
             CodeGeneratorVisitor cgenVisitor = new CodeGeneratorVisitor();
             cgenVisitor.visit(program);
-            FileWriter fileWriter = new FileWriter("res.s");
-            fileWriter.write(CodeGenerator.getInstance().getResult());
-            fileWriter.close();
+            result = CodeGenerator.getInstance().getResult();
+        } catch (SemanticError e) {
+            result = "Semantic Error";
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            result = "Syntax Error";
         }
-        // TODO: add parser
-        return true;
-//        Preprocessor preprocessor = new Preprocessor(inputFile, ".pp_tmp");
-//        preprocessor.preprocess();
-//        inputFile = new File(".pp_tmp");
-//        Lexer scanner;
-//        Parser parser;
-//        try {
-//            scanner = new Lexer(new FileReader(inputFile));
-//            parser = new Parser(scanner);
-//            Program program = (Program) parser.parse().value;
-//            TypeCheckerVisitor visitor = new TypeCheckerVisitor();
-//            visitor.visit(program);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//        // TODO: add parser
-//        return true;
+        FileWriter fileWriter = new FileWriter(outputFile);
+        fileWriter.write(result);
+        fileWriter.close();
     }
 
-    public static void main(String[] args) {
-        System.out.println(run(new File("input.txt")));
+    public static void main(String[] args) throws IOException {
+        run(new File("input.txt"), new File("res.s"));
     }
 }

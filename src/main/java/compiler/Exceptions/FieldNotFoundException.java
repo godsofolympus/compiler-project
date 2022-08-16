@@ -2,7 +2,7 @@ package compiler.Exceptions;
 
 import compiler.AST.Type;
 
-public class FieldNotFoundException extends RuntimeException{
+public class FieldNotFoundException extends SemanticError{
     public FieldNotFoundException(String name) {
         super("Can not resolve field " + name);
     }

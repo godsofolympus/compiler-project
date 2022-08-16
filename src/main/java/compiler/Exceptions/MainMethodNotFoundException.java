@@ -1,6 +1,6 @@
 package compiler.Exceptions;
 
-public class MainMethodNotFoundException extends RuntimeException{
+public class MainMethodNotFoundException extends SemanticError{
     public MainMethodNotFoundException() {
         super("main method not found.");
     }

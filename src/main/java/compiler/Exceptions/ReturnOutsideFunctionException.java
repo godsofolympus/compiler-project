@@ -1,6 +1,6 @@
 package compiler.Exceptions;
 
-public class ReturnOutsideFunctionException extends RuntimeException{
+public class ReturnOutsideFunctionException extends SemanticError{
     public ReturnOutsideFunctionException() {
         super("return statement outside function");
     }

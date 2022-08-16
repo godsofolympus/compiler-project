@@ -2,7 +2,7 @@ package compiler.Exceptions;
 
 import compiler.AST.Type;
 
-public class MethodNotFoundException extends RuntimeException{
+public class MethodNotFoundException extends SemanticError{
     public MethodNotFoundException(String name) {
         super("Can not resolve method " + name);
     }
