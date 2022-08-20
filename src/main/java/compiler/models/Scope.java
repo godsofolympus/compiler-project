@@ -34,6 +34,26 @@ public class Scope {
         return instance;
     }
 
+    public Decl.ClassDecl getClass(String id) {
+        Scope currentScope = this;
+        while (currentScope != null) {
+            Decl entry = currentScope.symbolTable.get(id);
+            if (entry instanceof Decl.ClassDecl) return (Decl.ClassDecl) entry;
+            currentScope = currentScope.parent;
+        }
+        return null;
+    }
+
+    public Decl.FunctionDecl getFunction(String id) {
+        Scope currentScope = this;
+        while (currentScope != null) {
+            Decl entry = currentScope.symbolTable.get(id);
+            if (entry instanceof Decl.FunctionDecl) return (Decl.FunctionDecl) entry;
+            currentScope = currentScope.parent;
+        }
+        return null;
+    }
+
     public Decl getEntry(String id) {
         Scope currentScope = this;
         while (currentScope != null) {

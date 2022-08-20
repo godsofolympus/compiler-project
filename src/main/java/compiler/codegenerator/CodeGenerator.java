@@ -147,12 +147,17 @@ public class CodeGenerator {
     }
 
     public static final int CHAR_SIZE = 1; // in bytes
-    public static final int BUFFER_SIZE = 16 * CHAR_SIZE;
+    public static final int BUFFER_SIZE = 128 * CHAR_SIZE;
 
     public static final String STRINGS =
+            "\t.align 2\n" +
             "\tnewline: .asciiz \"\\n\"\n" +
-                    "\ttrue: .asciiz \"true\"\n" +
-                    "\tfalse: .asciiz \"false\"\n";
+            "\t.align 2\n" +
+            "\ttab: .asciiz \"\\t\"\n" +
+            "\t.align 2\n" +
+            "\ttrue: .asciiz \"true\"\n" +
+            "\t.align 2\n" +
+            "\tfalse: .asciiz \"false\"\n";
     public static final String SUBROUTINES =
             "strcmp:\n" +
                     "    lb      $t2,($s0)                   # get next char from str1\n" +

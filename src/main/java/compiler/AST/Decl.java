@@ -62,7 +62,8 @@ public abstract class Decl implements Visitable, Typed {
         public boolean isMain;
         private int offsetCounter;
 
-        private String label;
+        public boolean isInstanceMethod;
+
 
 
         public FunctionDecl(String id, Type returnType, List<Variable> formals, StmtBlock stmtBlock, int initOffset) {
@@ -74,11 +75,9 @@ public abstract class Decl implements Visitable, Typed {
         }
 
         public String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
+            if (isMain) return "main";
+            ClassDecl classDecl = (ClassDecl) Scope.getInstance().getContext(Context.CLASS);
+            return (classDecl != null ? "_" + classDecl.getFieldOriginalClass(id) : "") + "_" + this.id;
         }
 
         @Override
@@ -243,6 +242,13 @@ public abstract class Decl implements Visitable, Typed {
                     inheritedFields.add((ClassField.VarField) field);
             }
             return inheritedFields;
+        }
+
+        public String getFieldOriginalClass(String fieldId) {
+            for (ClassField classField : classFields) {
+                if (classField.id.equals(fieldId)) return this.id;
+            }
+            return getSuperClass().getFieldOriginalClass(fieldId);
         }
 
 

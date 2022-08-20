@@ -46,7 +46,7 @@ public abstract class LValue implements Visitable, Typed {
         @Override
         public Type getType() {
             String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
-            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
+            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getClass(classId);
             return classDecl.getFieldMap().get(this.id).decl.getType();
         }
 
@@ -58,7 +58,7 @@ public abstract class LValue implements Visitable, Typed {
         @Override
         public int getOffset() {
             String classId = ((Type.NonPrimitiveType) this.expr.getType()).id;
-            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(classId);
+            Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getClass(classId);
             return ((ClassField.VarField) classDecl.getFieldMap().get(this.id)).getOffset();
         }
     }

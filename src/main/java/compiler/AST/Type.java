@@ -67,7 +67,7 @@ public abstract class Type {
         public boolean isLessThan(Type other) {
             if (getClass() != other.getClass()) return false;
             String otherId = ((NonPrimitiveType) other).id;
-            Decl.ClassDecl currentClass = (Decl.ClassDecl) Scope.getInstance().getEntry(this.id);
+            Decl.ClassDecl currentClass = (Decl.ClassDecl) Scope.getInstance().getClass(this.id);
             return currentClass.isSubClassOf(otherId);
         }
 

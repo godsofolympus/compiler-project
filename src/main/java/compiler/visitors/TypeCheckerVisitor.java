@@ -45,9 +45,9 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Decl.FunctionDecl functionDecl) {
-        Scope scope = Scope.pushScope(functionDecl);
+        Scope.pushScope(functionDecl);
         for (Variable formal : functionDecl.formals) {
-            scope.setEntry(formal.id, Decl.variableDecl(formal));
+            Scope.getInstance().setEntry(formal.id, Decl.variableDecl(formal));
         }
         functionDecl.stmtBlock.accept(this);
         Scope.popScope();
@@ -59,7 +59,7 @@ public class TypeCheckerVisitor implements Visitor{
          throw new ClassNotFoundException(classDecl.superClass);
         //TODO check interfaces
         Scope.pushScope(classDecl);
-        for (ClassField classField : classDecl.classFields) {
+        for (ClassField classField : classDecl.getFieldMap().values()) {
             Scope.getInstance().setEntry(classField.id, classField.decl);
         }
         for (ClassField classField : classDecl.classFields) {
@@ -353,10 +353,10 @@ public class TypeCheckerVisitor implements Visitor{
 
     @Override
     public void visit(Call.SimpleCall simpleCall) {
-        Decl decl = Scope.getInstance().getEntry(simpleCall.id);
-        if (!(decl instanceof Decl.FunctionDecl))
+        Decl.FunctionDecl functionDecl = Scope.getInstance().getFunction(simpleCall.id);
+        if (functionDecl == null)
             throw new NotCallableIdentifierException(simpleCall.id);
-        checkCallArguments(simpleCall, (Decl.FunctionDecl) decl);
+        checkCallArguments(simpleCall, functionDecl);
     }
 
     @Override
@@ -367,7 +367,7 @@ public class TypeCheckerVisitor implements Visitor{
             return;
         if (!(exprType instanceof Type.NonPrimitiveType))
             throw new MethodNotFoundException(dottedCall.id);
-        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
+        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getClass(((Type.NonPrimitiveType) exprType).id);
         ClassField.MethodField methodField = (ClassField.MethodField) classDecl.getFieldMap().get(dottedCall.id);
         if (methodField == null)
             throw new MethodNotFoundException(dottedCall.id, exprType);
@@ -489,7 +489,7 @@ public class TypeCheckerVisitor implements Visitor{
         Type exprType = dottedLVal.expr.getType();
         if (!(exprType instanceof Type.NonPrimitiveType))
             throw new FieldNotFoundException(dottedLVal.id);
-        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(((Type.NonPrimitiveType) exprType).id);
+        Decl.ClassDecl classDecl = Scope.getInstance().getClass(((Type.NonPrimitiveType) exprType).id);
         ClassField varField = classDecl.getFieldMap().get(dottedLVal.id);
         if (varField == null)
             throw new FieldNotFoundException(dottedLVal.id,exprType);

@@ -55,7 +55,9 @@ public abstract class ClassField implements Visitable {
         private String methodLabel;
         public MethodField(AccessMode accessMode, Decl.FunctionDecl functionDecl) {
             super(accessMode, functionDecl.id);
-            this.decl = Decl.functionDecl(functionDecl.id, functionDecl.returnType, functionDecl.formals, functionDecl.stmtBlock, -4);
+            Decl.FunctionDecl newFunctionDecl = Decl.functionDecl(functionDecl.id, functionDecl.returnType, functionDecl.formals, functionDecl.stmtBlock, -4);
+            newFunctionDecl.isInstanceMethod = true;
+            this.decl = newFunctionDecl;
         }
 
         @Override
@@ -67,5 +69,6 @@ public abstract class ClassField implements Visitable {
         public int getSize() {
             return 4;
         }
+
     }
 }

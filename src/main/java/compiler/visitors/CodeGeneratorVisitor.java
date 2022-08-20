@@ -49,7 +49,6 @@ public class CodeGeneratorVisitor implements Visitor{
         for (FunctionDecl functionDecl : functionDecls) {
             if (functionDecl.isMain) {
                 cgen.text.append(".globl main\n");
-                functionDecl.setLabel("main");
                 generateFunction(functionDecl, 0);
             }
             else functionDecl.accept(this);
@@ -70,32 +69,27 @@ public class CodeGeneratorVisitor implements Visitor{
     }
 
     public void generateClasses(List<Decl.ClassDecl> classDecls) {
+        this.initVTables(classDecls);
+        for (Decl.ClassDecl classDecl : classDecls) {
+            classDecl.accept(this);
+        }
+    }
+
+    public void initVTables(List<Decl.ClassDecl> classDecls) {
+        cgen.genLabel("InitVTables");
         for (Decl.ClassDecl classDecl : classDecls) {
             Scope.pushScope(classDecl);
-            for (ClassField.VarField inheritedField : classDecl.getInheritedFields()) {
-                Scope.getInstance().setEntry(inheritedField.id, inheritedField.decl);
+            String vTablePtr = cgen.malloc(classDecl.getRequiredSpaceForMethods());
+            classDecl.setvTablePtr(vTablePtr);
+            cgen.generate("lw", A0, vTablePtr);
+            for (ClassField.MethodField inheritedMethod : classDecl.getInheritedMethods()) {
+                cgen.generate("la", T0, ((FunctionDecl) inheritedMethod.decl).getLabel());
+                cgen.generateIndexed("sw", T0, A0, inheritedMethod.getOffset());
             }
-            classDecl.accept(this);
             Scope.popScope();
-        }
-
-        cgen.text.append("InitClasses:\n");
-        for (Decl.ClassDecl classDecl : classDecls) {
-            initVTable(classDecl);
         }
         cgen.generate("jr", RA);
         cgen.generateEmptyLine();
-    }
-
-    public void initVTable(Decl.ClassDecl classDecl) {
-        String vTablePtr = cgen.malloc(classDecl.getRequiredSpaceForMethods());
-        cgen.generate("lw", A0, vTablePtr);
-        classDecl.setvTablePtr(vTablePtr);
-        List<ClassField.MethodField> inheritedMethods = classDecl.getInheritedMethods();
-        for (ClassField.MethodField inheritedMethod : inheritedMethods) {
-            cgen.generate("la", T0, ((FunctionDecl) inheritedMethod.decl).getLabel());
-            cgen.generateIndexed("sw", T0, A0, inheritedMethod.getOffset());
-        }
     }
 
     public void generateGlobalVars(List<VariableDecl> globalVars) {
@@ -113,7 +107,7 @@ public class CodeGeneratorVisitor implements Visitor{
     }
 
     public void generateFunctionBody(FunctionDecl funcDecl) {
-        if (funcDecl.isMain) cgen.generate("jal", "InitClasses");
+        if (funcDecl.isMain) cgen.generate("jal", "InitVTables");
         funcDecl.stmtBlock.accept(this);
         cgen.generateEmptyLine();
     }
@@ -141,18 +135,20 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(FunctionDecl functionDecl) {
-        functionDecl.setLabel("_" + functionDecl.id);
         generateFunction(functionDecl, functionDecl.getSizeofParameters(false));
     }
 
     @Override
     public void visit(Decl.ClassDecl classDecl) {
+        Scope.pushScope(classDecl);
+        for (ClassField classField : classDecl.getFieldMap().values()) {
+            Scope.getInstance().setEntry(classField.id, classField.decl);
+        }
         for (ClassField.MethodField methodField : classDecl.getMethodFields()) {
-            String methodLabel = "_" + classDecl.id + "_" + methodField.id;
             FunctionDecl functionDecl = (FunctionDecl) methodField.decl;
-            functionDecl.setLabel(methodLabel);
             generateFunction(functionDecl, functionDecl.getSizeofParameters( true));
         }
+        Scope.popScope();
     }
 
     @Override
@@ -274,6 +270,7 @@ public class CodeGeneratorVisitor implements Visitor{
             cgen.generate("li", V0, v0);
             cgen.generate("syscall");
         }
+        if (printStmt.exprs.get(printStmt.exprs.size() - 1) instanceof ReadLineExpr) return;
         cgen.generate("li", V0, "4");
         cgen.generate("la", A0, "newline");
         cgen.generate("syscall");
@@ -317,14 +314,13 @@ public class CodeGeneratorVisitor implements Visitor{
         if (lhs instanceof IndexedLVal) {
             IndexedLVal indexedLVal = (IndexedLVal) lhs;
             indexedLVal.index.accept(this);
-            setLhsAddress(((LValExpr)indexedLVal.expr).lValue);
-            cgen.genPop(A0);
-            cgen.genPop(A1);
-            cgen.generateIndexed("lw", T0, A0, 0);
-            cgen.generate("li", T1, "4");
-            cgen.generate("mul", T2, T1, A1);
-            cgen.generate("add", A2, T2, T0);
-            cgen.genPush(A2);
+            indexedLVal.expr.accept(this);
+            cgen.genPop(T0);
+            cgen.genPop(T1);
+            cgen.generate("li", T3, "4");
+            cgen.generate("mul", T1, T1, T3);
+            cgen.generate("add", A0, T1, T0);
+            cgen.genPush(A0);
         } else if (lhs instanceof SimpleLVal) {
             VariableDecl variableDecl = (VariableDecl) Scope.getInstance().getEntry(((SimpleLVal) lhs).id);
             if (variableDecl.isGlobal) {
@@ -642,16 +638,21 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Call.SimpleCall simpleCall) {
-        for (Expr actual : simpleCall.actuals) {
-            actual.accept(this);
+        FunctionDecl functionDecl = Scope.getInstance().getFunction(simpleCall.id);
+        if (functionDecl.isInstanceMethod) this.visit(Call.dottedCall(Expr.thisExpr(), simpleCall.id, simpleCall.actuals));
+        else {
+            for (Expr actual : simpleCall.actuals) {
+                actual.accept(this);
+            }
+            cgen.generate("jal", functionDecl.getLabel());
         }
-        cgen.generate("jal", "_" + simpleCall.id);
     }
 
     @Override
     public void visit(Call.DottedCall dottedCall) {
         dottedCall.expr.accept(this);
         if (dottedCall.expr.getType() instanceof Type.ArrayType && dottedCall.id.equals("length")) {
+            cgen.genPop(A0);
             cgen.generateIndexed("lw", T0, A0, -4);
             cgen.genPush(T0);
         } else {
@@ -693,13 +694,16 @@ public class CodeGeneratorVisitor implements Visitor{
         String ptrLabel = cgen.malloc((stringLength + 1) * CHAR_SIZE);
         cgen.generate("lw", T0, ptrLabel);
         for (int i = 0; i < stringValue.toCharArray().length; i++) {
-            if (stringValue.charAt(i) == '\\' && stringValue.charAt(i+1) =='n') {
-                cgen.generate("lw", T1, "newline");
+            if (stringValue.charAt(i) == '\\') {
+                if(stringValue.charAt(i+1) == 'n') {
+                    cgen.generate("lw", T1, "newline");
+                } else if (stringValue.charAt(i+1) == 't')
+                    cgen.generate("lw", T1, "tab");
                 i ++;
             }
             else cgen.generate("li", T1, String.valueOf((int) stringValue.charAt(i)));
             cgen.generate("sb", T1, "(" + T0 + ")");
-            cgen.generate("addi", T0, String.valueOf(CHAR_SIZE));
+            cgen.generate("addi", T0, T0, String.valueOf(CHAR_SIZE));
         }
         cgen.generate("sb", R0, "(" + T0 + ")");
         cgen.generate("lw", A0, ptrLabel);
@@ -782,7 +786,7 @@ public class CodeGeneratorVisitor implements Visitor{
 
     @Override
     public void visit(Expr.InitExpr.ObjInit objInit) {
-        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getEntry(objInit.id);
+        Decl.ClassDecl classDecl = (Decl.ClassDecl) Scope.getInstance().getClass(objInit.id);
         String ptrLabel = cgen.malloc(classDecl.getRequiredSpaceForVars());
         cgen.generate("la", A0, ptrLabel);
         cgen.genPush(A0);
